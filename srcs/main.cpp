@@ -3,6 +3,6 @@
 #include "irc.hpp"
 
 int	main(void) {
-	std::cout << "TEST bedarenn" << std::endl;
+	std::cout << "TEST qdeviann" << std::endl;
 	return (0);
 }
