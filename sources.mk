@@ -1,3 +1,2 @@
 SRCS:= \
 	main.cpp
-
