@@ -1,28 +1,54 @@
+##################################### NAME #####################################
+
+NAME := bircd
+RM = rm -f
+
+################################### COMPILER ###################################
+
+CC := gcc
+
+################################# DIRECTORIES ##################################
+
+DIR_HDRS := hdrs/
+DIR_SRCS := srcs/
+DIR_OBJS := objs/
+DIR_LIBS := libs/
+
+#################################### FLAGS #####################################
+
+CFLAGS := -Wall -Werror -g3
+IFLAGS := -I$(DIR_HDRS)
+LFLAGS := -L$(DIR_LIBS)
+
+#################################### FILES #####################################
 
 SRCS =	main.c init_env.c clean_fd.c get_opt.c x.c main_loop.c \
 	init_fd.c do_select.c check_fd.c \
 	srv_create.c srv_accept.c \
 	client_read.c client_write.c
 
-OBJS = ${SRCS:.c=.o}
+################################### OBJECTS ####################################
 
-NAME = bircd
+OBJS = $(addprefix $(DIR_OBJS), $(SRCS:%.c=%.o))
 
-CFLAGS = -I. -g3 -Wall -Werror
-LDFLAGS = 
+#################################### RULES #####################################
 
-CC = gcc
-RM = rm -f
+all: ${NAME}
 
-${NAME}:	${OBJS}
-		${CC} -o ${NAME} ${OBJS} ${LDFLAGS}
+$(NAME): $(OBJS)
+	$(CC) $^ $(LFLAGS) -o $@
 
-all:		${NAME}
+$(DIR_OBJS)%.o: %.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
 clean:
-		${RM} ${OBJS} *~ #*#
+	${RM} -r ${DIR_OBJS} *~ #*#
 
-fclean:		clean
-		${RM} ${NAME}
+fclean: clean
+	${RM} ${NAME}
 
-re:		fclean all
+re: fclean all
+
+#################################### PHONY #####################################
+.PHONY: all debug clean fclean re

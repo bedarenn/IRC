@@ -1,4 +1,4 @@
 *.o
 ircserv
 *.vscode
-*bircd
+bircd/bircd
