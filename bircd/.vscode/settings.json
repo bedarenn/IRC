@@ -1,0 +1,7 @@
+{
+	"files.associations": {
+		"bircd.h": "c",
+		"stdio.h": "c"
+	},
+	"editor.insertSpaces": false
+}
