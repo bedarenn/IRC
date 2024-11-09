@@ -8,8 +8,8 @@ CC := c++
 
 ################################# DIRECTORIES ##################################
 
-DIR_HDRS := hdrs/
 DIR_SRCS := srcs/
+DIR_HDRS := hdrs/
 DIR_OBJS := objs/
 DIR_LIBS := libs/
 

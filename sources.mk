@@ -1,2 +1,3 @@
 SRCS:= \
-	main.cpp
+	main.cpp \
+	Server.cpp \
