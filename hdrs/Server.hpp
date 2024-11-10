@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include <poll.h>
+#include <vector>
 
 class Server{
 
@@ -14,8 +16,11 @@ class Server{
 		std::string getPass() const;
 		void		setPort(double port);
 		void		setPass(std::string pass);
+		void		add_new(int socket);
+		void		connect();
 		
 	private:
-		double		_port;
-		std::string	_pass;
+		double							_port;
+		std::string						_pass;
+		std::vector<pollfd>				_fds;
 };
