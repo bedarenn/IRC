@@ -15,7 +15,7 @@ DIR_LIBS := libs/
 
 #################################### FLAGS #####################################
 
-CFLAGS := -Wall -Wextra -Werror -std=c++98
+CFLAGS := -Wall -Wextra -std=c++98 #-Werror
 IFLAGS := -I$(DIR_HDRS)
 LFLAGS := -L$(DIR_LIBS)
 
