@@ -2,10 +2,9 @@
 
 # include "types/Server.hpp"
 
-# include <vector>
+
 # include <iostream>
 
-# include <poll.h>
 
 class Server {
 public:
@@ -34,8 +33,8 @@ private:
 	w_port		_port;
 	w_pass		_pass;
 
-	w_fd		_server_fd;
-	std::vector<pollfd>		_fds;
+	w_fd			_server_fd;
+	w_vect_pollfd	_fds;
 
 	Server();
 };

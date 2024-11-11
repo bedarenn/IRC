@@ -19,12 +19,13 @@ Server &Server::operator=(const Server &cpy) {
 		return (*this);
 	_port = cpy._port;
 	_pass = cpy._pass;
+	// _server_fd = cpy._server_fd;
 	// _fds = cpy._fds;
 	return (*this);
 }
 
 void		Server::add_new(int socket) {
-	pollfd fd;
+	w_pollfd	fd;
 
 	fd.fd = socket;
 	fd.events = POLLIN;
@@ -33,12 +34,12 @@ void		Server::add_new(int socket) {
 }
 
 void	Server::init_server() {
-	struct sockaddr_in adr;
-	pollfd	fd;
+	w_sockaddr_in	adr;
+	w_pollfd		fd;
 
 	fd.fd = socket(AF_INET, SOCK_STREAM, 0);
 	if(fd.fd < 0){
-		std::cerr << "error: socket" << std::endl;
+		std::cerr << SRV_ERROR_SOCKET << std::endl;
 		return ;
 	}
 	_server_fd = fd.fd;
@@ -46,10 +47,10 @@ void	Server::init_server() {
 	adr.sin_family = AF_INET;
 	adr.sin_addr.s_addr = INADDR_ANY;
 	adr.sin_port = htons(_port);
-	if(bind(fd.fd, (struct sockaddr*)&adr, sizeof(adr)) < 0)
-		std::cerr << "error: bind" << std::endl;
+	if(bind(fd.fd, (w_sockaddr *)&adr, sizeof(adr)) < 0)
+		std::cerr << SRV_ERROR_BIND << std::endl;
 	if(listen(fd.fd, 5) < 0)
-		std::cerr << "error: listen" << std::endl;
+		std::cerr << SRV_ERROR_LISTEN << std::endl;
 	fd.events = POLLIN;
 	fd.revents = 0;
 	_fds.push_back(fd);
@@ -58,7 +59,7 @@ void	Server::init_server() {
 void	Server::run(){
 	while(1){
 		if(poll(_fds.data(), _fds.size(), 0) < 0){
-			std::cerr << "error: poll" << std::endl;
+			std::cerr << SRV_ERROR_POLL << std::endl;
 			break;
 		}
 		for(size_t i = 0; i < _fds.size(); i++){
@@ -72,22 +73,23 @@ void	Server::run(){
 }
 
 void	Server::connect(){
-	struct sockaddr_in adr;
-	socklen_t len =  sizeof(adr);
-	int	client = accept(_server_fd, (struct sockaddr*)&adr, &len);
-	std::cout << "client fd = " << client << std::endl;
-	if(client){
+	w_sockaddr_in	adr;
+	w_socklen		len = sizeof(w_sockaddr_in);
+	w_fd	client = accept(_server_fd, (w_sockaddr *)&adr, &len);
+
+	std::cout << SRV_NEW_CLIENT(client) << std::endl;
+	if (client) {
 		add_new(client);
 		std::cout << "new client connected" << std::endl;
 	}
 	else
-		std::cerr << "error: accept" << std::endl; 
+		std::cerr << SRV_ERROR_ACCEPT << std::endl; 
 }
 
 void		Server::received_data(size_t fd){
 	char	buff[BUFFSIZE];
 	if(recv(fd, &buff, sizeof(BUFFSIZE), 0) < 0){
-		std::cerr << "error: recv" << std::endl;
+		std::cerr << SRV_ERROR_RECV << std::endl;
 		return ;
 	}
 	buff[BUFFSIZE] = '\0';
