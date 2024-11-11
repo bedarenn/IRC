@@ -31,7 +31,7 @@ public:
 	void		run();
 	void		add_new(int socket);
 	void		connect();
-	//void		received_data(size_t fd);
+	void		received_data(size_t fd);
 	void		clear_fd();
 
 	w_port		get_port() const;
