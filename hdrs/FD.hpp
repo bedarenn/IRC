@@ -1,8 +1,8 @@
 #pragma once
 
-class FD;
+# include "types/FD.hpp"
 
-# define BUF_SIZE 4096
+# include "types/Server.hpp"
 
 class FD {
 public:
@@ -16,8 +16,9 @@ public:
 	void	write();
 
 private:
+	w_fd		_type;
+	w_char	buf_read[BUF_SIZE + 1];
+	w_char	buf_write[BUF_SIZE + 1];
+
 	friend	class Server;
-	int		_type;
-	char	buf_read[BUF_SIZE + 1];
-	char	buf_write[BUF_SIZE + 1];
 };

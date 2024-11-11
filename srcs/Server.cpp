@@ -7,7 +7,7 @@
 #include "Server.hpp"
 
 Server::Server(const char *port) {
-	t_rlimit	rlp;
+	w_rlimit	rlp;
 
 	if (getrlimit(RLIMIT_NOFILE, &rlp) == -1)
 		throw (ErrorInt("getrlimit"));
@@ -24,26 +24,4 @@ Server&	Server::operator=(const Server& other) {
 	if (this == &other)
 		return (*this);
 	return (*this);
-}
-
-Server::ErrorInt::ErrorInt(const std::string& str) {
-	std::ostringstream	oss;
-
-	oss << str << " error (" << __FILE__ << ", " << __LINE__ << "): " << strerror(errno);
-	msg = oss.str();
-}
-Server::ErrorInt::~ErrorInt() throw() {}
-const char	*Server::ErrorInt::what() const throw() {
-	return (msg.c_str());
-}
-
-Server::ErrorVoid::ErrorVoid(const std::string& str) {
-	std::ostringstream	oss;
-
-	oss << str << " error (" << __FILE__ << ", " << __LINE__ << "): " << strerror(errno);
-	msg = oss.str();
-}
-Server::ErrorVoid::~ErrorVoid() throw() {}
-const char	*Server::ErrorVoid::what() const throw() {
-	return (msg.c_str());
 }
