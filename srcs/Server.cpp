@@ -1,5 +1,14 @@
 #include "Server.hpp"
 
+#include <fcntl.h>
+
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/epoll.h>
+
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 Server::Server() {}
 Server::Server(w_port port, w_pass pass) : _port(port), _pass(pass) {}
 Server::Server(const Server &cpy) { *this = cpy; }
@@ -24,7 +33,6 @@ void		Server::add_new(int socket) {
 }
 
 void	Server::init_server() {
-		
 	struct sockaddr_in adr;
 	pollfd	fd;
 

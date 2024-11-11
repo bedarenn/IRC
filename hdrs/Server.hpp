@@ -2,22 +2,10 @@
 
 # include "types/Server.hpp"
 
-#include <vector>
-#include <iostream>
+# include <vector>
+# include <iostream>
 
-#include <cstdlib>
-
-#include <poll.h>
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/epoll.h>
-
-# include "FD.hpp"
-
-# define BUFFSIZE 1000 
+# include <poll.h>
 
 class Server {
 public:

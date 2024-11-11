@@ -7,6 +7,8 @@ class Server;
 # include <sys/resource.h>
 # include <sys/select.h>
 
+# define BUFFSIZE 1000
+
 typedef int				w_fd;
 
 typedef int				w_port;

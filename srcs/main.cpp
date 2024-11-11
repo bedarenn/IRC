@@ -1,5 +1,7 @@
 #include <utility>
 
+#include <cstdlib>
+
 #include "Server.hpp"
 
 bool	test_str(const std::string& str) {
