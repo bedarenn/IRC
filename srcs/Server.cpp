@@ -61,8 +61,8 @@ void	Server::run(){
 		for(size_t i = 0; i < _fds.size(); i++){
 			if(_fds[i].revents && _fds[i].fd == _server_fd)
 				connect();
-			//else if(_fds[i].revents && _fds[i].fd != _server_fd)
-			//	received_data(_fds[i].fd);
+			else if(_fds[i].revents && _fds[i].fd != _server_fd)
+				received_data(_fds[i].fd);
 		}
 		clear_fd();
 	}
@@ -82,14 +82,15 @@ void	Server::connect(){
 		std::cerr << "error: accept" << std::endl; 
 }
 
-//void		Server::received_data(size_t fd){
-//	char	buff[BUFFSIZE];
-//	if(recv(fd, &buff, sizeof(BUFFSIZE), 0) < 0){
-//		std::cerr << "error: recv" << std::endl;
-//		return ;
-//	}
-//	std::cout << buff << std::endl;
-//}
+void		Server::received_data(size_t fd){
+	char	buff[BUFFSIZE];
+	if(recv(fd, &buff, sizeof(BUFFSIZE), 0) < 0){
+		std::cerr << "error: recv" << std::endl;
+		return ;
+	}
+	buff[BUFFSIZE] = '\0';
+	std::cout << buff << std::endl;
+}
 
 void	Server::clear_fd(){
 	for(size_t i = 0; i < _fds.size(); i++){
