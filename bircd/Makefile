@@ -1,66 +1,54 @@
 ##################################### NAME #####################################
 
-NAME := ircserv
+NAME := bircd
+RM = rm -f
 
 ################################### COMPILER ###################################
 
-CC := c++
+CC := gcc
 
 ################################# DIRECTORIES ##################################
 
-DIR_SRCS := srcs/
 DIR_HDRS := hdrs/
+DIR_SRCS := srcs/
 DIR_OBJS := objs/
 DIR_LIBS := libs/
 
 #################################### FLAGS #####################################
 
-CFLAGS := -Wall -Wextra -std=c++98 #-Werror
+CFLAGS := -Wall -Werror -g3
 IFLAGS := -I$(DIR_HDRS)
 LFLAGS := -L$(DIR_LIBS)
 
 #################################### FILES #####################################
 
-include sources.mk
+SRCS =	main.c init_env.c clean_fd.c get_opt.c x.c main_loop.c \
+	init_fd.c do_select.c check_fd.c \
+	srv_create.c srv_accept.c \
+	client_read.c client_write.c
 
 ################################### OBJECTS ####################################
 
-OBJS = $(addprefix $(DIR_OBJS), $(SRCS:%.cpp=%.o))
+OBJS = $(addprefix $(DIR_OBJS), $(SRCS:%.c=%.o))
 
 #################################### RULES #####################################
 
-all:
-debug:
+all: ${NAME}
 
 $(NAME): $(OBJS)
-	@printf "$(GREEN)compile $@                                         $(NC)\n"
-	@$(CC) $^ $(LFLAGS) -o $@
+	$(CC) $^ $(LFLAGS) -o $@
 
-$(DIR_OBJS)%.o: $(DIR_SRCS)%.cpp
+$(DIR_OBJS)%.o: %.c
 	@mkdir -p $(@D)
-	@printf "$(BROWN)compile $(notdir $<)                              $(NC) \r"
-	@$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
 
 clean:
-	@printf "$(RED)clean objs$(NC)\n"
-	@rm -rf $(DIR_OBJS)
+	${RM} -r ${DIR_OBJS} *~ #*#
 
 fclean: clean
-	@printf "$(RED)clean $(NAME)$(NC)\n"
-	@rm -f $(NAME)
+	${RM} ${NAME}
 
 re: fclean all
 
-all:	$(NAME)
-debug:	CFLAGS += -g
-debug:	$(NAME)
-
 #################################### PHONY #####################################
 .PHONY: all debug clean fclean re
-
-#################################### COLORS ####################################
-RED = \033[0;31m
-GREEN = \033[0;32m
-BROWN = \033[1;33m
-PURPLE = \033[0;35m
-NC = \033[0m

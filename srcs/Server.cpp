@@ -1,34 +1,29 @@
 #include "Server.hpp"
 
-Server::Server(){}
-Server::Server(Server const &cpy){*this = cpy;}
-Server::~Server(){}
+Server::Server() {}
+Server::Server(w_port port, w_pass pass) : _port(port), _pass(pass) {}
+Server::Server(const Server &cpy) { *this = cpy; }
+Server::~Server() {}
 
-Server const &Server::operator=(Server const &rhs){
-	if(this != &rhs){
-		_port = rhs.getPort();
-		_pass = rhs.getPass();
-	}
-	return(*this);
+Server &Server::operator=(const Server &cpy) {
+	if (this == &cpy)
+		return (*this);
+	_port = cpy._port;
+	_pass = cpy._pass;
+	// _fds = cpy._fds;
+	return (*this);
 }
 
-double		Server::getPort() const{return(_port);}
-std::string Server::getPass() const{return(_pass);}
-int			Server::get_fd_serv() const{return(_server_fd);}
-void		Server::setPort(double port){_port = port;}
-void		Server::setPass(std::string pass){_pass = pass;}
-
-void		Server::add_new(int socket){
-	
+void		Server::add_new(int socket) {
 	pollfd fd;
-	
+
 	fd.fd = socket;
 	fd.events = POLLIN;
 	fd.revents = 0;
 	_fds.push_back(fd);
 }
 
-void		Server::init_server(){
+void	Server::init_server() {
 		
 	struct sockaddr_in adr;
 	pollfd	fd;
@@ -69,7 +64,6 @@ void	Server::run(){
 }
 
 void	Server::connect(){
-	
 	struct sockaddr_in adr;
 	socklen_t len =  sizeof(adr);
 	int	client = accept(_server_fd, (struct sockaddr*)&adr, &len);
@@ -96,3 +90,10 @@ void	Server::clear_fd(){
 		_fds[i].revents = 0;
 	}
 }
+
+w_port	Server::get_port() const		{ return(_port); }
+w_pass	Server::get_pass() const		{ return(_pass); }
+int		Server::get_fd_serv() const		{ return(_server_fd); }
+
+void	Server::set_port(w_port port)	{ _port = port; }
+void	Server::set_pass(w_pass pass)	{ _pass = pass; }
