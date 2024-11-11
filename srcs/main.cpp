@@ -1,11 +1,4 @@
-#include <iostream>
-#include <fcntl.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/epoll.h>
-#include <cstdlib>
+
 #include "Server.hpp"
 
 int	spaced(std::string arg){
@@ -46,18 +39,8 @@ int	main(int ac, char **av){
 		Server server;
 		if(!parse(av, server))
 			return(0);
-		struct sockaddr_in adr;
-		int serv_fd = socket(AF_INET, SOCK_STREAM, 0); 		//creation d'un point d'acces
-		fcntl(serv_fd, F_SETFL, O_NONBLOCK);
-		adr.sin_family = AF_INET;						////////////////////////////////////////////////////////////
-		adr.sin_addr.s_addr = INADDR_ANY;  				///// stockage des info(port, type) dans une struct ////////
-		adr.sin_port = htons(server.getPort());			////////////////////////////////////////////////////////////
-		
-		bind(serv_fd, (struct sockaddr*)&adr, sizeof(adr)); 	//adressage du point d'acces
-		listen(serv_fd, 1); 									//mise en "ecoute" pour connection; 2 = max queue length
-		server.add_new(serv_fd);
-		server.connect();
-
+		server.init_server();
+		server.run();
 	}
 	else
 		std::cerr << "error: numbers of arguments" << std::endl;
