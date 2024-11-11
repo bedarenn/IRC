@@ -18,6 +18,16 @@ int			Server::get_fd_serv() const{return(_server_fd);}
 void		Server::setPort(double port){_port = port;}
 void		Server::setPass(std::string pass){_pass = pass;}
 
+void		Server::add_new(int socket){
+	
+	pollfd fd;
+	
+	fd.fd = socket;
+	fd.events = POLLIN;
+	fd.revents = 0;
+	_fds.push_back(fd);
+}
+
 void		Server::init_server(){
 		
 	struct sockaddr_in adr;
@@ -29,7 +39,6 @@ void		Server::init_server(){
 		return ;
 	}
 	_server_fd = fd.fd;
-	std::cout << "serveur fd = " << _server_fd << std::endl;
 	fcntl(fd.fd, F_SETFL, O_NONBLOCK);
 	adr.sin_family = AF_INET;
 	adr.sin_addr.s_addr = INADDR_ANY;
@@ -45,12 +54,17 @@ void		Server::init_server(){
 
 void	Server::run(){
 	while(1){
-		if(poll(_fds.data(), _fds.size(), 0) < 0)
+		if(poll(_fds.data(), _fds.size(), 0) < 0){
+			std::cerr << "error: poll" << std::endl;
 			break;
+		}
 		for(size_t i = 0; i < _fds.size(); i++){
 			if(_fds[i].revents && _fds[i].fd == _server_fd)
 				connect();
+			//else if(_fds[i].revents && _fds[i].fd != _server_fd)
+			//	received_data(_fds[i].fd);
 		}
+		clear_fd();
 	}
 }
 
@@ -68,12 +82,17 @@ void	Server::connect(){
 		std::cerr << "error: accept" << std::endl; 
 }
 
-void		Server::add_new(int socket){
-	
-	pollfd fd;
-	
-	fd.fd = socket;
-	fd.events = POLLIN;
-	fd.revents = 0;
-	_fds.push_back(fd);
+//void		Server::received_data(size_t fd){
+//	char	buff[BUFFSIZE];
+//	if(recv(fd, &buff, sizeof(BUFFSIZE), 0) < 0){
+//		std::cerr << "error: recv" << std::endl;
+//		return ;
+//	}
+//	std::cout << buff << std::endl;
+//}
+
+void	Server::clear_fd(){
+	for(size_t i = 0; i < _fds.size(); i++){
+		_fds[i].revents = 0;
+	}
 }

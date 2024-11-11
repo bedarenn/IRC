@@ -12,6 +12,8 @@
 #include <sys/epoll.h>
 #include <cstdlib>
 
+# define BUFFSIZE 1000 
+
 class Server{
 
 	public:
@@ -29,6 +31,8 @@ class Server{
 		void		run();
 		void		add_new(int socket);
 		void		connect();
+		//void		received_data(size_t fd);
+		void		clear_fd();
 		
 	private:
 		double					_port;
