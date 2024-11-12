@@ -2,9 +2,9 @@
 
 # include "types/Server.hpp"
 
-
 # include <iostream>
 
+extern int g_loop;
 
 class Server {
 public:
@@ -27,8 +27,6 @@ public:
 	void		set_port(w_port port);
 	void		set_pass(w_pass pass);
 
-	class ErrorInt;
-
 private:
 	w_port		_port;
 	w_pass		_pass;
@@ -38,5 +36,3 @@ private:
 
 	Server();
 };
-
-# include "exceptions/Server.tpp"

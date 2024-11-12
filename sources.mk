@@ -1,3 +1,3 @@
 SRCS:= \
 	Server.cpp \
-	main.cpp
+	ErrorInt.cpp main.cpp
