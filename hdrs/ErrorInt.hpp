@@ -4,7 +4,9 @@
 
 # include <string>
 
-# define ERR_INT(f, m, s) ErrorInt::error_int(f, m, s, __FILE__, __LINE__)
+# define ERR_INT(f, m, s)		ErrorInt::error_int(f, m, s, __FILE__, __LINE__)
+
+# define ERR_INT_MSG(s, f, l)	s << " error: <" << f << "::l" << l << "> : " << strerror(errno)
 
 class	ErrorInt : public std::exception {
 public:
