@@ -61,12 +61,10 @@ void	Server::run() {
 		for (size_t i = 0; i < _fds.size(); i++){
 			if (_fds[i].revents && _fds[i].fd == _server_fd)
 				connect();
-			else if (_fds[i].revents && _fds[i].fd != _server_fd)
+			else if (_fds[i].revents != 0 && _fds[i].fd != _server_fd){
 				received_data(_fds[i].fd);
-				_fds[i].revents = 0;
 			}
 		}
-		clear_fd();
 	}
 }
 
@@ -85,17 +83,28 @@ void	Server::connect() {
 
 void		Server::received_data(size_t fd) {
 	char	buff[BUFFSIZE];
-	if (recv(fd, &buff, sizeof(BUFFSIZE), 0) < 0) {
+	int	size;
+	size = recv(fd, &buff, BUFFSIZE, 0);
+	if(size < 0){
 		std::cerr << SRV_ERROR_RECV << std::endl;
 		return ;
 	}
+	if(size == 0){
+		buff[0] = '\0';
+		close_client(fd);
+	}	
 	buff[size] = '\0';
 	std::cout << buff << std::endl;
 }
 
-void	Server::clear_fd() {
-	for (size_t i = 0; i < _fds.size(); i++) {
-		_fds[i].revents = 0;
+void	Server::close_client(int fd){
+	w_vect_pollfd::iterator it = _fds.begin();
+	for(size_t i = 0; i < _fds.size(); i++){
+		if(_fds[i].fd == fd){
+			_fds.erase(it);
+			std::cout << "client quit server" << std::endl;
+		}
+		it++;
 	}
 }
 

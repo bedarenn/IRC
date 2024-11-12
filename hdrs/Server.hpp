@@ -20,6 +20,7 @@ public:
 	void		connect();
 	void		received_data(size_t fd);
 	void		clear_fd();
+	void		close_client(int fd);
 
 	w_port		get_port() const;
 	w_pass		get_pass() const;
