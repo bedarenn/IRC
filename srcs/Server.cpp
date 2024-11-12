@@ -21,7 +21,7 @@ Server &Server::operator=(const Server &cpy) {
 		return (*this);
 	_port = cpy._port;
 	_pass = cpy._pass;
-	// _server_fd = cpy._server_fd;
+	_server_fd = cpy._server_fd;
 	// _fds = cpy._fds;
 	return (*this);
 }
