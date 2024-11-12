@@ -8,7 +8,7 @@ class Server;
 # include <poll.h>
 # include <sys/socket.h>
 
-# define BUFFSIZE 1000
+# define BUFFSIZE 1024
 
 typedef int	w_fd;
 

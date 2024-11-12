@@ -65,8 +65,10 @@ void	Server::run(){
 		for(size_t i = 0; i < _fds.size(); i++){
 			if(_fds[i].revents && _fds[i].fd == _server_fd)
 				connect();
-			else if(_fds[i].revents && _fds[i].fd != _server_fd)
+			else if(_fds[i].revents && _fds[i].fd != _server_fd){
 				received_data(_fds[i].fd);
+				_fds[i].revents = 0;
+			}
 		}
 		clear_fd();
 	}
@@ -78,21 +80,24 @@ void	Server::connect(){
 	w_fd	client = accept(_server_fd, (w_sockaddr *)&adr, &len);
 
 	std::cout << SRV_NEW_CLIENT(client) << std::endl;
-	if (client) {
+	if (client > 2) {
 		add_new(client);
 		std::cout << "new client connected" << std::endl;
 	}
 	else
-		std::cerr << SRV_ERROR_ACCEPT << std::endl; 
+		std::cerr << SRV_ERROR_ACCEPT << std::endl;
 }
 
 void		Server::received_data(size_t fd){
-	char	buff[BUFFSIZE];
-	if(recv(fd, &buff, sizeof(BUFFSIZE), 0) < 0){
+	char		buff[BUFFSIZE];
+	int			size = -1;
+	std::string input;
+	size = recv(fd, &buff, BUFFSIZE, 0);
+	if(size < 0){
 		std::cerr << SRV_ERROR_RECV << std::endl;
 		return ;
 	}
-	buff[BUFFSIZE] = '\0';
+	buff[size] = '\0';
 	std::cout << buff << std::endl;
 }
 
