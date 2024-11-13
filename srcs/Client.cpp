@@ -9,7 +9,7 @@ Client::Client(const Client& cpy) { *this = cpy; }
 Client&	Client::operator=(const Client& cpy) {
 	if (this == &cpy)
 		return (*this);
-	// _fds = cpy._fds;
+	_fds = cpy._fds;
 	return (*this);
 }
 
