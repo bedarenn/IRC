@@ -4,8 +4,6 @@
 
 # include <iostream>
 
-extern int g_loop;
-
 class Server {
 public:
 	Server(w_port port, w_pass pass);
@@ -16,9 +14,10 @@ public:
 
 	void		init_server();
 	void		run();
-	void		add_new(int socket);
+	void		event();
 	void		connect();
-	void		event(w_vect_pollfd::iterator& poll);
+	void		add_new(int socket);
+	void		read(w_vect_pollfd::iterator& poll);
 
 	w_port		get_port() const;
 	w_pass		get_pass() const;
