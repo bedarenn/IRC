@@ -12,7 +12,7 @@
 #include "ErrorInt.hpp"
 
 Server::Server() {}
-Server::Server(w_port port, w_pass pass) : _port(port), _pass(pass) {}
+Server::Server(w_port port, w_pass pass) : _port(port), _pass(pass){} /*, _security(false)*/
 Server::Server(const Server &cpy) { *this = cpy; }
 Server::~Server() {}
 
@@ -84,6 +84,7 @@ void	Server::connect() {
 void		Server::received_data(size_t fd) {
 	char	buff[BUFFSIZE];
 	int	size;
+
 	size = recv(fd, &buff, BUFFSIZE, 0);
 	if(size < 0){
 		std::cerr << SRV_ERROR_RECV << std::endl;
@@ -94,7 +95,25 @@ void		Server::received_data(size_t fd) {
 		close_client(fd);
 	}	
 	buff[size] = '\0';
-	std::cout << buff << std::endl;
+	std::string str(buff);
+	treatement(str);
+}
+
+void	Server::treatement(std::string data){
+	(void)data;
+	//if(!_security && !data.find("PASS"))
+	//	//check_security(data);
+	//else
+	//	std::cout << data << std::endl;
+}
+
+void	Server::check_security(std::string pass){
+	pass = pass.substr(5, (pass.length() - 5));
+	pass = pass.erase(pass.find('\n'));
+	if(pass == _pass)
+		std::cout << "password valid: connection allowed" << std::endl;
+	else
+		std::cout << "password invalid: connection denied" << std::endl;
 }
 
 void	Server::close_client(int fd){

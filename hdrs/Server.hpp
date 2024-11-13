@@ -19,7 +19,8 @@ public:
 	void		add_new(int socket);
 	void		connect();
 	void		received_data(size_t fd);
-	void		clear_fd();
+	void		treatement(std::string data);
+	void		check_security(std::string pass);
 	void		close_client(int fd);
 
 	w_port		get_port() const;
@@ -31,6 +32,7 @@ public:
 private:
 	w_port		_port;
 	w_pass		_pass;
+	//bool		_security;
 
 	w_fd			_server_fd;
 	w_vect_pollfd	_fds;
