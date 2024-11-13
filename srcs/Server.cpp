@@ -84,10 +84,6 @@ void	Server::add_new(int socket) {
 	fd.events = POLLIN;
 	fd.revents = 0;
 	_fds.push_back(fd);
-	for (w_vect_pollfd::iterator it = _fds.begin(); it < _fds.end(); it++) {
-		std::cerr << _server_fd << " " << it->fd << " | " << it->revents << std::endl;
-	}
-	
 }
 
 void	Server::read(w_vect_pollfd::iterator& poll) {
