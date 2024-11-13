@@ -3,6 +3,8 @@
 # include <string>
 # include <iostream>
 
+# include "ErrorInt.hpp"
+
 typedef int	w_fd;
 
 typedef int			w_port;

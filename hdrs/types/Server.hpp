@@ -23,5 +23,4 @@ typedef socklen_t				w_socklen;
 # define SRV_NEW_CLIENT(fd)		"new client: " << fd
 # define SRV_ERROR_ACCEPT(fd)	"error: client connection: " << fd
 
-# define SRV_ERROR_POLL			"error: poll"
 # define SRV_ERROR_RECV			"error: recv"
