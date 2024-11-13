@@ -26,15 +26,6 @@ Server &Server::operator=(const Server &cpy) {
 	return (*this);
 }
 
-void		Server::add_new(int socket) {
-	w_pollfd	fd;
-
-	fd.fd = socket;
-	fd.events = POLLIN;
-	fd.revents = 0;
-	_fds.push_back(fd);
-}
-
 void	Server::init_server() {
 	w_sockaddr_in	adr;
 	w_pollfd		fd;
@@ -58,11 +49,11 @@ void	Server::run() {
 	g_loop = 1;
 	while (g_loop) {
 		ERR_INT(poll(_fds.data(), _fds.size(), 0), 0, "poll");
-		for (size_t i = 0; i < _fds.size(); i++){
-			if (_fds[i].revents && _fds[i].fd == _server_fd)
+		for (w_vect_pollfd::iterator it = _fds.begin(); it < _fds.end(); it++){
+			if (it->revents && it->fd == _server_fd)
 				connect();
-			else if (_fds[i].revents != 0 && _fds[i].fd != _server_fd){
-				received_data(_fds[i].fd);
+			else if (it->revents != 0 && it->fd != _server_fd){
+				event(it);
 			}
 		}
 	}
@@ -81,50 +72,29 @@ void	Server::connect() {
 		std::cerr << SRV_ERROR_ACCEPT(client) << std::endl; 
 }
 
-void		Server::received_data(size_t fd) {
-	char	buff[BUFFSIZE];
-	int	size;
+void		Server::add_new(int socket) {
+	w_pollfd	fd;
 
-	size = recv(fd, &buff, BUFFSIZE, 0);
-	if(size < 0){
+	fd.fd = socket;
+	fd.events = POLLIN;
+	fd.revents = 0;
+	_fds.push_back(fd);
+}
+
+void		Server::event(w_vect_pollfd::iterator& poll) {
+	ssize_t	size;
+
+	size = recv(poll->fd, &buff, BUFFSIZE, 0);
+	if (size < 0) {
 		std::cerr << SRV_ERROR_RECV << std::endl;
 		return ;
 	}
-	if(size == 0){
+	if (size == 0) {
 		buff[0] = '\0';
-		close_client(fd);
+		_fds.erase(poll);
 	}	
 	buff[size] = '\0';
-	std::string str(buff);
-	treatement(str);
-}
-
-void	Server::treatement(std::string data){
-	(void)data;
-	//if(!_security && !data.find("PASS"))
-	//	//check_security(data);
-	//else
-	//	std::cout << data << std::endl;
-}
-
-void	Server::check_security(std::string pass){
-	pass = pass.substr(5, (pass.length() - 5));
-	pass = pass.erase(pass.find('\n'));
-	if(pass == _pass)
-		std::cout << "password valid: connection allowed" << std::endl;
-	else
-		std::cout << "password invalid: connection denied" << std::endl;
-}
-
-void	Server::close_client(int fd){
-	w_vect_pollfd::iterator it = _fds.begin();
-	for(size_t i = 0; i < _fds.size(); i++){
-		if(_fds[i].fd == fd){
-			_fds.erase(it);
-			std::cout << "client quit server" << std::endl;
-		}
-		it++;
-	}
+	std::cout << buff << std::endl;
 }
 
 w_port	Server::get_port() const		{ return(_port); }

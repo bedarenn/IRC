@@ -18,10 +18,7 @@ public:
 	void		run();
 	void		add_new(int socket);
 	void		connect();
-	void		received_data(size_t fd);
-	void		treatement(std::string data);
-	void		check_security(std::string pass);
-	void		close_client(int fd);
+	void		event(w_vect_pollfd::iterator& poll);
 
 	w_port		get_port() const;
 	w_pass		get_pass() const;
@@ -32,10 +29,11 @@ public:
 private:
 	w_port		_port;
 	w_pass		_pass;
-	//bool		_security;
 
 	w_fd			_server_fd;
 	w_vect_pollfd	_fds;
+
+	char	buff[BUFFSIZE];
 
 	Server();
 };
