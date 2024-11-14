@@ -4,21 +4,17 @@
 
 class Client {
 public:
-	Client();
+	Client(const std::string& name, const w_fd& fd);
 	~Client();
 	Client(const Client& cpy);
 
 	Client&	operator=(const Client& cpy);
 
-	void	add_new(w_pollfd fd);
-	void	event();
-
-	void	connect();
-	void	read(w_vect_pollfd::iterator& poll);
-
 private:
-	w_vect_pollfd	_fds;
-	Command			_cmd;
+	std::string		_name;
+	std::string		_nickname;
+	w_fd			_fd;
+	w_channel_list	_channel;
 
-	char	buff[BUFFER_SIZE];
+	Client();
 };
