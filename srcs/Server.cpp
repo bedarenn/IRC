@@ -2,11 +2,6 @@
 
 #include <fcntl.h>
 
-#include <sys/types.h>
-#include <sys/epoll.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-
 Server::Server() {}
 Server::Server(w_port port, w_pass pass) : _port(port), _pass(pass) {}
 Server::~Server() {}
