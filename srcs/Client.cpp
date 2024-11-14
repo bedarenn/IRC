@@ -11,7 +11,7 @@ Client&	Client::operator=(const Client& cpy) {
 	return (*this);
 }
 
-void	Client::add_new(int socket) {
+void	Client::add_new(const w_fd& socket) {
 	w_pollfd	fd;
 
 	fd.fd = socket;
@@ -19,14 +19,15 @@ void	Client::add_new(int socket) {
 	fd.revents = 0;
 	_fds.push_back(fd);
 }
-void	Client::add_new(w_pollfd fd) {
+void	Client::add_new(const w_pollfd& fd) {
 	_fds.push_back(fd);
 }
 
 void	Client::event() {
 	ERR_INT(poll(_fds.data(), _fds.size(), 0), 0, "poll");
 
-	if (_fds[0].revents) connect();
+	if (_fds[0].revents)
+		connect();
 	for (w_vect_pollfd::iterator it = _fds.begin() + 1; it < _fds.end(); it++)
 		if (it->revents) read(it);
 }
@@ -51,13 +52,21 @@ void	Client::read(w_vect_pollfd::iterator& poll) {
 	if (size < 0) {
 		std::cerr << SRV_ERROR_RECV << std::endl;
 	}
-	else if (size == 0) {
+	if (size == 0) {
 		buff[0] = '\0';
 		_fds.erase(poll);
 	}
-	else {
-		buff[size] = '\0';
-		std::cout << poll->fd << ": " << buff << std::flush;
+	buff[size] = '\0';
+	std::cout << poll->fd << ": " << buff << std::flush;
+}
+
+void	Client::write(std::string& str,
+		const w_vect_pollfd& grp,
+		const w_pollfd& clt, const w_pollfd& srv) {
+	for (w_vect_pollfd::const_iterator it = grp.begin(); it < grp.end(); it++) {
+		if (it->fd != clt.fd && it->fd != srv.fd) {
+			send(it->fd, str.c_str(), str.size(), 0);
+		}
 	}
 }
 

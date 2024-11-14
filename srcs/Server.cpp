@@ -38,7 +38,7 @@ void	Server::init_server() {
 void	Server::run() {
 	g_loop = 1;
 	while (g_loop) {
-		event();
+		_client.event();
 	}
 }
 
