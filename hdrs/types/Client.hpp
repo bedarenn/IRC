@@ -3,12 +3,13 @@
 class Client;
 
 # include "irc.hpp"
+# include "Command.hpp"
 
 # include <vector>
-
 # include <poll.h>
 # include <netinet/in.h>
-
+# include <string>
+# include <sstream>
 
 
 

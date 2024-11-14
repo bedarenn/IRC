@@ -10,7 +10,6 @@ public:
 
 	Client&	operator=(const Client& cpy);
 
-	void	add_new(w_fd socket);
 	void	add_new(w_pollfd fd);
 	void	event();
 
@@ -19,6 +18,7 @@ public:
 
 private:
 	w_vect_pollfd	_fds;
+	Command			_cmd;
 
 	char	buff[BUFFER_SIZE];
 };

@@ -1,24 +1,18 @@
 #include "Client.hpp"
 
 Client::Client() {}
+
 Client::~Client() {}
 Client::Client(const Client& cpy) { *this = cpy; }
 
 Client&	Client::operator=(const Client& cpy) {
-	if (this == &cpy)
-		return (*this);
-	_fds = cpy._fds;
+	if (this != &cpy){
+		_fds = cpy._fds;
+		_cmd = cpy._cmd;
+	}
 	return (*this);
 }
 
-void	Client::add_new(int socket) {
-	w_pollfd	fd;
-
-	fd.fd = socket;
-	fd.events = POLLIN;
-	fd.revents = 0;
-	_fds.push_back(fd);
-}
 void	Client::add_new(w_pollfd fd) {
 	_fds.push_back(fd);
 }
@@ -57,9 +51,28 @@ void	Client::read(w_vect_pollfd::iterator& poll) {
 	}
 	else {
 		buff[size] = '\0';
-		std::cout << poll->fd << ": " << buff << std::flush;
+		std::cout << poll->fd << ": " << buff << std::endl;
 	}
 }
+
+// void	Client::treatement(char *data){
+	
+// 	std::string str(data);
+// 	std::stringstream ss(str);
+// 	std::string buff;
+	
+// 	getline(ss, buff, ' ');
+// 	buff.erase(buff.size() - 1);
+// 	std::vector<std::string>::iterator it = _cmd.begin();
+// 	while(it != _cmd.end()){
+// 		if(buff == *it)
+// 			break;
+// 		it++;
+// 	}
+// 	if(it == _cmd.end())
+// 		std::cerr << "error: commande" << std::endl;
+	
+// }
 
 w_pollfd	set_pollfd(int fd, short int event, short int revent) {
 	w_pollfd	pollfd;

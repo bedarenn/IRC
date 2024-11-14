@@ -15,9 +15,6 @@ public:
 	void	init_server();
 	void	run();
 	void	event();
-	void	connect();
-	void	add_new(int socket);
-	void	read(w_vect_pollfd::iterator& poll);
 
 	w_port		get_port() const;
 	w_pass		get_pass() const;
