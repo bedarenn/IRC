@@ -1,7 +1,5 @@
 #include "Client.hpp"
 
-#include <sys/socket.h>
-
 Client::Client() {}
 Client::~Client() {}
 Client::Client(const Client& cpy) { *this = cpy; }
@@ -21,14 +19,29 @@ void	Client::add_new(int socket) {
 	fd.revents = 0;
 	_fds.push_back(fd);
 }
+void	Client::add_new(w_pollfd fd) {
+	_fds.push_back(fd);
+}
+
 void	Client::event() {
 	ERR_INT(poll(_fds.data(), _fds.size(), 0), 0, "poll");
 
-	for (w_vect_pollfd::iterator it = _fds.begin(); it < _fds.end(); it++) {
-		if (it->revents) {
-			read(it);
-		}
+	if (_fds[0].revents) connect();
+	for (w_vect_pollfd::iterator it = _fds.begin() + 1; it < _fds.end(); it++)
+		if (it->revents) read(it);
+}
+
+void	Client::connect() {
+	w_sockaddr_in	adr;
+	w_socklen		len = sizeof(w_sockaddr_in);
+	w_fd	client = accept(_fds[0].fd, (w_sockaddr *)&adr, &len);
+
+	if (client > 2) {
+		add_new(client);
+		std::cout << SRV_NEW_CLIENT(client) << std::endl;
 	}
+	else
+		std::cerr << SRV_ERROR_ACCEPT(client) << std::endl; 
 }
 
 void	Client::read(w_vect_pollfd::iterator& poll) {

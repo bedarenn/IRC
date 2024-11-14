@@ -21,16 +21,12 @@ public:
 
 	w_port		get_port() const;
 	w_pass		get_pass() const;
-	w_pollfd	get_fd() const;
 
 private:
 	w_port		_port;
 	w_pass		_pass;
 
-	w_pollfd	_fd;
 	Client		_client;
-
-	char	buff[BUFFSIZE];
 
 	Server();
 };

@@ -1,26 +1,3 @@
 #pragma once
 
 class Server;
-
-# include "irc.hpp"
-
-# include <vector>
-
-# include <poll.h>
-# include <sys/socket.h>
-
-# define BUFFSIZE 1024
-
-typedef pollfd					w_pollfd;
-typedef std::vector<w_pollfd>	w_vect_pollfd;
-
-typedef struct sockaddr_in		w_sockaddr_in;
-typedef struct sockaddr_out		w_sockaddr_out;
-typedef struct sockaddr			w_sockaddr;
-
-typedef socklen_t				w_socklen;
-
-# define SRV_NEW_CLIENT(fd)		"new client: " << fd
-# define SRV_ERROR_ACCEPT(fd)	"error: client connection: " << fd
-
-# define SRV_ERROR_RECV			"error: recv"

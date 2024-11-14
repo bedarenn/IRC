@@ -10,9 +10,11 @@ public:
 
 	Client&	operator=(const Client& cpy);
 
-	void	add_new(int socket);
+	void	add_new(w_fd socket);
+	void	add_new(w_pollfd fd);
 	void	event();
 
+	void	connect();
 	void	read(w_vect_pollfd::iterator& poll);
 
 private:
