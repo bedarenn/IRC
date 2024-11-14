@@ -12,6 +12,7 @@ public:
 
 private:
 	std::string		_name;
+	std::string		_nickname;
 	w_fd			_fd;
 	w_channel_list	_channel;
 

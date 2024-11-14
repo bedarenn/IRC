@@ -55,13 +55,18 @@ void	Server::add_new(const w_fd& socket) {
 	fd.events = POLLIN;
 	fd.revents = 0;
 	_fds.push_back(fd);
+	recv(socket, &buff, BUFFER_SIZE, 0);
+	std::cout << socket << ": " << buff << std::flush;
 }
 void	Server::add_new(const w_pollfd& fd) {
 	_fds.push_back(fd);
 }
 
 void	Server::event() {
-	ERR_INT(poll(_fds.data(), _fds.size(), 0), 0, "poll");
+	if (poll(_fds.data(), _fds.size(), 0) < 0) {
+		g_loop = 0;
+		return ;
+	}
 
 	if (_fds[0].revents)
 		connect();
@@ -75,8 +80,8 @@ void	Server::connect() {
 	w_fd	client = accept(_fds[0].fd, (w_sockaddr *)&adr, &len);
 
 	if (client > 2) {
-		add_new(client);
 		std::cout << SRV_NEW_CLIENT(client) << std::endl;
+		add_new(client);
 	}
 	else
 		std::cerr << SRV_ERROR_ACCEPT(client) << std::endl; 

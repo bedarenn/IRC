@@ -15,13 +15,13 @@ public:
 	void	init_server();
 
 	void	run();
-	void	event(); //
+	void	event();
 
-	void	connect(); //
-	void	add_new(const w_fd& socket); //
-	void	add_new(const w_pollfd& fd); //
+	void	connect();
+	void	add_new(const w_fd& socket);
+	void	add_new(const w_pollfd& fd);
 
-	void	read(w_vect_pollfd::iterator& poll); //
+	void	read(w_vect_pollfd::iterator& poll);
 
 	w_port		get_port() const;
 	w_pass		get_pass() const;
@@ -32,6 +32,7 @@ private:
 
 	w_vect_pollfd	_fds;
 	w_map_Client	_client;
+	w_channel		_channel;
 
 	char	buff[BUFFER_SIZE];
 

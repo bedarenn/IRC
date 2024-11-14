@@ -17,9 +17,12 @@ public:
 private:
 	w_map_Client	_client;
 	w_map_Client	_op;
+	std::string		_topic;
 
 	bool		_inv_only;
+	bool		_topic_right;
 	std::string	_pass;
+	bool		_op_right;
 	size_t		_limit;
 
 	Channel();
