@@ -6,6 +6,7 @@ class Server;
 
 # include <poll.h>
 # include <netinet/in.h>
+# include <sstream>
 
 # define BUFFER_SIZE 1024
 

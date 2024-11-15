@@ -12,3 +12,5 @@ Client&	Client::operator=(const Client& cpy) {
 	_channel = cpy._channel;
 	return (*this);
 }
+
+int	Client::getFd(){return (_fd);}

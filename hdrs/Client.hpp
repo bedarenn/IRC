@@ -9,6 +9,7 @@ public:
 	Client(const Client& cpy);
 
 	Client&	operator=(const Client& cpy);
+	int	getFd();
 
 private:
 	std::string		_name;

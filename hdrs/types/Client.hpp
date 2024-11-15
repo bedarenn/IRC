@@ -3,7 +3,6 @@
 class Client;
 
 # include "irc.hpp"
-# include "Command.hpp"
 
 # include <vector>
 # include <map>

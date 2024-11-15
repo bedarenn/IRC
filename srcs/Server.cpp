@@ -4,7 +4,9 @@
 #include <unistd.h>
 
 Server::Server() {}
+
 Server::Server(w_port port, w_pass pass) : _port(port), _pass(pass) {}
+
 Server::~Server() {
 	for (w_vect_pollfd::iterator it = _fds.begin(); it < _fds.end(); it++) {
 		close(it->fd);
@@ -38,6 +40,7 @@ void	Server::init_server() {
 	ERR_INT(listen(fd.fd, 5), 0, "listen");
 
 	add_new(fd);
+
 	std::cout << "server init" << std::endl;
 }
 
@@ -56,8 +59,8 @@ void	Server::add_new(const w_fd& socket) {
 	fd.revents = 0;
 	_fds.push_back(fd);
 	recv(socket, &buff, BUFFER_SIZE, 0);
-	std::cout << socket << ": " << buff << std::flush;
 }
+
 void	Server::add_new(const w_pollfd& fd) {
 	_fds.push_back(fd);
 }
@@ -101,7 +104,8 @@ void	Server::read(w_vect_pollfd::iterator& poll) {
 	}
 	else {
 		buff[size] = '\0';
-		std::cout << poll->fd << ": " << buff << std::flush;
+		// std::cout << buff << std::endl;
+		treatement(poll->fd, buff);
 	}
 }
 
@@ -116,3 +120,22 @@ w_pollfd	set_pollfd(int fd, short int event, short int revent) {
 	pollfd.revents = revent;
 	return (pollfd);
 }
+
+void	Server::treatement(int fd, char *buff){
+
+	std::stringstream ss(buff);
+	std::string data;
+
+	getline(ss, data, ' ');
+	std::map<std::string, void(*)(std::string, int)>::iterator it;
+	for(it = _cmd.begin(); it != _cmd.end(); it++){
+		if(data == it->first){
+			std::string arg(buff);
+			it->second(arg, fd);
+			return;
+		}
+		else if(it == _cmd.end())
+			std::cout << "command not find" << std::endl;
+	}
+}
+
