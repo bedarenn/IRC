@@ -133,3 +133,20 @@ w_pollfd	set_pollfd(int fd, short int event, short int revent) {
 	pollfd.revents = revent;
 	return (pollfd);
 }
+
+void	Server::treatement(int fd, char *buff){
+	std::stringstream ss(buff);
+	std::string data;
+
+	getline(ss, data, ' ');
+	std::map<std::string, void(*)(std::string, int)>::iterator it;
+	for(it = _cmd.begin(); it != _cmd.end(); it++){
+		if(data == it->first){
+			std::string arg(buff);
+			it->second(arg, fd);
+			return;
+		}
+		else if(it == _cmd.end())
+			std::cout << "command not find" << std::endl;
+	}
+}
