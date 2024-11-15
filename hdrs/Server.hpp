@@ -17,20 +17,17 @@ public:
 	void	run();
 	void	event();
 
-	void	treatement(int fd, char *buff);
-
 	void	connect();
+	void	read(w_vect_pollfd::iterator& poll);
 
 	void	new_fd(const w_fd& socket);
-	void	new_fd(const w_pollfd& fd);
 	void	new_client(const std::string& name, const std::string& nickname, const w_fd& fd);
-	void	new_client(const Client& client);
-	void	rm__client(w_fd fd);
-
-	void	read(w_vect_pollfd::iterator& poll);
+	void	rm__client(const Client& client);
 
 	w_port		get_port() const;
 	w_pass		get_pass() const;
+
+	const Client&	get_client(w_fd fd) const;
 
 private:
 	w_port		_port;

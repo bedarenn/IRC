@@ -15,12 +15,7 @@ Channel&	Channel::operator=(const Channel& cpy) {
 	return (*this);
 }
 
-void	Channel::rm__client(w_fd fd) {
-	w_map_Client::iterator	it;
-	it = _client.find(fd);
-	if (it != _client.end())
-		_client.erase(it);
-	it = _op.find(fd);
-	if (it != _op.end())
-		_op.erase(it);
+void	Channel::rm__client(const Client& client) {
+	client.rm__to_map(_client);
+	client.rm__to_map(_op);
 }

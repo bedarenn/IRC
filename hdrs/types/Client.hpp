@@ -6,6 +6,8 @@ class Client;
 
 # include <vector>
 
+#include <sys/types.h>
+
 typedef std::vector<std::string>	w_channel_list;
 
 # include <map>

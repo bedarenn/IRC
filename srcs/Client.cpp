@@ -17,7 +17,7 @@ Client&	Client::operator=(const Client& cpy) {
 	return (*this);
 }
 
-bool	Client::add_to_map(w_map_Client map_client) const {
+bool	Client::add_to_map(w_map_Client& map_client) const {
 	w_map_Client::iterator	it = map_client.find(_fd);
 	if (it != map_client.end())
 		return (false);
@@ -25,7 +25,7 @@ bool	Client::add_to_map(w_map_Client map_client) const {
 	return (true);
 }
 
-bool	Client::rm__to_map(w_map_Client map_client) {
+bool	Client::rm__to_map(w_map_Client& map_client) const {
 	w_map_Client::iterator	it = map_client.find(_fd);
 	if (it == map_client.end())
 		return (false);
@@ -33,7 +33,7 @@ bool	Client::rm__to_map(w_map_Client map_client) {
 	return (true);
 }
 
-ssize_t	Client::send_to_fd(std::string str) {
+ssize_t	Client::send_to_fd(const std::string& str) const {
 	return (send(_fd, str.c_str(), str.size(), 0));
 }
 

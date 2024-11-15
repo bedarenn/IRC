@@ -36,7 +36,7 @@ void	Server::init_server() {
 	ERR_INT(bind(fd.fd, (w_sockaddr *)&adr, sizeof(adr)), 0, "bind");
 	ERR_INT(listen(fd.fd, 5), 0, "listen");
 
-	new_fd(fd);
+	_fds.push_back(fd);
 	std::cout << "server init" << std::endl;
 }
 
@@ -46,27 +46,6 @@ void	Server::run() {
 		event();
 	}
 }
-
-void	Server::new_fd(const w_fd& socket) {
-	w_pollfd	fd;
-
-	fd.fd = socket;
-	fd.events = POLLIN;
-	fd.revents = 0;
-	_fds.push_back(fd);
-	recv(socket, &buff, BUFFER_SIZE, 0);
-	std::cout << socket << ": " << buff << std::flush;
-}
-void	Server::new_fd(const w_pollfd& fd) {
-	_fds.push_back(fd);
-}
-void	Server::new_client(const std::string& name, const std::string& nickname, const w_fd& fd) {
-	new_client(Client(name, nickname, fd));
-}
-void	Server::new_client(const Client& client) {
-	client.add_to_map(_client);
-}
-
 void	Server::event() {
 	if (poll(_fds.data(), _fds.size(), 0) < 0) {
 		g_loop = 0;
@@ -91,19 +70,6 @@ void	Server::connect() {
 	else
 		std::cerr << SRV_ERROR_ACCEPT(client) << std::endl; 
 }
-
-void	Server::rm__client(w_fd fd) {
-	{
-		w_map_Client::iterator	it = _client.find(fd);
-		if (it != _client.end())
-			_client.erase(it);
-	}
-	for (w_channel::iterator it = _channel.begin(); it != _channel.end(); it++) {
-		it->second.rm__client(fd);
-	}
-	
-}
-
 void	Server::read(w_vect_pollfd::iterator& poll) {
 	ssize_t	size;
 
@@ -122,6 +88,26 @@ void	Server::read(w_vect_pollfd::iterator& poll) {
 	}
 }
 
+void	Server::new_fd(const w_fd& socket) {
+	w_pollfd	fd;
+
+	fd.fd = socket;
+	fd.events = POLLIN;
+	fd.revents = 0;
+	_fds.push_back(fd);
+	recv(socket, &buff, BUFFER_SIZE, 0);
+	std::cout << socket << ": " << buff << std::flush;
+}
+void	Server::new_client(const std::string& name, const std::string& nickname, const w_fd& fd) {
+	Client(name, nickname, fd).add_to_map(_client);
+}
+void	Server::rm__client(const Client& client) {
+	client.rm__to_map(_client);
+	for (w_channel::iterator it = _channel.begin(); it != _channel.end(); it++) {
+		it->second.rm__client(client);
+	}
+}
+
 w_port		Server::get_port() const	{ return(_port); }
 w_pass		Server::get_pass() const	{ return(_pass); }
 
@@ -132,21 +118,4 @@ w_pollfd	set_pollfd(int fd, short int event, short int revent) {
 	pollfd.events = event;
 	pollfd.revents = revent;
 	return (pollfd);
-}
-
-void	Server::treatement(int fd, char *buff){
-	std::stringstream ss(buff);
-	std::string data;
-
-	getline(ss, data, ' ');
-	std::map<std::string, void(*)(std::string, int)>::iterator it;
-	for(it = _cmd.begin(); it != _cmd.end(); it++){
-		if(data == it->first){
-			std::string arg(buff);
-			it->second(arg, fd);
-			return;
-		}
-		else if(it == _cmd.end())
-			std::cout << "command not find" << std::endl;
-	}
 }

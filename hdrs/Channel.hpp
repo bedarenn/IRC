@@ -14,7 +14,7 @@ public:
 
 	const std::string&	get_topic() const;
 
-	void	rm__client(w_fd fd);
+	void	rm__client(const Client& client);
 
 private:
 	w_map_Client	_client;
