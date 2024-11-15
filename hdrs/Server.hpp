@@ -17,6 +17,8 @@ public:
 	void	run();
 	void	event();
 
+	void	treatement(int fd, char *buff);
+
 	void	connect();
 
 	void	new_fd(const w_fd& socket);
@@ -37,6 +39,7 @@ private:
 	w_vect_pollfd	_fds;
 	w_map_Client	_client;
 	w_channel		_channel;
+	std::map<std::string, void(*)(std::string, int)>	_cmd;
 
 	char	buff[BUFFER_SIZE];
 

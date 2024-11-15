@@ -12,6 +12,7 @@ public:
 	Client(const Client& cpy);
 
 	Client&	operator=(const Client& cpy);
+	int	getFd();
 
 	const std::string&		get_name() const;
 	const std::string&		get_nickname() const;

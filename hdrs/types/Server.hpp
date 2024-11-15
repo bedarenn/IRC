@@ -6,6 +6,7 @@ class Server;
 
 # include <poll.h>
 # include <netinet/in.h>
+# include <sstream>
 
 typedef std::map<std::string, Channel>	w_channel;
 
