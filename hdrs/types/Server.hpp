@@ -8,7 +8,8 @@ class Server;
 # include <netinet/in.h>
 # include <sstream>
 
-typedef std::map<std::string, Channel>	w_channel;
+typedef std::pair<std::string, Channel>	w_pair_channel;
+typedef std::map<std::string, Channel>	w_map_Channel;
 
 typedef pollfd	w_pollfd;
 typedef std::vector<w_pollfd>	w_vect_pollfd;

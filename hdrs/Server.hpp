@@ -20,9 +20,16 @@ public:
 	void	connect();
 	void	read(w_vect_pollfd::iterator& poll);
 
+	void	join(const Client& client, const std::string& channel);
+
 	void	new_fd(const w_fd& socket);
 	void	new_client(const std::string& name, const std::string& nickname, const w_fd& fd);
 	void	rm__client(const Client& client);
+
+	bool	join__channel(const Client& client, const std::string& channel);
+	bool	leave_channel(const Client& client, const std::string& channel);
+
+	void	new_map_Channel(const std::string& channel, const Client& client);
 
 	w_port		get_port() const;
 	w_pass		get_pass() const;
@@ -35,7 +42,7 @@ private:
 
 	w_vect_pollfd	_fds;
 	w_map_Client	_client;
-	w_channel		_channel;
+	w_map_Channel	_channel;
 
 	char	buff[BUFFER_SIZE];
 

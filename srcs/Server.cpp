@@ -103,9 +103,32 @@ void	Server::new_client(const std::string& name, const std::string& nickname, co
 }
 void	Server::rm__client(const Client& client) {
 	client.rm__to_map(_client);
-	for (w_channel::iterator it = _channel.begin(); it != _channel.end(); it++) {
+	for (w_map_Channel::iterator it = _channel.begin(); it != _channel.end(); it++) {
 		it->second.rm__client(client);
 	}
+}
+
+bool	Server::join__channel(const Client& client, const std::string& channel) {
+	w_map_Channel::iterator	it = _channel.find(channel);
+
+	if (it == _channel.end())
+		return (false);
+	it->second.add_client(client);
+	return (true);
+}
+bool	Server::leave_channel(const Client& client, const std::string& channel) {
+	w_map_Channel::iterator	it = _channel.find(channel);
+
+	if (it == _channel.end())
+		return (false);
+	it->second.rm__client(client);
+	if (it->second.empty())
+		_channel.erase(it);
+	return (true);
+}
+
+void	Server::new_map_Channel(const std::string& channel, const Client& client) {
+	_channel.insert(w_pair_channel(channel, Channel(channel, client)));
 }
 
 w_port		Server::get_port() const	{ return(_port); }

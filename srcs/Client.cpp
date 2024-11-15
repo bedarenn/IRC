@@ -17,14 +17,18 @@ Client&	Client::operator=(const Client& cpy) {
 	return (*this);
 }
 
+bool	Client::is__in_map(const w_map_Client& map_client) const {
+	w_map_Client::const_iterator	it = map_client.find(_fd);
+	if (it == map_client.end())
+		return (false);
+	return (true);
+}
 bool	Client::add_to_map(w_map_Client& map_client) const {
-	w_map_Client::iterator	it = map_client.find(_fd);
-	if (it != map_client.end())
+	if (is__in_map(map_client))
 		return (false);
 	map_client.insert(w_pair_Client(_fd, *this));
 	return (true);
 }
-
 bool	Client::rm__to_map(w_map_Client& map_client) const {
 	w_map_Client::iterator	it = map_client.find(_fd);
 	if (it == map_client.end())
