@@ -20,7 +20,11 @@ public:
 	void	connect();
 	void	read(w_vect_pollfd::iterator& poll);
 
-	void	join(const Client& client, const std::string& channel);
+	void	join(const w_fd& client, std::vector< std::pair<std::string, std::string> >);
+	void	invite(const w_fd& op, const std::string& channel, const std::string& value);
+	void	kick(const w_fd& op, const std::string& channel, const std::string& value);
+	void	topic(const w_fd& op, const std::string& channel, const std::string& value);
+	void	mode(const w_fd& op, std::vector<std::string> strs);
 
 	void	new_fd(const w_fd& socket);
 	void	new_client(const std::string& name, const std::string& nickname, const w_fd& fd);

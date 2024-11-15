@@ -23,18 +23,18 @@ Channel&	Channel::operator=(const Channel& cpy) {
 	return (*this);
 }
 
-void	Channel::add_client(const Client& client) {
-	client.add_to_map(_client);
-}
-
-void	Channel::rm__client(const Client& client) {
-	client.rm__to_map(_client);
-	client.rm__to_map(_op);
-}
-void	Channel::inv_client(const Client& op, const Client& client) {
+void	Channel::invite(const Client& op, const Client& client) {
 	if (!op.is__in_map(_op))
 		return ;
 	add_client(client);
+}
+
+void	Channel::add_client(const Client& client) {
+	client.add_to_map(_client);
+}
+void	Channel::rm__client(const Client& client) {
+	client.rm__to_map(_client);
+	client.rm__to_map(_op);
 }
 
 const std::string&	Channel::get_topic() const { return (_topic); }
