@@ -35,8 +35,6 @@ debug:
 $(NAME): $(OBJS)
 	@printf "$(GREEN)compile $@                                         $(NC)\n"
 	@$(CC) $^ $(LFLAGS) -o $@
-	@flatpak run io.github.Hexchat > /dev/null 2>&1 &
-	@./ircserv 8080 pop
 
 $(DIR_OBJS)%.o: $(DIR_SRCS)%.cpp
 	@mkdir -p $(@D)
@@ -52,6 +50,10 @@ fclean: clean
 	@rm -f $(NAME)
 
 re: fclean all
+
+run: all
+	@flatpak run io.github.Hexchat > /dev/null 2>&1 &
+	@./ircserv 8080 pop
 
 all:	$(NAME)
 debug:	CFLAGS += -g

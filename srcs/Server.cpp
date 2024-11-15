@@ -64,7 +64,7 @@ void	Server::new_client(const std::string& name, const std::string& nickname, co
 	new_client(Client(name, nickname, fd));
 }
 void	Server::new_client(const Client& client) {
-	_client.insert(w_pair_Client(client.get_fd(), client));
+	client.add_to_map(_client);
 }
 
 void	Server::event() {

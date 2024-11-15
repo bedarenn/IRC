@@ -15,6 +15,14 @@ Client&	Client::operator=(const Client& cpy) {
 	return (*this);
 }
 
+bool	Client::add_to_map(w_map_Client map_client) const {
+	w_map_Client::iterator	it = map_client.find(_fd);
+	if (it == map_client.end())
+		return (false);
+	map_client.insert(w_pair_Client(_fd, *this));
+	return (true);
+}
+
 const std::string&		Client::get_name() const { return (_name); }
 const std::string&		Client::get_nickname() const { return (_nickname); }
 const w_fd&				Client::get_fd() const { return (_fd); }

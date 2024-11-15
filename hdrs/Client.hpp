@@ -12,7 +12,8 @@ public:
 	Client(const Client& cpy);
 
 	Client&	operator=(const Client& cpy);
-	int	getFd();
+
+	bool	add_to_map(w_map_Client map_client) const;
 
 	const std::string&		get_name() const;
 	const std::string&		get_nickname() const;
