@@ -14,3 +14,13 @@ Channel&	Channel::operator=(const Channel& cpy) {
 	_limit = cpy._limit;
 	return (*this);
 }
+
+void	Channel::rm__client(w_fd fd) {
+	w_map_Client::iterator	it;
+	it = _client.find(fd);
+	if (it != _client.end())
+		_client.erase(it);
+	it = _op.find(fd);
+	if (it != _op.end())
+		_op.erase(it);
+}

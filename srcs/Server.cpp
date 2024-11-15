@@ -9,7 +9,6 @@ Server::~Server() {
 	for (w_vect_pollfd::iterator it = _fds.begin(); it < _fds.end(); it++) {
 		close(it->fd);
 	}
-	
 }
 Server::Server(const Server &cpy) { *this = cpy; }
 
@@ -37,7 +36,7 @@ void	Server::init_server() {
 	ERR_INT(bind(fd.fd, (w_sockaddr *)&adr, sizeof(adr)), 0, "bind");
 	ERR_INT(listen(fd.fd, 5), 0, "listen");
 
-	add_new(fd);
+	new_fd(fd);
 	std::cout << "server init" << std::endl;
 }
 
@@ -48,7 +47,7 @@ void	Server::run() {
 	}
 }
 
-void	Server::add_new(const w_fd& socket) {
+void	Server::new_fd(const w_fd& socket) {
 	w_pollfd	fd;
 
 	fd.fd = socket;
@@ -58,8 +57,14 @@ void	Server::add_new(const w_fd& socket) {
 	recv(socket, &buff, BUFFER_SIZE, 0);
 	std::cout << socket << ": " << buff << std::flush;
 }
-void	Server::add_new(const w_pollfd& fd) {
+void	Server::new_fd(const w_pollfd& fd) {
 	_fds.push_back(fd);
+}
+void	Server::new_client(const std::string& name, const std::string& nickname, const w_fd& fd) {
+	new_client(Client(name, nickname, fd));
+}
+void	Server::new_client(const Client& client) {
+	_client.insert(w_pair_Client(client.get_fd(), client));
 }
 
 void	Server::event() {
@@ -77,14 +82,26 @@ void	Server::event() {
 void	Server::connect() {
 	w_sockaddr_in	adr;
 	w_socklen		len = sizeof(w_sockaddr_in);
-	w_fd	client = accept(_fds[0].fd, (w_sockaddr *)&adr, &len);
+	w_fd			client = accept(_fds[0].fd, (w_sockaddr *)&adr, &len);
 
 	if (client > 2) {
 		std::cout << SRV_NEW_CLIENT(client) << std::endl;
-		add_new(client);
+		new_fd(client);
 	}
 	else
 		std::cerr << SRV_ERROR_ACCEPT(client) << std::endl; 
+}
+
+void	Server::rm__client(w_fd fd) {
+	{
+		w_map_Client::iterator	it = _client.find(fd);
+		if (it != _client.end())
+			_client.erase(it);
+	}
+	for (w_channel::iterator it = _channel.begin(); it != _channel.end(); it++) {
+		it->second.rm__client(fd);
+	}
+	
 }
 
 void	Server::read(w_vect_pollfd::iterator& poll) {

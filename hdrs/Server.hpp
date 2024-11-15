@@ -18,8 +18,12 @@ public:
 	void	event();
 
 	void	connect();
-	void	add_new(const w_fd& socket);
-	void	add_new(const w_pollfd& fd);
+
+	void	new_fd(const w_fd& socket);
+	void	new_fd(const w_pollfd& fd);
+	void	new_client(const std::string& name, const std::string& nickname, const w_fd& fd);
+	void	new_client(const Client& client);
+	void	rm__client(w_fd fd);
 
 	void	read(w_vect_pollfd::iterator& poll);
 

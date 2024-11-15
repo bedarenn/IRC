@@ -12,11 +12,14 @@ public:
 
 	Channel&	operator=(const Channel& cpy);
 
-	bool	join(const Client& client);
+	const std::string&	get_topic() const;
+
+	void	rm__client(w_fd fd);
 
 private:
 	w_map_Client	_client;
 	w_map_Client	_op;
+
 	std::string		_topic;
 
 	bool		_inv_only;
