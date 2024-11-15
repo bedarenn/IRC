@@ -1,5 +1,7 @@
 #include "Client.hpp"
 
+#include <sys/socket.h>
+
 Client::Client() {}
 Client::Client(const std::string& name, const std::string& nickname, const w_fd& fd)
 	: _name(name), _nickname(nickname), _fd(fd) {}
@@ -17,10 +19,22 @@ Client&	Client::operator=(const Client& cpy) {
 
 bool	Client::add_to_map(w_map_Client map_client) const {
 	w_map_Client::iterator	it = map_client.find(_fd);
-	if (it == map_client.end())
+	if (it != map_client.end())
 		return (false);
 	map_client.insert(w_pair_Client(_fd, *this));
 	return (true);
+}
+
+bool	Client::rm__to_map(w_map_Client map_client) {
+	w_map_Client::iterator	it = map_client.find(_fd);
+	if (it == map_client.end())
+		return (false);
+	map_client.erase(it);
+	return (true);
+}
+
+ssize_t	Client::send_to_fd(std::string str) {
+	return (send(_fd, str.c_str(), str.size(), 0));
 }
 
 const std::string&		Client::get_name() const { return (_name); }
