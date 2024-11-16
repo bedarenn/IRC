@@ -13,7 +13,11 @@ public:
 
 	Client&	operator=(const Client& cpy);
 
-	bool	add_to_map(w_map_Client map_client) const;
+	bool	is__in_map(const w_map_Client& map_client) const;
+	bool	add_to_map(w_map_Client& map_client) const;
+	bool	rm__to_map(w_map_Client& map_client) const;
+
+	ssize_t	send_to_fd(const std::string& str) const;
 
 	const std::string&		get_name() const;
 	const std::string&		get_nickname() const;
