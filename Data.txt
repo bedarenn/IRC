@@ -32,6 +32,14 @@ Command JOIN:
 	<< MODE #private
 	<< WHO #private %chtsunfra,152
 
+/join #chan1,#chan2 password123
+	<< JOIN #chan1,#chan2 password
+	>> @time=2024-11-16T09:13:13.970Z :qdeviann!~qdeviann@rtr.23.90.210.20.unyc.it JOIN #chan1 * :realname
+	<< MODE #chan1
+	<< WHO #chan1 %chtsunfra,152
+	<< MODE #chan2
+	<< WHO #chan2 %chtsunfra,152
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Command PRIVMSG:
