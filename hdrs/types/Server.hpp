@@ -10,6 +10,7 @@ class Server;
 
 typedef std::pair<std::string, Channel>	w_pair_channel;
 typedef std::map<std::string, Channel>	w_map_Channel;
+typedef std::vector< std::pair<std::string, std::string> > w_vect_join;
 
 typedef pollfd	w_pollfd;
 typedef std::vector<w_pollfd>	w_vect_pollfd;
