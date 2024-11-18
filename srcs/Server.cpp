@@ -27,6 +27,7 @@ void	Server::init_server() {
 
 	fd = set_pollfd(socket(AF_INET, SOCK_STREAM, 0), POLLIN, 0);
 	ERR_INT(fd.fd, 0, "socket");
+	_fds.push_back(fd);
 
 	fcntl(fd.fd, F_SETFL, O_NONBLOCK);
 	adr.sin_family = AF_INET;
@@ -36,7 +37,6 @@ void	Server::init_server() {
 	ERR_INT(bind(fd.fd, (w_sockaddr *)&adr, sizeof(adr)), 0, "bind");
 	ERR_INT(listen(fd.fd, 5), 0, "listen");
 
-	_fds.push_back(fd);
 	std::cout << "server init" << std::endl;
 }
 
