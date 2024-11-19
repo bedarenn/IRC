@@ -54,6 +54,8 @@ std::string	Command::next(char find){
 
 int Command::counter(char c, std::string str){
 	
+	if(str.empty())
+		return (0);
 	int count = 0;
 	
 	for(size_t i = 0; i < str.size(); i++){
@@ -68,31 +70,70 @@ void	Command::treatement_client(){
 }
 
 void	Command::parse_join(){
-	
 
 	std::string channel, pass;
 	std::string buff = next(' ');
-	int chan = counter('#', buff);
-	if(counter(',', buff)){
+	if(!buff.empty() || counter(',', buff) || !counter('#', buff)){
 		std::cout << "format: /join #<channel> <password>" << std::endl;
 		return ;
 	}
-	if(chan)
-		channel = buff;
+	channel = buff;
 	buff = next(' ');
-	if(!buff.empty()){
-		if(counter(',', buff) || counter('#', buff))
+	if(!buff.empty() || counter(',', buff) || counter('#', buff)){
 			std::cout << "format: /join #<channel> <password>" << std::endl;
-		pass = buff;
 	}
+	pass = buff;
 	_serv->join(_fd, channel, pass);
 }
 
-void	Command::parse_invite(){} 
+void	Command::parse_invite(){
+	
+	std::string nickname, channel;
+	std::string buff = next(' ');
+	if(!buff.empty() || counter(',', buff) || counter('#', buff)){
+		std::cout << "format: /invite <nickname> #<channel>" << std::endl;
+		return ;
+	}
+	nickname = buff;
+	buff = next(' ');
+	if(!buff.empty() || counter(',', buff) || !counter('#', buff)){
+			std::cout << "format: /invite <nickname> #<channel>" << std::endl;
+	}
+	channel = buff;
+	_serv->invite(_fd, channel, nickname);
+} 
 
-void	Command::parse_kick(){}
+void	Command::parse_kick(){
+		std::string nickname, channel;
+	std::string buff = next(' ');
+	if(!buff.empty() || counter(',', buff) || counter('#', buff)){
+		std::cout << "format: /kick <nickname> #<channel>" << std::endl;
+		return ;
+	}
+	nickname = buff;
+	buff = next(' ');
+	if(!buff.empty() || counter(',', buff) || !counter('#', buff)){
+			std::cout << "format: /kick <nickname> #<channel>" << std::endl;
+	}
+	channel = buff;
+	_serv->kick(_fd, channel, nickname);
+}
 
-void	Command::parse_topic(){}
+void	Command::parse_topic(){
+			std::string topic, channel;
+	std::string buff = next(' ');
+	if(!buff.empty() || counter(',', buff) || counter('#', buff)){
+		std::cout << "format: /topic #<channel> <topic>" << std::endl;
+		return ;
+	}
+	topic = buff;
+	buff = next(' ');
+	if(!buff.empty() || counter(',', buff) || !counter('#', buff)){
+			std::cout << "format: /topic #<channel> <topic>" << std::endl;
+	}
+	channel = buff;
+	_serv->kick(_fd, channel, topic);
+}
 
 void	Command::parse_mode(){}
 
