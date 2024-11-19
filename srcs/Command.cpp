@@ -34,9 +34,37 @@ void	Command::treatement(){
 	}
 	std::map<std::string, void(Command::*)(void)>::iterator it;
 	for(it = _cmd.begin(); it != _cmd.end(); it++){
-		if(it->first == data)
-			it->second;
+		if(it->first == data){
+			erase(0, _buff.find(' ') + 1);
+			(this->*(it->second))();
+		}
 	}
+}
+
+void	Command::erase(int pos, int size){
+	_buff.erase(pos, size);
+}
+
+std::string	Command::next(char find){
+	std::stringstream ss(_buff);
+	std::string buff;
+	getline(ss, buff, find);
+	return(buff);
+}
+
+int Command::counter(char c, std::string str){
+	
+	int count = 0;
+	
+	for(size_t i = 0; i < str.size(); i++){
+		if(str[i] == c)
+			count++;
+	}
+	return(count);
+}
+
+bool	Command::existantChannel(std::string buff){
+	return(_serv->find_channel(buff));
 }
 
 void	Command::treatement_client(){
@@ -44,10 +72,32 @@ void	Command::treatement_client(){
 }
 
 void	Command::parse_join(){
-	std::cout << "string" << std::endl;
-	std::string	treat(_buff);
-	treat.erase(0, treat.find(' '));
-	std::cout << treat << std::endl; 
+	
+	std::vector<std::pair<std::string, std::string> > tab;
+	std::pair<std::string, std::string>	channel;
+	std::string buff = next(' ');
+	int chan = counter('#', buff);
+	int comma = counter(',', buff);
+	if(chan && !comma){
+		channel.first = buff;
+		if(existantChannel(buff)){
+			channel.second = "";
+			tab.push_back(channel);
+			_serv->join(_fd, tab);
+		}
+		else
+		erase(0, buff.size() + 1);
+		buff = next(' ');
+		if(buff.empty())
+			channel.second = buff;
+			tab.push_back(channel);
+			_serv->join(_fd, tab);
+		else{
+			if(counter(',', buff))
+				erase(0, )
+		}
+	}
+
 }
 
 void	Command::parse_invite(){} 

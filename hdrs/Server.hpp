@@ -31,6 +31,7 @@ public:
 	void	new_client(const std::string& name, const std::string& nickname, const w_fd& fd);
 	void	rm__client(const Client& client);
 
+	bool	find_channel(std::string name);
 	bool	join__channel(const Client& client, const std::string& channel, const std::string& pass);
 	bool	leave_channel(const Client& client, const std::string& channel);
 
