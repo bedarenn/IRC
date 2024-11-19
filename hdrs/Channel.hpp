@@ -6,7 +6,7 @@
 
 class Channel {
 public:
-	Channel(const Client& client, const std::string& name, const std::string& _pass);
+	Channel(const Client& client, const std::string& name);
 	~Channel();
 	Channel(const Channel& cpy);
 

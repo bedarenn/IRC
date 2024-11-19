@@ -1,8 +1,8 @@
 #include "Channel.hpp"
 
 Channel::Channel() {}
-Channel::Channel(const Client& client, const std::string& name, const std::string& pass)
-	: _name(name), _pass(pass), _topic(pass), _limit(100),
+Channel::Channel(const Client& client, const std::string& name)
+	: _name(name), _pass(""), _topic(name), _limit(100),
 	_inv_only(false), _r_topic(false), _r_op(true) {
 	client.add_to_map(_client);
 	client.add_to_map(_op);

@@ -21,7 +21,7 @@ public:
 	void	connect();
 	void	read(w_vect_pollfd::iterator& poll);
 
-	void	join(const w_fd& fd, const w_vect_join& tab_join);
+	void	join(const w_fd& fd, const std::string& channel, const std::string& pass);
 	void	invite(const w_fd& fd, const std::string& channel, const std::string& client);
 	void	kick(const w_fd& fd, const std::string& channel, const std::string& client);
 	void	topic(const w_fd& fd, const std::string& channel, const std::string& value);
@@ -34,7 +34,7 @@ public:
 	bool	join__channel(const Client& client, const std::string& channel, const std::string& pass);
 	bool	leave_channel(const Client& client, const std::string& channel);
 
-	void	new_map_Channel(const Client& client, const std::string& channel, const std::string& pass);
+	void	new_map_Channel(const Client& client, const std::string& channel);
 
 	w_port		get_port() const;
 	w_pass		get_pass() const;
