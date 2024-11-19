@@ -89,13 +89,11 @@ void	Server::read(w_vect_pollfd::iterator& poll) {
 	}
 }
 
-void	Server::join(const w_fd& fd, const w_vect_join& tab_join) {
+void	Server::join(const w_fd& fd, const std::string& channel, const std::string& pass) {
 	Client	client = get_client(fd);
 
-	for (w_vect_join::const_iterator it = tab_join.begin(); it != tab_join.end(); it++) {
-		if (!join__channel(client, it->first, it->second))
-			new_map_Channel(client, it->first, it->second);
-	}
+	if (!join__channel(client, channel, pass))
+		new_map_Channel(client, channel);
 }
 void	Server::invite(const w_fd& fd, const std::string& channel, const std::string& client) {
 	Client	op = get_client(fd);
@@ -163,8 +161,8 @@ bool	Server::leave_channel(const Client& client, const std::string& channel) {
 	return (true);
 }
 
-void	Server::new_map_Channel(const Client& client, const std::string& channel, const std::string& pass) {
-	_channel.insert(w_pair_channel(channel, Channel(client, channel, pass)));
+void	Server::new_map_Channel(const Client& client, const std::string& channel) {
+	_channel.insert(w_pair_channel(channel, Channel(client, channel)));
 }
 
 w_port		Server::get_port() const	{ return(_port); }
