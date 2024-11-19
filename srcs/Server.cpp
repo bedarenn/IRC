@@ -143,15 +143,6 @@ void	Server::rm__client(const Client& client) {
 	}
 }
 
-bool	Server::find_channel(std::string name){
-	std::map<std::string, Channel>::iterator it = _channel.begin();
-	for(it; it != _channel.end(); it++){
-		if(it == _channel.end())
-			return(false);
-	}
-	return(true);
-}
-
 
 bool	Server::join__channel(const Client& client, const std::string& channel, const std::string& pass) {
 	w_map_Channel::iterator	it = _channel.find(channel);

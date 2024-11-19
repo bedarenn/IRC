@@ -63,41 +63,29 @@ int Command::counter(char c, std::string str){
 	return(count);
 }
 
-bool	Command::existantChannel(std::string buff){
-	return(_serv->find_channel(buff));
-}
-
 void	Command::treatement_client(){
 	std::cout << _fd << _buff << std::endl;
 }
 
 void	Command::parse_join(){
 	
-	std::vector<std::pair<std::string, std::string> > tab;
-	std::pair<std::string, std::string>	channel;
+
+	std::string channel, pass;
 	std::string buff = next(' ');
 	int chan = counter('#', buff);
-	int comma = counter(',', buff);
-	if(chan && !comma){
-		channel.first = buff;
-		if(existantChannel(buff)){
-			channel.second = "";
-			tab.push_back(channel);
-			_serv->join(_fd, tab);
-		}
-		else
-		erase(0, buff.size() + 1);
-		buff = next(' ');
-		if(buff.empty())
-			channel.second = buff;
-			tab.push_back(channel);
-			_serv->join(_fd, tab);
-		else{
-			if(counter(',', buff))
-				erase(0, )
-		}
+	if(counter(',', buff)){
+		std::cout << "format: /join #<channel> <password>" << std::endl;
+		return ;
 	}
-
+	if(chan)
+		channel = buff;
+	buff = next(' ');
+	if(!buff.empty()){
+		if(counter(',', buff) || counter('#', buff))
+			std::cout << "format: /join #<channel> <password>" << std::endl;
+		pass = buff;
+	}
+	_serv->join(_fd, channel, pass);
 }
 
 void	Command::parse_invite(){} 
