@@ -7,7 +7,7 @@
 
 class Server {
 public:
-	Server(w_port port, w_pass pass);
+	Server(const std::string& name, w_port port, w_pass pass);
 	~Server();
 	Server(const Server& cpy);
 
@@ -23,7 +23,7 @@ public:
 
 	void	join(const w_fd& fd, const std::string& channel, const std::string& pass);
 	void	invite(const w_fd& fd, const std::string& channel, const std::string& client);
-	void	kick(const w_fd& fd, const std::string& channel, const std::string& client);
+	void	kick(const w_fd& fd, const std::string& channel, const std::string& client, const std::string& msg);
 	void	topic(const w_fd& fd, const std::string& channel, const std::string& value);
 	void	mode(const w_fd& fd, std::vector<std::string> strs);
 
@@ -43,6 +43,7 @@ public:
 	w_map_Client::iterator	get_client(std::string name);
 
 private:
+	std::string	_name;
 	w_port		_port;
 	w_pass		_pass;
 

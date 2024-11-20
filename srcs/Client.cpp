@@ -16,6 +16,8 @@ Client&	Client::operator=(const Client& cpy) {
 	_fd = cpy._fd;
 	return (*this);
 }
+bool	Client::operator==(const Client& cpy) { return (_fd == cpy._fd); }
+bool	Client::operator!=(const Client& cpy) { return (_fd != cpy._fd); }
 
 bool	Client::is__in_map(const w_map_Client& map_client) const {
 	w_map_Client::const_iterator	it = map_client.find(_fd);

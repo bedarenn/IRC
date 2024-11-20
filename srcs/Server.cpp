@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 Server::Server() {}
-Server::Server(w_port port, w_pass pass) : _port(port), _pass(pass) {}
+Server::Server(const std::string& name, w_port port, w_pass pass) : _name(name.substr(2, name.size() - 2)), _port(port), _pass(pass) {}
 Server::~Server() {
 	for (w_vect_pollfd::iterator it = _fds.begin(); it < _fds.end(); it++) {
 		close(it->fd);
@@ -15,6 +15,7 @@ Server::Server(const Server &cpy) { *this = cpy; }
 Server &Server::operator=(const Server &cpy) {
 	if (this == &cpy)
 		return (*this);
+	_name = cpy._name;
 	_port = cpy._port;
 	_pass = cpy._pass;
 	_fds = cpy._fds;
@@ -37,7 +38,7 @@ void	Server::init_server() {
 	ERR_INT(bind(fd.fd, (w_sockaddr *)&adr, sizeof(adr)), 0, "bind");
 	ERR_INT(listen(fd.fd, 5), 0, "listen");
 
-	std::cout << "server init" << std::endl;
+	std::cout << _name << ": server init" << std::endl;
 }
 
 void	Server::run() {
@@ -90,35 +91,55 @@ void	Server::read(w_vect_pollfd::iterator& poll) {
 }
 
 void	Server::join(const w_fd& fd, const std::string& channel, const std::string& pass) {
-	Client	client = get_client(fd);
-
-	if (!join__channel(client, channel, pass))
-		new_map_Channel(client, channel);
+	try {
+		Client	client = get_client(fd);
+		if (!join__channel(client, channel, pass))
+			new_map_Channel(client, channel);
+	} catch (std::exception& err) {
+		std::cerr << "catch: " << err.what() << std::endl;
+		return ;
+	}
 }
 void	Server::invite(const w_fd& fd, const std::string& channel, const std::string& client) {
-	Client	op = get_client(fd);
+	try {
+		Client	op = get_client(fd);
 
-	w_map_Channel::iterator it_channel = _channel.find(channel);
-	w_map_Client::iterator	it_client = get_client(client);
+		w_map_Channel::iterator it_channel = _channel.find(channel);
+		w_map_Client::iterator	it_client = get_client(client);
 
-	it_channel->second.invite(op, it_client->second);
+		it_channel->second.invite(op, it_client->second);
+	} catch (std::exception& err) {
+		std::cerr << "catch: " << err.what() << std::endl;
+		return ;
+	}
+
+
 }
-void	Server::kick(const w_fd& fd, const std::string& channel, const std::string& client) {
-	Client	op = get_client(fd);
+void	Server::kick(const w_fd& fd, const std::string& channel, const std::string& client, const std::string& msg) {
+	try {
+		Client	op = get_client(fd);
 
-	w_map_Channel::iterator it_channel = _channel.find(channel);
-	w_map_Client::iterator	it_client = get_client(client);
+		w_map_Channel::iterator it_channel = _channel.find(channel);
+		w_map_Client::iterator	it_client = get_client(client);
 
-	it_channel->second.kick(op, it_client->second);
+		it_channel->second.kick(op, it_client->second, msg);
+	} catch (std::exception& err) {
+		std::cerr << "catch: " << err.what() << std::endl;
+		return ;
+	}
 }
 void	Server::topic(const w_fd& fd, const std::string& channel, const std::string& value) {
-	Client	op = get_client(fd);
+	try {
+		Client	op = get_client(fd);
 
-	w_map_Channel::iterator it_channel = _channel.find(channel);
+		w_map_Channel::iterator it_channel = _channel.find(channel);
 
-	it_channel->second.topic(op, value);
+		it_channel->second.topic(op, value);
+	} catch (std::exception& err) {
+		std::cerr << "catch: " << err.what() << std::endl;
+		return ;
+	}
 }
-
 
 void	Server::new_fd(const w_fd& socket) {
 	w_pollfd	fd;
@@ -161,7 +182,7 @@ bool	Server::leave_channel(const Client& client, const std::string& channel) {
 }
 
 void	Server::new_map_Channel(const Client& client, const std::string& channel) {
-	_channel.insert(w_pair_channel(channel, Channel(client, channel)));
+	_channel.insert(w_pair_channel(channel, Channel(client, channel, _name)));
 }
 
 w_port		Server::get_port() const	{ return(_port); }

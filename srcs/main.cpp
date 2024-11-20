@@ -20,7 +20,7 @@ int	main(int ac, char **av){
 	if(!parse(av))
 		return(1);
 
-	Server	server(atoi(av[1]), av[2]);
+	Server	server(av[0], atoi(av[1]), av[2]);
 	set_sig();
 	try {
 		server.init_server();
