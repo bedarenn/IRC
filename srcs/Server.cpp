@@ -129,7 +129,6 @@ void	Server::new_fd(const w_fd& socket) {
 	_fds.push_back(fd);
 	recv(socket, &buff, BUFFER_SIZE, 0);
 	Command(socket, buff, this);
-	//std::cout << socket << ": " << buff << std::flush;
 }
 void	Server::new_client(const std::string& name, const std::string& nickname, const w_fd& fd) {
 	Client(name, nickname, fd).add_to_map(_client);

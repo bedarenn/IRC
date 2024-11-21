@@ -5,7 +5,7 @@ Command JOIN:
 	<< MODE #chan1
 	<< WHO #chan1 %chtsunfra,152
 
-/join #chan1,#chan2
+/join #chan1 kld, #chan2
 	<< JOIN #chan1 kld, 
 	<< MODE #chan1
 	<< WHO #chan1 %chtsunfra,152
