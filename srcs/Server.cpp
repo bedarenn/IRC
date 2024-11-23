@@ -150,7 +150,6 @@ void	Server::new_fd(const w_fd& socket) {
 	_fds.push_back(fd);
 	recv(socket, &buff, BUFFER_SIZE, 0);
 	Command(socket, buff, this);
-	//std::cout << socket << ": " << buff << std::flush;
 }
 void	Server::new_client(const std::string& name, const std::string& nickname, const w_fd& fd) {
 	Client(name, nickname, fd).add_to_map(_client);
@@ -161,6 +160,7 @@ void	Server::rm__client(const Client& client) {
 		it->second.rm__client(client);
 	}
 }
+
 
 bool	Server::join__channel(const Client& client, const std::string& channel, const std::string& pass) {
 	w_map_Channel::iterator	it = _channel.find(channel);
