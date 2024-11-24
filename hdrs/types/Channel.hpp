@@ -4,8 +4,14 @@ class Channel;
 
 # include "types/Client.hpp"
 
+/* ***************** FORMAT_BASE ****************** */
+
 # define W_RPL(s, c) \
 	s + " " + c + " "
+# define W_ERR(client, cmd, s, c) \
+	W_RPL(s, c) + client.get_nickname() + " " + cmd + " "
+
+/* **************** FORMAT_SUCCESS **************** */
 
 # define W_RPL_NOTOPIC(channel, client, s) \
 	W_RPL(s, "331") + client.get_nickname() + " " + channel + " :No topic is set"
@@ -22,8 +28,7 @@ class Channel;
 # define W_RPL_ENDOFNAMES(channel, client, s) \
 	W_RPL(s, "366") + client.get_nickname() + " " + channel + " :End of /NAMES list"
 
-# define W_ERR(client, cmd, s, c) \
-	W_RPL(s, c) + client.get_nickname() + " " + cmd + " "
+/* ***************** FORMAT_FAIL ****************** */
 
 # define W_ERR_NOSUCHCHANNEL(client, cmd, s) \
 	W_ERR(client, cmd, s, "403") + ":No such channel"
@@ -41,6 +46,8 @@ class Channel;
 	W_ERR(client, cmd, s, "475") + ":Cannot join channel (+k)"
 # define W_ERR_CHANOPRIVSNEEDED(client, cmd, s) \
 	W_ERR(client, cmd, s, "482") + ":You're not channel operator"
+
+/* ****************** FORMAT_CMD ****************** */
 
 # define JOIN_MSG(channel, client) \
 	":" + client.get_nickname() + " JOIN " + channel + " " + client.get_nickname() + " :realname"
