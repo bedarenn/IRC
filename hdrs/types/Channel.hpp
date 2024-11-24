@@ -11,7 +11,10 @@ class Channel;
 	W_RPL(s, "331") + client.get_nickname() + " " + channel + " :No topic is set"
 # define W_RPL_TOPIC(channel, client, topic, s) \
 	W_RPL(s, "332") + client.get_nickname() + " " + channel + " :" + topic
-// RPL_TOPICWHOTIME
+# define W_RPL_TOPIC_T(channel, client, topic, s) \
+	W_RPL(s, "332") + "oui" + " " + channel + " :" + topic
+# define W_RPL_TOPICWHOTIME(channel, client, date, s) \
+	W_RPL(s, "333") + client.get_nickname() + " " + channel + " " + client.get_name() + " " + date
 # define W_RPL_INVITING(client, l_client, channel, s) \
 	W_RPL(s, "341") + client.get_nickname() + " " + l_client.get_nickname() + " " + channel
 # define W_RPL_NAMREPLY(channel, client, l_client, s) \

@@ -1,5 +1,6 @@
 #include "Server.hpp"
 
+#include <cstring>
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -74,7 +75,9 @@ void	Server::connect() {
 void	Server::read(w_vect_pollfd::iterator& poll) {
 	ssize_t	size;
 
+	bzero(buff, BUFFER_SIZE);
 	size = recv(poll->fd, &buff, BUFFER_SIZE, 0);
+	std::cout << poll->fd << ": " << buff << std::endl;
 	if (size < 0) {
 		std::cerr << SRV_ERROR_RECV << std::endl;
 	}
@@ -93,6 +96,7 @@ void	Server::read(w_vect_pollfd::iterator& poll) {
 void	Server::join(const w_fd& fd, const std::string& channel, const std::string& pass) {
 	try {
 		Client	client = get_client(fd);
+		std::cout << "join begin: " << client << std::endl;
 		if (!join__channel(client, channel, pass))
 			new_map_Channel(client, channel);
 	} catch (std::exception& err) {
@@ -133,7 +137,8 @@ void	Server::topic(const w_fd& fd, const std::string& channel, const std::string
 		Client	op = get_client(fd);
 
 		w_map_Channel::iterator it_channel = _channel.find(channel);
-
+		if (it_channel == _channel.end())
+			throw (std::runtime_error("wsh"));
 		it_channel->second.topic(op, value);
 	} catch (std::exception& err) {
 		std::cerr << "catch: " << err.what() << std::endl;
@@ -143,12 +148,18 @@ void	Server::topic(const w_fd& fd, const std::string& channel, const std::string
 
 void	Server::new_fd(const w_fd& socket) {
 	w_pollfd	fd;
+	ssize_t		size;
 
 	fd.fd = socket;
 	fd.events = POLLIN;
 	fd.revents = 0;
 	_fds.push_back(fd);
-	recv(socket, &buff, BUFFER_SIZE, 0);
+	bzero(buff, BUFFER_SIZE);
+	size = recv(socket, &buff, BUFFER_SIZE, 0);
+	if (size >= 0) {
+		buff[size] = '\0';
+	}
+	std::cout << socket << " :" << size << ": " << buff << std::endl;
 	Command(socket, buff, this);
 }
 void	Server::new_client(const std::string& name, const std::string& nickname, const w_fd& fd) {
@@ -160,7 +171,6 @@ void	Server::rm__client(const Client& client) {
 		it->second.rm__client(client);
 	}
 }
-
 
 bool	Server::join__channel(const Client& client, const std::string& channel, const std::string& pass) {
 	w_map_Channel::iterator	it = _channel.find(channel);

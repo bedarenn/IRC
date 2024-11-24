@@ -29,8 +29,8 @@ OBJS = $(addprefix $(DIR_OBJS), $(SRCS:%.cpp=%.o))
 
 #################################### RULES #####################################
 
-all:
 debug:
+all:
 
 $(NAME): $(OBJS)
 	@printf "$(GREEN)compile $@                                         $(NC)\n"
@@ -49,7 +49,7 @@ fclean: clean
 	@printf "$(RED)clean $(NAME)$(NC)\n"
 	@rm -f $(NAME)
 
-re: fclean all
+re: fclean debug
 
 run: all
 	@flatpak run io.github.Hexchat > /dev/null 2>&1 &

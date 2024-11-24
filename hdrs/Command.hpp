@@ -34,17 +34,17 @@ class Command{
 		void 		set_user(std::string user);
 
 	private:
-		int														_fd;
-		std::string												_buff;
-		Server													*_serv;
-		std::map<std::string, void(Command::*)(void)> 			_cmd;
-		std::string												_nickname;
-		std::string												_username;
-		bool													_new;
-		bool													_nick;
-		bool													_user;
-		bool													_password;
-		bool													_mad;
+		int				_fd;
+		std::string		_buff;
+		Server			*_serv;
+		w_map_Command	_cmd;
+		std::string		_nickname;
+		std::string		_username;
+		bool			_new;
+		bool			_nick;
+		bool			_user;
+		bool			_password;
+		bool			_mad;
 };
 
 std::string *fill_tab(int size, std::string data);

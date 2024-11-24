@@ -27,5 +27,5 @@ w_pollfd	set_pollfd(int fd, short int event, short int revent);
 # define SRV_ERROR_RECV			"error: recv"
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 1024
+#  define BUFFER_SIZE 2048
 # endif

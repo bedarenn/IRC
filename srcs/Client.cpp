@@ -40,9 +40,16 @@ bool	Client::rm__to_map(w_map_Client& map_client) const {
 }
 
 ssize_t	Client::send_to_fd(const std::string& str) const {
-	return (send(_fd, str.c_str(), str.size(), 0));
+	std::string s = str + "\r\n";
+	std::cout << _fd << ">" << s.size() << "> " << s << std::endl;
+	return (send(_fd, s.c_str(), s.size(), 0));
 }
 
 const std::string&		Client::get_name() const { return (_name); }
 const std::string&		Client::get_nickname() const { return (_nickname); }
 const w_fd&				Client::get_fd() const { return (_fd); }
+
+std::ostream&	operator<<(std::ostream& out, const Client& client) {
+	out << client._fd << ": " << client._nickname;
+	return (out);
+}

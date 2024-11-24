@@ -25,6 +25,8 @@ public:
 	const std::string&		get_nickname() const;
 	const w_fd&				get_fd() const;
 
+	friend std::ostream&	operator<<(std::ostream& out, const Client& client);
+
 private:
 	std::string		_name;
 	std::string		_nickname;

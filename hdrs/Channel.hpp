@@ -2,6 +2,8 @@
 
 # include "types/Channel.hpp"
 
+# include <ctime>
+
 # include "Client.hpp"
 
 class Channel {
@@ -28,12 +30,18 @@ public:
 
 	void	cast_send(const std::string& str);
 	void	cast_send(const std::string& str, const Client& client);
+	void	cast_f(void (Channel::*f)(const Client&));
+
+	void	send_topic(const Client& client);
+
 	void	send_list(const Client& client);
 
 	const std::string&	get_name() const;
 	void	set_name(const std::string& value);
 	const std::string&	get_topic() const;
 	void	set_topic(const std::string& value);
+
+	std::string	get_topic_time() const;
 
 	bool	empty();
 
@@ -42,10 +50,9 @@ private:
 	w_map_Client	_invite;
 	w_map_Client	_op;
 
-	std::string		_name;
-	std::string		_pass;
-	std::string		_topic;
-	size_t			_limit;
+	std::string	_name;
+	std::string	_pass;
+	size_t		_limit;
 
 	bool		_inv_only;
 	bool		_r_topic;
@@ -53,7 +60,11 @@ private:
 	bool		_r_pass;
 	bool		_r_limit;
 
-	const std::string&	_server;
+	std::string	_topic;
+	std::time_t _topic_time;
+	Client		_topic_change;
+
+	std::string	_server;
 
 	Channel();
 };
