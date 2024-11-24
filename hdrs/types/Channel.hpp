@@ -22,6 +22,26 @@ class Channel;
 # define W_RPL_ENDOFNAMES(channel, client, s) \
 	W_RPL(s, "366") + client.get_nickname() + " " + channel + " :End of /NAMES list"
 
+# define W_ERR(client, cmd, s, c) \
+	W_RPL(s, c) + client.get_nickname() + " " + cmd + " "
+
+# define W_ERR_NOSUCHCHANNEL(client, cmd, s) \
+	W_ERR(client, cmd, s, "403") + ":No such channel"
+# define W_ERR_NOTONCHANNEL(client, cmd, s) \
+	W_ERR(client, cmd, s, "442") + ":You're not on that channel"
+# define ERR_USERONCHANNEL(client, cmd, s) \
+	W_ERR(client, cmd, s, "443") + ":is already on channel"
+# define W_ERR_NEEDMOREPARAMS(client, cmd, s) \
+	W_ERR(client, cmd, s, "461") + ":Not enough parameters"
+# define W_ERR_CHANNELISFULL(client, cmd, s) \
+	W_ERR(client, cmd, s, "471") + ":Cannot join channel (+l)"
+# define W_ERR_INVITEONLYCHAN(client, cmd, s) \
+	W_ERR(client, cmd, s, "473") + ":Cannot join channel (+i)"
+# define W_ERR_BADCHANNELKEY(client, cmd, s) \
+	W_ERR(client, cmd, s, "475") + ":Cannot join channel (+k)"
+# define W_ERR_CHANOPRIVSNEEDED(client, cmd, s) \
+	W_ERR(client, cmd, s, "482") + ":You're not channel operator"
+
 # define JOIN_MSG(channel, client) \
 	":" + client.get_nickname() + " JOIN " + channel + " " + client.get_nickname() + " :realname"
 # define INVI_MSG(channel, op, client) \
@@ -30,3 +50,5 @@ class Channel;
 	":" + op.get_nickname() + " KICK " + channel + " " + client.get_nickname() + " " + msg
 
 # define KICK_MSG_DEFAULT "You have been kick form this server."
+
+typedef std::vector<std::string>	w_vect_invite;

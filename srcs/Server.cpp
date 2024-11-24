@@ -96,7 +96,10 @@ void	Server::read(w_vect_pollfd::iterator& poll) {
 void	Server::join(const w_fd& fd, const std::string& channel, const std::string& pass) {
 	try {
 		Client	client = get_client(fd);
-		std::cout << "join begin: " << client << std::endl;
+		if (channel.empty()) {
+			client.send_to_fd(W_ERR_NEEDMOREPARAMS(client, "JOIN", _name));
+			return ;
+		}
 		if (!join__channel(client, channel, pass))
 			new_map_Channel(client, channel);
 	} catch (std::exception& err) {
@@ -108,10 +111,19 @@ void	Server::invite(const w_fd& fd, const std::string& channel, const std::strin
 	try {
 		Client	op = get_client(fd);
 
-		w_map_Channel::iterator it_channel = _channel.find(channel);
-		w_map_Client::iterator	it_client = get_client(client);
+		if (channel.empty() || client.empty()) {
+			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "INVITE", _name));
+			return ;
+		}
 
-		it_channel->second.invite(op, it_client->second);
+		w_map_Channel::iterator it_channel = _channel.find(channel);
+
+		if (it_channel == _channel.end()) {
+			op.send_to_fd(W_ERR_NOSUCHCHANNEL(op, "INVITE", _name));
+			return ;
+		}
+
+		it_channel->second.invite(op, client);
 	} catch (std::exception& err) {
 		std::cerr << "catch: " << err.what() << std::endl;
 		return ;
@@ -123,7 +135,17 @@ void	Server::kick(const w_fd& fd, const std::string& channel, const std::string&
 	try {
 		Client	op = get_client(fd);
 
+		if (channel.empty() || client.empty()) {
+			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "KICK", _name));
+			return ;
+		}
 		w_map_Channel::iterator it_channel = _channel.find(channel);
+
+		if (it_channel == _channel.end()) {
+			op.send_to_fd(W_ERR_NOTONCHANNEL(op, "KICK", _name));
+			return ;
+		}
+
 		w_map_Client::iterator	it_client = get_client(client);
 
 		it_channel->second.kick(op, it_client->second, msg);
@@ -136,9 +158,15 @@ void	Server::topic(const w_fd& fd, const std::string& channel, const std::string
 	try {
 		Client	op = get_client(fd);
 
+		if (channel.empty() || value.empty()) {
+			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "TOPIC", _name));
+			return ;
+		}
 		w_map_Channel::iterator it_channel = _channel.find(channel);
-		if (it_channel == _channel.end())
-			throw (std::runtime_error("wsh"));
+		if (it_channel == _channel.end()) {
+			op.send_to_fd(W_ERR_NOSUCHCHANNEL(op, "TOPIC", _name));
+			return ;
+		}
 		it_channel->second.topic(op, value);
 	} catch (std::exception& err) {
 		std::cerr << "catch: " << err.what() << std::endl;

@@ -15,18 +15,23 @@ public:
 	Channel&	operator=(const Channel& cpy);
 
 	bool	join(const Client& client, const std::string& pass);
-	bool	invite(const Client& op, const Client& client);
+	bool	invite(const Client& op, const std::string& client);
 	bool	kick(const Client& op, const Client& client, const std::string& msg);
 	bool	topic(const Client& op, const std::string& value);
 	bool	mode(const Client& op, const std::string& value);
 
 	bool	join_pass(const Client& client);
-	bool	invite_pass(const Client& op, const Client& client);
+	bool	invite_pass(const Client& op, const std::string& client);
 	bool	kick_pass(const Client& op, const Client& client, std::string msg);
 	bool	topic_pass(const Client& op, const std::string& value);
 
 	bool	add_client(const Client& client);
 	bool	rm__client(const Client& client);
+
+	bool	is__invite(const std::string& client) const;
+	bool	del_invite(const std::string& client);
+
+	bool	is_on_channel(const std::string& client) const;
 
 	void	cast_send(const std::string& str);
 	void	cast_send(const std::string& str, const Client& client);
@@ -47,7 +52,7 @@ public:
 
 private:
 	w_map_Client	_client;
-	w_map_Client	_invite;
+	w_vect_invite	_invite;
 	w_map_Client	_op;
 
 	std::string	_name;
