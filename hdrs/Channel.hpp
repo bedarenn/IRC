@@ -19,6 +19,7 @@ public:
 	bool	kick(const Client& op, const Client& client, const std::string& msg);
 	bool	topic(const Client& op, const std::string& value);
 	bool	mode(const Client& op, const std::string& value);
+	bool	quit(const Client& client, const std::string& str);
 
 	bool	join_pass(const Client& client);
 	bool	invite_pass(const Client& op, const std::string& client);

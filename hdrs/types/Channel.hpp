@@ -8,8 +8,10 @@ class Channel;
 
 # define W_RPL(s, c) \
 	s + " " + c + " "
+# define W_ERC(client, s, c) \
+	W_RPL(s, c) + client.get_name() + " "
 # define W_ERR(client, cmd, s, c) \
-	W_RPL(s, c) + client.get_nickname() + " " + cmd + " "
+	W_RPL(s, c) + client.get_name() + " " + cmd + " "
 
 /* **************** FORMAT_SUCCESS **************** */
 
@@ -30,14 +32,24 @@ class Channel;
 
 /* ***************** FORMAT_FAIL ****************** */
 
+# define W_ERR_NOSUCHNICK(client, nick, s) \
+	W_ERC(client, s, "432") + nick + " " + ":No such nick/channel"
 # define W_ERR_NOSUCHCHANNEL(client, cmd, s) \
 	W_ERR(client, cmd, s, "403") + ":No such channel"
+# define W_ERR_NONICKNAMEGIVEN(client, s) \
+	W_ERC(client, s, "431") + ":No nickname given"
+# define W_ERR_ERRONEUSNICKNAME(client, s) \
+	W_ERC(client, s, "432") + client.get_nickname() + " " + ":Erroneus nickname"
+# define W_ERR_NICKNAMEINUSE(client, s) \
+	W_ERC(client, s, "433") + client.get_nickname() + " " + ":Nickname is already in use"
 # define W_ERR_NOTONCHANNEL(client, cmd, s) \
 	W_ERR(client, cmd, s, "442") + ":You're not on that channel"
 # define ERR_USERONCHANNEL(client, cmd, s) \
 	W_ERR(client, cmd, s, "443") + ":is already on channel"
 # define W_ERR_NEEDMOREPARAMS(client, cmd, s) \
 	W_ERR(client, cmd, s, "461") + ":Not enough parameters"
+# define W_ERR_ALREADYREGISTERED(client, s) \
+	W_ERC(client, s, "462") + ":You may not reregister"
 # define W_ERR_CHANNELISFULL(client, cmd, s) \
 	W_ERR(client, cmd, s, "471") + ":Cannot join channel (+l)"
 # define W_ERR_INVITEONLYCHAN(client, cmd, s) \
@@ -50,11 +62,17 @@ class Channel;
 /* ****************** FORMAT_CMD ****************** */
 
 # define JOIN_MSG(channel, client) \
-	":" + client.get_nickname() + " JOIN " + channel + " " + client.get_nickname() + " :realname"
+	client.get_name() + " JOIN " + channel + " " + client.get_nickname() + " :realname"
 # define INVI_MSG(channel, op, client) \
-	":" + op.get_nickname() + " INVITE " + client.get_nickname() + " " + channel
+	op.get_name() + " INVITE " + client.get_nickname() + " " + channel
 # define KICK_MSG(channel, op, client, msg) \
-	":" + op.get_nickname() + " KICK " + channel + " " + client.get_nickname() + " " + msg
+	op.get_name() + " KICK " + channel + " " + client.get_nickname() + " " + msg
+# define PRIV_MSG(client, target, str) \
+	client.get_name() + " PRIVMSG " + target + " " + str
+# define PONG_MSG(token) \
+	"PONG " + token
+# define QUIT_MSG(str) \
+	"QUIT " + str
 
 # define KICK_MSG_DEFAULT "You have been kick form this server."
 
