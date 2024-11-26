@@ -15,6 +15,8 @@ class Channel;
 
 /* **************** FORMAT_SUCCESS **************** */
 
+# define W_RPL_CHANNELMODEIS(client, channel, md, arg, s) \
+	W_RPL(s, "324") + client.get_name() + " " + channel + " " + md + " " + arg
 # define W_RPL_NOTOPIC(channel, client, s) \
 	W_RPL(s, "331") + client.get_nickname() + " " + channel + " :No topic is set"
 # define W_RPL_TOPIC(channel, client, topic, s) \
@@ -67,6 +69,10 @@ class Channel;
 	op.get_name() + " INVITE " + client.get_nickname() + " " + channel
 # define KICK_MSG(channel, op, client, msg) \
 	op.get_name() + " KICK " + channel + " " + client.get_nickname() + " " + msg
+# define MODE_MSG(channel, op, md, s) \
+	op.get_name() + " MODE " + channel + " " + md
+# define MODE_MSG_ARG(channel, op, md, arg, s) \
+	op.get_name() + " MODE " + channel + " " + md + " " + arg
 # define PRIV_MSG(client, target, str) \
 	client.get_name() + " PRIVMSG " + target + " " + str
 # define PONG_MSG(token) \

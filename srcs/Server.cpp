@@ -172,6 +172,25 @@ void	Server::topic(const w_fd& fd, const std::string& channel, const std::string
 		return ;
 	}
 }
+void	Server::mode(const w_fd& fd, const std::string& channel, const std::string& md, const std::string& arg) {
+	try {
+		Client	op = get_client(fd);
+
+		if (channel.empty()) {
+			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _name));
+			return ;
+		}
+		w_map_Channel::iterator it_channel = _channel.find(channel);
+		if (it_channel == _channel.end()) {
+			op.send_to_fd(W_ERR_NOSUCHCHANNEL(op, "MODE", _name));
+			return ;
+		}
+		it_channel->second.mode(op, md, arg);
+	} catch (std::exception& err) {
+		std::cerr << "catch: " << err.what() << std::endl;
+		return ;
+	}
+}
 void	Server::send_chan(const w_fd& fd, const std::string& chan, const std::string& str) {
 	try {
 		Client	client = get_client(fd);
