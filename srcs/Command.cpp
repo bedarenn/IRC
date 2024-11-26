@@ -52,7 +52,7 @@ void	Command::treatement(){
 }
 
 void	Command::erase(int pos, int size){
-	_buff.erase(pos, size);
+		_buff.erase(pos, size);
 }
 
 std::string	Command::next(char find){
@@ -291,8 +291,9 @@ void		Command::new_client(){
 	buff.erase(buff.size() - 1, 1);
 	comp_pass(buff);
 	if(_mad == true){
-		std::string err = ERR_PASS(_serv->get_name());
-		send(_fd, err.c_str(), err.size(), 0);
+		//std::string err = ERR_PASS(_serv->get_name());
+		//send(_fd, err.c_str(), err.size(), 0);
+		_buff = '\0';
 		close(_fd);
 		return ;
 	}
