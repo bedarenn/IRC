@@ -22,6 +22,7 @@ class Channel;
 # define W_RPL_ENDOFNAMES(channel, client, s) \
 	W_RPL(s, "366") + client.get_nickname() + " " + channel + " :End of /NAMES list"
 
+
 # define W_ERR(client, cmd, s, c) \
 	W_RPL(s, c) + client.get_nickname() + " " + cmd + " "
 

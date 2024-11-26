@@ -38,6 +38,7 @@ public:
 
 	w_port		get_port() const;
 	w_pass		get_pass() const;
+	std::string get_name() const;
 
 	const Client&	get_client(w_fd fd) const;
 	w_map_Client::iterator	get_client(std::string name);

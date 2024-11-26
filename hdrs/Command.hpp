@@ -1,6 +1,7 @@
 #pragma once
 
 #include "types/Command.hpp"
+#include "types/Channel.hpp"
 #include "Server.hpp"
 
 
@@ -29,9 +30,9 @@ class Command{
 
 		bool		check_new();
 		void		new_client();
-		void		comp_pass(std::string pass);
-		void		set_nick(std::string nick);
-		void 		set_user(std::string user);
+		void		comp_pass(std::string &pass);
+		void		set_nick(std::string &nick);
+		void 		set_user(std::string &user);
 
 	private:
 		int				_fd;
@@ -49,3 +50,4 @@ class Command{
 
 std::string *fill_tab(int size, std::string data);
 int 		counter(char c, std::string str);
+std::string	trim(std::string buff, char c);

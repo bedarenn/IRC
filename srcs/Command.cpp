@@ -30,7 +30,6 @@ void	Command::init_cmd(){
 
 void	Command::treatement(){
 	
-	// std::cout << _buff << std::endl;
 	std::stringstream ss(_buff);
 	std::string	data;
 	
@@ -74,9 +73,9 @@ int	counter(char c, std::string str){
 	return(count);
 }
 
-std::string	trim(std::string buff){
+std::string	trim(std::string buff, char c){
 	std::string result;
-	result = buff.erase(buff.find(','), 1);
+	result = buff.erase(buff.find(c), 1);
 	return (result);
 }
 
@@ -100,10 +99,9 @@ void	Command::parse_join(){
 			return ;
 	}
 	if(counter(',', buff)){
-		buff = trim(buff);
+		buff = trim(buff, ',');
 	}
 	pass = buff;
-	// std::cout << _fd << " " << channel << " " << pass << std::endl;
 	_serv->join(_fd, channel, pass);
 }
 
@@ -144,16 +142,12 @@ void	Command::multi_join(std::string buff){
 	}
 	std::string *tab_pass = fill_tab(chan, buff);
 	for(int i = 0; i < chan; i++)
-		// std::cout << _fd << " " << tab_chan[i] << " " << tab_pass[i] << std::endl;
-		
-		// _serv->join(_fd, tab_chan[i], tab_pass[i]);
+		_serv->join(_fd, tab_chan[i], tab_pass[i]);
 	delete[] tab_chan;
 	delete[] tab_pass;
 }
 
 void	Command::parse_invite(){
-	
-	// std::cout << "buff => " << _buff << std::endl;
 	std::string nickname, channel;
 	std::string buff = next(' ');
 	if(buff.empty() || counter(',', buff) || counter('#', buff)){
@@ -167,15 +161,14 @@ void	Command::parse_invite(){
 		// std::cout << "format: /invite <nickname> #<channel>" << std::endl;
 	}
 	channel = buff;
-	// std::cout << channel << ' ' << nickname << std::endl;
 	_serv->invite(_fd, channel, nickname);
 } 
 
 void	Command::parse_kick(){
-
-	// std::cout << "buff => " << _buff << std::endl;
-	std::string nickname, channel;
+	std::string nickname, channel, msg;
 	std::string buff = next(' ');
+	erase(0, buff.size() + 1);
+	buff = next(' ');
 	if(buff.empty() || counter(',', buff) || counter('#', buff)){
 		// std::cout << "format: /kick <nickname> #<channel>" << std::endl;
 		return ;
@@ -186,15 +179,14 @@ void	Command::parse_kick(){
 	if(buff.empty() || counter(',', buff) || !counter('#', buff)){
 		// std::cout << "format: /kick <nickname> #<channel>" << std::endl;
 	}
-	channel = buff;
-	std::cout << channel << ' ' << nickname << std::endl;
-	// _serv->kick(_fd, channel, nickname);
+	channel = trim(buff, ':');
+	erase(0, buff.size() + 1);
+	buff = next(' ');
+	msg = buff; 
+	_serv->kick(_fd, channel, nickname, msg);
 }
 
-// invert topic_string and channel
 void	Command::parse_topic(){
-	
-	// std::cout << "buff => " << _buff << std::endl;
 	std::string topic, channel;
 	std::string buff = next(' ');
 	if(buff.empty() || counter(',', buff) || !counter('#', buff)){
@@ -208,8 +200,7 @@ void	Command::parse_topic(){
 		// std::cout << "format: /topic #<channel> <topic>" << std::endl;
 	}
 	channel = buff;
-	// std::cout << channel << ' ' << topic << std::endl;
-	_serv->topic(_fd, topic, channel);
+	_serv->topic(_fd, channel, topic);
 }
 
 void	Command::parse_quit(){
@@ -220,25 +211,25 @@ void	Command::parse_mode(){
 	// std::cout << _buff << std::endl;
 }
 
-void		Command::comp_pass(std::string pass){
-	// std::cout << "pass: " << pass << std::endl;
+void		Command::comp_pass(std::string &pass){
+	std::string key = pass.substr(0, pass.find(' '));
+	if(key != "PASS"){
+		_mad = true;
+		return ;
+	}
+	pass.erase(0, pass.find(' ') + 1);
 	if(pass == _serv->get_pass())
 		_password = true;
 	else{
-		// std::cout << "bad password" << std::endl;
 		_mad = true;
 	}
 }
 
-void		Command::set_nick(std::string nick){
-	// std::cout << "nick: " << nick << std::endl;
-
+void		Command::set_nick(std::string &nick){
 	_nickname = nick;
 	_nick = true;
 }
-void 		Command::set_user(std::string user){
-	// std::cout << "user: " << user << std::endl;
-
+void 		Command::set_user(std::string &user){
 	user.erase(user.find(' '), user.size());
 	_username = user;
 	_user = true;	
@@ -253,12 +244,13 @@ bool	Command::check_new(){
 }
 
 void		Command::new_client(){
-	
 	std::string buff;
 	buff = next('\n');
 	buff.erase(buff.size() - 1, 1);
-	buff.erase(0, buff.find(' ') + 1);
 	comp_pass(buff);
+	if(_mad){
+		return ;
+	}
 	erase(0, _buff.find('\n') + 1);
 	buff = next('\n');
 	buff.erase(buff.size() - 1, 1);
@@ -271,33 +263,7 @@ void		Command::new_client(){
 	set_user(buff);
 	erase(0, _buff.find('\n') + 1);
 	_serv->new_client(_username, _nickname, _fd);
-	// std::cout << _fd << " " << _nickname << " " << _username << std::endl;
 }
-
-// void		Command::new_client(){
-	
-// 	std::string buff;
-// 	std::string cmd;
-	
-// 	// erase(0, _buff.find('\n') + 1);
-// 	while(!_new){
-// 		buff = next('\n');
-// 		cmd = buff.substr(0, buff.find(' '));
-// 		buff.erase(buff.size() - 1, 1);
-// 		buff.erase(0, buff.find(' ') + 1);
-// 		std::map<std::string, void(Command::*)(std::string)>::iterator it;
-// 		for(it = _client.begin(); it != _client.end(); it++){
-// 			if(it->first == cmd)
-// 				(this->*(it->second))(buff);
-// 		}
-// 		erase(0, _buff.find('\n') + 1);
-// 		if(check_new())
-// 			return ;
-// 	}
-// 	std::cout << _fd << " " << _nickname << " " << _username << std::endl;
-// 	// _serv->new_client(_username, _nickname, _fd);
-// }
-
 /*
 join(const w_fd& client, std::vector<std::string>); si pass, premier
 invite(const w_fd& op, const std::string& channel, const std::string& value); 
