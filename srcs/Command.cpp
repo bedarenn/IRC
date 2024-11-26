@@ -86,7 +86,7 @@ void	Command::parse_join(){
 	std::string channel, pass;
 	std::string buff = next(' ');
 	if(buff.empty() || !counter('#', buff)){
-		// std::cout << "format: /join #<channel> <password>" << std::endl;
+		_serv->join(_fd, "", "");
 		return ;
 	}
 	if(counter('#', buff) > 1 && counter(',', buff)){
@@ -97,7 +97,7 @@ void	Command::parse_join(){
 	erase(0, buff.size() + 1);
 	buff = next(' ');
 	if(counter('#', buff)){
-			// std::cout << "format: /join #<channel> <password>" << std::endl;
+			_serv->join(_fd, channel, "");
 			return ;
 	}
 	if(counter(',', buff)){
@@ -131,7 +131,7 @@ void	Command::multi_join(std::string buff){
 	int comma = counter(',', buff);
 	int save = buff.size() + 1;
 	if(chan - comma != 1){
-		// std::cout << "format: /join #<channel>[,#channel] <password>[,<password>]" << std::endl;
+		_serv->join(_fd, "", "");
 		return ;
 	}
 	std::string *tab_chan = fill_tab(chan, buff);
@@ -139,7 +139,7 @@ void	Command::multi_join(std::string buff){
 	buff = next(' ');
 	if(counter('#', buff)){
 		delete[] tab_chan;
-		// std::cout << "format: /join #<channel>[,#channel] <password>[,<password>]" << std::endl;
+		_serv->join(_fd, "", "");
 		return ;
 	}
 	std::string *tab_pass = fill_tab(chan, buff);
@@ -153,14 +153,15 @@ void	Command::parse_invite(){
 	std::string nickname, channel;
 	std::string buff = next(' ');
 	if(buff.empty() || counter(',', buff) || counter('#', buff)){
-		// std::cout << "format: /invite <nickname> #<channel>" << std::endl;
+		_serv->invite(_fd, "", "");
 		return ;
 	}
 	nickname = buff;
 	erase(0, buff.size() + 1);
 	buff = next(' ');
 	if(buff.empty() || counter(',', buff) || !counter('#', buff)){
-		// std::cout << "format: /invite <nickname> #<channel>" << std::endl;
+		_serv->invite(_fd, "", nickname);
+		return ;
 	}
 	channel = buff;
 	_serv->invite(_fd, channel, nickname);
@@ -172,14 +173,15 @@ void	Command::parse_kick(){
 	erase(0, buff.size() + 1);
 	buff = next(' ');
 	if(buff.empty() || counter(',', buff) || counter('#', buff)){
-		// std::cout << "format: /kick <nickname> #<channel>" << std::endl;
+		_serv->kick(_fd, "", "", "");
 		return ;
 	}
 	nickname = buff;
 	erase(0, buff.size() + 1);
 	buff = next(' ');
 	if(buff.empty() || counter(',', buff) || !counter('#', buff)){
-		// std::cout << "format: /kick <nickname> #<channel>" << std::endl;
+		_serv->kick(_fd, "", nickname, "");
+		return ;
 	}
 	channel = trim(buff, ':');
 	erase(0, buff.size() + 1);
@@ -192,14 +194,14 @@ void	Command::parse_topic(){
 	std::string topic, channel;
 	std::string buff = next(' ');
 	if(buff.empty() || counter(',', buff) || !counter('#', buff)){
-		// std::cout << "format: /topic #<channel> <topic>" << std::endl;
+		_serv->topic(_fd, "", "");
 		return ;
 	}
 	topic = buff;
 	erase(0, buff.size() + 1);
 	buff = next(' ');
 	if(buff.empty() || counter(',', buff) || counter('#', buff)){
-		// std::cout << "format: /topic #<channel> <topic>" << std::endl;
+		_serv->topic(_fd, "", topic);
 	}
 	channel = buff;
 	_serv->topic(_fd, channel, topic);
@@ -221,11 +223,12 @@ void	Command::parse_mode(){
 		if(isalpha(buff[i]))
 			alpha++;
 	}
-	if(!s || !alpha)
+	if(!s || !alpha){
+		_serv->mode(_fd, "", "");
 		return ;	
+	}
 	std::string *tab = new std::string[alpha]();
 	buff = trim(buff, sign[0]);
-	std::cout << buff << std::endl;
 	for(size_t i = 0; i < buff.size(); i++){
 		if(data.find(buff[i]) != std::string::npos)
 			tab[i] = buff[i];
@@ -234,10 +237,12 @@ void	Command::parse_mode(){
 			return ;
 		}
 	}
+	erase(0, buff.size() + 1);
+	buff = next('\n');
 	for(int i = 0; i < alpha; i++){
-		_serv->mode(_fd, sign, tab[i]);
+		_serv->mode(_fd, sign + tab[i], buff);
 	}
-	delete [] tab;
+	delete[] tab;
 }
 
 void	Command::parse_ping(){
