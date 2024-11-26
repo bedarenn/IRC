@@ -291,6 +291,9 @@ void		Command::new_client(){
 	buff.erase(buff.size() - 1, 1);
 	comp_pass(buff);
 	if(_mad == true){
+		std::string err = ERR_PASS(_serv->get_name());
+		send(_fd, err.c_str(), err.size(), 0);
+		close(_fd);
 		return ;
 	}
 	erase(0, _buff.find('\n') + 1);
