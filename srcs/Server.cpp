@@ -72,12 +72,12 @@ void	Server::connect() {
 	else
 		std::cerr << SRV_ERROR_ACCEPT(client) << std::endl; 
 }
+
 void	Server::read(w_vect_pollfd::iterator& poll) {
 	ssize_t	size;
 
 	bzero(buff, BUFFER_SIZE);
 	size = recv(poll->fd, &buff, BUFFER_SIZE, 0);
-	std::cout << poll->fd << ": " << buff << std::endl;
 	if (size < 0) {
 		std::cerr << SRV_ERROR_RECV << std::endl;
 	}
@@ -89,7 +89,6 @@ void	Server::read(w_vect_pollfd::iterator& poll) {
 	else {
 		buff[size] = '\0';
 		Command(poll->fd, buff, this);
-		//std::cout << poll->fd << ": " << buff << std::flush;
 	}
 }
 
@@ -252,7 +251,6 @@ void	Server::new_fd(const w_fd& socket) {
 	if (size >= 0) {
 		buff[size] = '\0';
 	}
-	std::cout << socket << " :" << size << ": " << buff << std::endl;
 	Command(socket, buff, this);
 }
 void	Server::new_client(const std::string& name, const std::string& nickname, const w_fd& fd) {
@@ -290,6 +288,8 @@ void	Server::new_map_Channel(const Client& client, const std::string& channel) {
 
 w_port		Server::get_port() const	{ return(_port); }
 w_pass		Server::get_pass() const	{ return(_pass); }
+std::string Server::get_name() const	{ return(_name); }
+
 
 const Client&	Server::get_client(const w_fd& fd) const {
 	w_map_Client::const_iterator it = _client.find(fd);

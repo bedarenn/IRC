@@ -40,8 +40,9 @@ public:
 
 	void	new_map_Channel(const Client& client, const std::string& channel);
 
-	w_port	get_port() const;
-	w_pass	get_pass() const;
+	w_port		get_port() const;
+	w_pass		get_pass() const;
+	std::string get_name() const;
 
 	const Client&	get_client(const w_fd& fd) const;
 	w_map_Client::iterator	get_client(const std::string& name);

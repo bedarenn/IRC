@@ -1,14 +1,18 @@
 #pragma once
 
 #include "types/Command.hpp"
+#include "types/Channel.hpp"
 #include "Server.hpp"
+#include "Channel.hpp"
 
 
 class Server;
+class Channel;
 
 class Command{
 	public:
 		Command(int fd, char *buff, Server *serv);
+		Command(int fd, char *buff, Server *serv, Channel *chan);
 		Command(Command const &cpy);
 		~Command();
 		Command const &operator=(Command const &rhs);
@@ -26,17 +30,20 @@ class Command{
 		void		parse_topic();
 		void		parse_mode();
 		void		parse_quit();
+		void		parse_ping();
 
 		bool		check_new();
 		void		new_client();
-		void		comp_pass(std::string pass);
-		void		set_nick(std::string nick);
-		void 		set_user(std::string user);
+		void		comp_pass(std::string &pass);
+		void		set_nick(std::string &nick);
+		void 		set_user(std::string &user);
+
 
 	private:
 		int				_fd;
 		std::string		_buff;
 		Server			*_serv;
+		Channel			*_chan;
 		w_map_Command	_cmd;
 		std::string		_nickname;
 		std::string		_username;
@@ -49,3 +56,4 @@ class Command{
 
 std::string *fill_tab(int size, std::string data);
 int 		counter(char c, std::string str);
+std::string	trim(std::string buff, char c);
