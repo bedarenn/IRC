@@ -3,6 +3,11 @@
 #include <sstream>
 #include <algorithm>
 
+#include <cstdlib>
+#include <regex.h>
+
+#define REGEX_INT	"^[+]?[0-9]+$"
+
 Channel::Channel(const Client& client, const std::string& name, const std::string& server)
 	: _name(name), _pass(""), _limit(0),
 	_inv_only(false), _r_topic(false), _r_op(true), _r_pass(false), _r_limit(false),
@@ -85,6 +90,20 @@ bool	Channel::topic(const Client& op, const std::string& value) {
 	}
 	return (topic_pass(op, value));
 }
+bool	Channel::mode(const Client& op, const std::string& md, const std::string& arg) {
+	if (!op.is__in_map(_client)) {
+		op.send_to_fd(W_ERR_NOTONCHANNEL(op, "MODE", _server));
+		return (false);
+	}
+	if (md.empty()) {
+		return (true);
+	}
+	if (!op.is__in_map(_op)) {
+		op.send_to_fd(W_ERR_CHANOPRIVSNEEDED(op, "MODE", _server));
+		return (false);
+	}
+	return (mode_pass(op, md, arg));
+}
 bool	Channel::quit(const Client& client, const std::string& str) {
 	if (rm__client(client)) {
 		cast_send(QUIT_MSG(str));
@@ -141,6 +160,22 @@ bool	Channel::topic_pass(const Client& op, const std::string& value) {
 	cast_f(&Channel::send_topic);
 	return (true);
 }
+bool	Channel::mode_pass(const Client& op, const std::string& md, const std::string& arg) {
+	switch (md[1]) {
+	case 'i':
+		return (mode_i(op, md));
+	case 't':
+		return (mode_t(op, md));
+	case 'k':
+		return (mode_k(op, md, arg));
+	case 'o':
+		return (mode_o(op, md, arg));
+	case 'l':
+		return (mode_l(op, md, arg));
+	default:
+		return (false);
+	}
+}
 
 bool	Channel::add_client(const Client& client) {
 	return (client.add_to_map(_client));
@@ -160,6 +195,132 @@ bool	Channel::del_invite(const std::string& client) {
 		return (false);
 	_invite.erase(it);
 	return (true);
+}
+
+bool	Channel::mode_i(const Client& op, const std::string& md) {
+	switch (md[0]) {
+	case '+':
+		if (_inv_only == true)
+			return (false);
+		_inv_only = true;
+		cast_send(MODE_MSG(_name, op, md, _server));
+		return (true);
+	case '-':
+		if (_inv_only == false)
+			return (false);
+		_inv_only = false;
+		cast_send(MODE_MSG(_name, op, md, _server));
+		return (true);
+	default:
+		return (false);
+	}
+}
+bool	Channel::mode_t(const Client& op, const std::string& md) {
+	switch (md[0]) {
+	case '+':
+		if (_r_topic == true)
+			return (false);
+		_r_topic = true;
+		cast_send(MODE_MSG(_name, op, md, _server));
+		return (true);
+	case '-':
+		if (_r_topic == false)
+			return (false);
+		_r_topic = false;
+		cast_send(MODE_MSG(_name, op, md, _server));
+		return (true);
+	default:
+		return (false);
+	}
+}
+bool	Channel::mode_k(const Client& op, const std::string& md, const std::string& arg) {
+	switch (md[0]) {
+	case '+':
+		if (_r_pass == true)
+			return (false);
+		if (arg.empty()) {
+			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
+			return (false);
+		}
+		_pass = arg;
+		_r_pass = true;
+		cast_send(MODE_MSG_ARG(_name, op, md, arg, _server));
+		return (true);
+	case '-':
+		if (_r_pass == false)
+			return (false);
+		_r_pass = false;
+		cast_send(MODE_MSG(_name, op, md, _server));
+		return (true);
+	default:
+		return (false);
+	}
+}
+bool	Channel::mode_o(const Client& op, const std::string& md, const std::string& arg) {
+	w_map_Client::iterator	it;
+	switch (md[0]) {
+	case '+':
+		if (arg.empty()) {
+			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
+			return (false);
+		}
+		for (it = _op.begin(); it != _op.end(); it++) {
+			if (arg == it->second.get_nickname())
+				return (false);
+		}
+		for (it = _client.begin(); it != _client.end() && it->second.get_nickname() == arg; it++) ;
+		if (it == _client.end() || it->second.is__in_map(_op))
+			return (false);
+		it->second.add_to_map(_op);
+		cast_send(MODE_MSG_ARG(_name, op, md, arg, _server));
+		return (true);
+	case '-':
+		if (arg.empty()) {
+			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
+			return (false);
+		}
+		for (it = _op.begin(); it != _op.end() && it->second.get_nickname() != arg; it++) ;
+		if (it != _op.end())
+			return (false);
+		for (it = _client.begin(); it != _client.end() && it->second.get_nickname() == arg; it++) ;
+		if (it == _client.end() || !it->second.is__in_map(_op))
+			return (false);
+		it->second.rm__to_map(_op);
+		cast_send(MODE_MSG_ARG(_name, op, md, arg, _server));
+		return (true);
+	default:
+		return (false);
+	}
+}
+bool	Channel::mode_l(const Client& op, const std::string& md, const std::string& arg) {
+	switch (md[0]) {
+	case '+':
+		if (_r_limit == true)
+			return (false);
+		if (arg.empty()) {
+			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
+			return (false);
+		}
+		regex_t	regex;
+		regcomp(&regex, REGEX_INT, REG_EXTENDED);
+		if (!regexec(&regex, arg.c_str(), 0, NULL, 0)) {
+			regfree(&regex);
+			return (false);
+		}
+		regfree(&regex);
+		_limit = atoi(arg.c_str());
+		_r_limit = true;
+		cast_send(MODE_MSG_ARG(_name, op, md, arg, _server));
+		return (true);
+	case '-':
+		if (_r_limit == false)
+			return (false);
+		_r_limit = false;
+		cast_send(MODE_MSG(_name, op, md, _server));
+		return (true);
+	default:
+		return (false);
+	}
 }
 
 bool	Channel::is_on_channel(const std::string& client) const {

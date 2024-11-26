@@ -18,19 +18,26 @@ public:
 	bool	invite(const Client& op, const std::string& client);
 	bool	kick(const Client& op, const Client& client, const std::string& msg);
 	bool	topic(const Client& op, const std::string& value);
-	bool	mode(const Client& op, const std::string& value);
+	bool	mode(const Client& op, const std::string& md, const std::string& arg);
 	bool	quit(const Client& client, const std::string& str);
 
 	bool	join_pass(const Client& client);
 	bool	invite_pass(const Client& op, const std::string& client);
 	bool	kick_pass(const Client& op, const Client& client, std::string msg);
 	bool	topic_pass(const Client& op, const std::string& value);
+	bool	mode_pass(const Client& op, const std::string& md, const std::string& arg);
 
 	bool	add_client(const Client& client);
 	bool	rm__client(const Client& client);
 
 	bool	is__invite(const std::string& client) const;
 	bool	del_invite(const std::string& client);
+
+	bool	mode_i(const Client& op, const std::string& md);
+	bool	mode_t(const Client& op, const std::string& md);
+	bool	mode_k(const Client& op, const std::string& md, const std::string& arg);
+	bool	mode_o(const Client& op, const std::string& md, const std::string& arg);
+	bool	mode_l(const Client& op, const std::string& md, const std::string& arg);
 
 	bool	is_on_channel(const std::string& client) const;
 

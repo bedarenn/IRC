@@ -25,7 +25,7 @@ public:
 	void	invite(const w_fd& fd, const std::string& channel, const std::string& client);
 	void	kick(const w_fd& fd, const std::string& channel, const std::string& client, const std::string& msg);
 	void	topic(const w_fd& fd, const std::string& channel, const std::string& value);
-	void	mode(const w_fd& fd, const std::string& mode, const std::string& arg);
+	void	mode(const w_fd& fd, const std::string& channel, const std::string& md, const std::string& arg);
 	void	send_chan(const w_fd& fd, const std::string& chan, const std::string& str);
 	void	send_priv(const w_fd& fd, const std::string& priv, const std::string& str);
 	void	pong(const w_fd& fd, const std::string& token);
@@ -38,11 +38,10 @@ public:
 	bool	join__channel(const Client& client, const std::string& channel, const std::string& pass);
 	bool	leave_channel(const Client& client, const std::string& channel);
 
-
 	void	new_map_Channel(const Client& client, const std::string& channel);
 
-	w_port		get_port() const;
-	w_pass		get_pass() const;
+	w_port	get_port() const;
+	w_pass	get_pass() const;
 
 	const Client&	get_client(const w_fd& fd) const;
 	w_map_Client::iterator	get_client(const std::string& name);
