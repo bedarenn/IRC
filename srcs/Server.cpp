@@ -72,23 +72,29 @@ void	Server::connect() {
 	else
 		std::cerr << SRV_ERROR_ACCEPT(client) << std::endl; 
 }
-
 void	Server::read(w_vect_pollfd::iterator& poll) {
-	ssize_t	size;
+	std::string str("");
+	ssize_t		size;
 
 	bzero(buff, BUFFER_SIZE);
 	size = recv(poll->fd, &buff, BUFFER_SIZE, 0);
-	if (size < 0) {
+	buff[size] = '\0';
+	if (size < 0)
 		std::cerr << SRV_ERROR_RECV << std::endl;
-	}
 	else if (size == 0) {
-		buff[0] = '\0';
 		close(poll->fd);
-		_fds.erase(poll);
+		_fds.erase(poll);	
 	}
 	else {
-		buff[size] = '\0';
-		Command(poll->fd, buff, this);
+		str = std::string(str + buff);
+		while (str.size() < 2 && str.at(str.size() - 2) != '\r' && str.at(str.size() - 2) != '\n') {
+			bzero(buff, BUFFER_SIZE);
+			size = recv(poll->fd, &buff, BUFFER_SIZE, 0);
+			buff[size] = '\0';
+			if (str.size())
+				str = std::string(str + buff);
+		}
+		Command(poll->fd, str, this);
 	}
 }
 
@@ -240,18 +246,13 @@ void	Server::quit(const w_fd& fd, const std::string& str) {
 
 void	Server::new_fd(const w_fd& socket) {
 	w_pollfd	fd;
-	ssize_t		size;
 
 	fd.fd = socket;
 	fd.events = POLLIN;
 	fd.revents = 0;
 	_fds.push_back(fd);
-	bzero(buff, BUFFER_SIZE);
-	size = recv(socket, &buff, BUFFER_SIZE, 0);
-	if (size >= 0) {
-		buff[size] = '\0';
-	}
-	Command(socket, buff, this);
+	w_vect_pollfd::iterator it = _fds.end() - 1;
+	read(it);
 }
 void	Server::new_client(const std::string& name, const std::string& nickname, const w_fd& fd) {
 	Client(name, nickname, fd).add_to_map(_client);
