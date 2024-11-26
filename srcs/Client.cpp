@@ -4,7 +4,7 @@
 
 Client::Client() {}
 Client::Client(const std::string& name, const std::string& nickname, const w_fd& fd)
-	: _name(name), _nickname(nickname), _fd(fd) {}
+	: _name(name + "@localhost"), _nickname(nickname), _fd(fd) {}
 Client::~Client() {}
 Client::Client(const Client& cpy) { *this = cpy; }
 
@@ -40,9 +40,7 @@ bool	Client::rm__to_map(w_map_Client& map_client) const {
 }
 
 ssize_t	Client::send_to_fd(const std::string& str) const {
-	std::string s = str + "\r\n";
-	std::cout << _fd << ">" << s.size() << "> " << s << std::endl;
-	return (send(_fd, s.c_str(), s.size(), 0));
+	return (send_msg(_fd, str));
 }
 
 const std::string&		Client::get_name() const { return (_name); }
@@ -52,4 +50,10 @@ const w_fd&				Client::get_fd() const { return (_fd); }
 std::ostream&	operator<<(std::ostream& out, const Client& client) {
 	out << client._fd << ": " << client._nickname;
 	return (out);
+}
+
+ssize_t	send_msg(const w_fd& fd, const std::string& str) {
+	std::string s = W_SND(str);
+	std::cout << fd << s << std::endl;
+	return (send(fd, s.c_str(), s.size(), 0));
 }

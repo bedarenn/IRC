@@ -85,6 +85,13 @@ bool	Channel::topic(const Client& op, const std::string& value) {
 	}
 	return (topic_pass(op, value));
 }
+bool	Channel::quit(const Client& client, const std::string& str) {
+	if (rm__client(client)) {
+		cast_send(QUIT_MSG(str));
+		return (true);
+	}
+	return (false);
+}
 
 bool	Channel::join_pass(const Client& client) {
 	if (_r_limit && _client.size() >= _limit) {

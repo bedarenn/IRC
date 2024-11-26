@@ -172,6 +172,52 @@ void	Server::topic(const w_fd& fd, const std::string& channel, const std::string
 		return ;
 	}
 }
+void	Server::send_chan(const w_fd& fd, const std::string& chan, const std::string& str) {
+	try {
+		Client	client = get_client(fd);
+		w_map_Channel::iterator it_channel = _channel.find(chan);
+
+		if (it_channel == _channel.end()) {
+			client.send_to_fd(W_ERR_NOSUCHNICK(client, chan, _name));
+			return ;
+		}
+		it_channel->second.cast_send(PRIV_MSG(client, chan, str), client);
+	} catch (std::exception& err) {
+		std::cerr << "catch: " << err.what() << std::endl;
+		return ;
+	}
+}
+void	Server::send_priv(const w_fd& fd, const std::string& priv, const std::string& str) {
+	try {
+		Client	client = get_client(fd);
+
+		w_map_Client::iterator it;
+		for (it = _client.begin(); it != _client.end() && it->second.get_name() != priv; it++) ;
+		if (it == _client.end()) {
+			client.send_to_fd(W_ERR_NOSUCHNICK(client, priv, _name));
+			return ;
+		}
+
+		it->second.send_to_fd(PRIV_MSG(client, priv, str));
+	} catch (std::exception& err) {
+		std::cerr << "catch: " << err.what() << std::endl;
+		return ;
+	}
+}
+void	Server::pong(const w_fd& fd, const std::string& token) {
+	send_msg(fd, PONG_MSG(token));
+}
+void	Server::quit(const w_fd& fd, const std::string& str) {
+	try {
+		Client	client = get_client(fd);
+		client.rm__to_map(_client);
+		for (w_map_Channel::iterator it = _channel.begin(); it != _channel.end(); it++)
+			it->second.quit(client, str);
+	} catch (std::exception& err) {
+		std::cerr << "catch: " << err.what() << std::endl;
+		return ;
+	}
+}
 
 void	Server::new_fd(const w_fd& socket) {
 	w_pollfd	fd;
@@ -226,13 +272,13 @@ w_pass		Server::get_pass() const	{ return(_pass); }
 std::string Server::get_name() const	{ return(_name); }
 
 
-const Client&	Server::get_client(w_fd fd) const {
+const Client&	Server::get_client(const w_fd& fd) const {
 	w_map_Client::const_iterator it = _client.find(fd);
 	if (it == _client.end())
 		throw (std::runtime_error("Client Unknown"));
 	return (it->second);
 }
-w_map_Client::iterator	Server::get_client(std::string name) {
+w_map_Client::iterator	Server::get_client(const std::string& name) {
 	w_map_Client::iterator it;
 	for (it = _client.begin(); it != _client.end() && it->second.get_name() != name; it++) ;
 	return (it);

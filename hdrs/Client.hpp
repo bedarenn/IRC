@@ -34,3 +34,5 @@ private:
 
 	Client();
 };
+
+ssize_t	send_msg(const w_fd& fd, const std::string& str);
