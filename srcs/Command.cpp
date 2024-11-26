@@ -1,6 +1,7 @@
 #include "Command.hpp"
 
 Command::Command(int fd, char *buff, Server *serv): _fd(fd), _buff(buff), _serv(serv) {
+	std::cout << _buff << std::endl;
 	init_cmd();
 	treatement();
 }
@@ -20,7 +21,8 @@ void	Command::init_cmd(){
 	_cmd["INVITE"] = &Command::parse_invite;
 	_cmd["TOPIC"] = &Command::parse_topic;
 	_cmd["MODE"] = &Command::parse_mode;
-	_cmd["QUIT"] =&Command::parse_quit;
+	_cmd["QUIT"] = &Command::parse_quit;
+	_cmd["PING"] = &Command::parse_ping;
 	_new = false;
 	_nick = false;
 	_user = false;
@@ -181,8 +183,8 @@ void	Command::parse_kick(){
 	}
 	channel = trim(buff, ':');
 	erase(0, buff.size() + 1);
-	buff = next(' ');
-	msg = buff; 
+	buff = next('\r');
+	msg = buff;
 	_serv->kick(_fd, channel, nickname, msg);
 }
 
@@ -204,11 +206,43 @@ void	Command::parse_topic(){
 }
 
 void	Command::parse_quit(){
-	erase(0, _buff.size());
+	_serv->quit(_fd, "tchao");
 }
 
 void	Command::parse_mode(){
-	// std::cout << _buff << std::endl;
+	std::string sign, data = "itkol";
+	std::string buff = next(' ');
+	int s = 0, alpha = 0;
+	for(size_t i = 0; i < buff.size(); i++){
+		if(buff[i] == '-' || buff[i] == '+'){
+			sign = buff[i];
+			s++;
+		}
+		if(isalpha(buff[i]))
+			alpha++;
+	}
+	if(!s || !alpha)
+		return ;	
+	std::string *tab = new std::string[alpha]();
+	buff = trim(buff, sign[0]);
+	std::cout << buff << std::endl;
+	for(size_t i = 0; i < buff.size(); i++){
+		if(data.find(buff[i]) != std::string::npos)
+			tab[i] = buff[i];
+		else{
+			delete[] tab;
+			return ;
+		}
+	}
+	for(int i = 0; i < alpha; i++){
+		_serv->mode(_fd, sign, tab[i]);
+	}
+	delete [] tab;
+}
+
+void	Command::parse_ping(){
+	std::string buff = next(' ');
+	_serv->pong(_fd, buff);
 }
 
 void		Command::comp_pass(std::string &pass){
@@ -229,6 +263,7 @@ void		Command::set_nick(std::string &nick){
 	_nickname = nick;
 	_nick = true;
 }
+
 void 		Command::set_user(std::string &user){
 	user.erase(user.find(' '), user.size());
 	_username = user;
@@ -246,9 +281,11 @@ bool	Command::check_new(){
 void		Command::new_client(){
 	std::string buff;
 	buff = next('\n');
+	if(buff.empty())
+		new_client();
 	buff.erase(buff.size() - 1, 1);
 	comp_pass(buff);
-	if(_mad){
+	if(_mad == true){
 		return ;
 	}
 	erase(0, _buff.find('\n') + 1);
@@ -264,10 +301,4 @@ void		Command::new_client(){
 	erase(0, _buff.find('\n') + 1);
 	_serv->new_client(_username, _nickname, _fd);
 }
-/*
-join(const w_fd& client, std::vector<std::string>); si pass, premier
-invite(const w_fd& op, const std::string& channel, const std::string& value); 
-kick(const w_fd& op, const std::string& channel, const std::string& value);
-topic(const w_fd& op, const std::string& channel, const std::string& value);
-mode(const w_fd& op, std::vector<std::string> strs); si un noflag ne rien faire, 
-*/ 
+

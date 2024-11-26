@@ -27,12 +27,14 @@ class Command{
 		void		parse_topic();
 		void		parse_mode();
 		void		parse_quit();
+		void		parse_ping();
 
 		bool		check_new();
 		void		new_client();
 		void		comp_pass(std::string &pass);
 		void		set_nick(std::string &nick);
 		void 		set_user(std::string &user);
+
 
 	private:
 		int				_fd;

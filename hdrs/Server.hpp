@@ -38,7 +38,6 @@ public:
 	bool	join__channel(const Client& client, const std::string& channel, const std::string& pass);
 	bool	leave_channel(const Client& client, const std::string& channel);
 
-
 	void	new_map_Channel(const Client& client, const std::string& channel);
 
 	w_port		get_port() const;
