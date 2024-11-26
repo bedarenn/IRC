@@ -224,7 +224,7 @@ void	Command::parse_mode(){
 			alpha++;
 	}
 	if(!s || !alpha){
-		_serv->mode(_fd, "", "");
+		_serv->mode(_fd, _chan->get_name(), "", "");
 		return ;	
 	}
 	std::string *tab = new std::string[alpha]();
@@ -240,7 +240,7 @@ void	Command::parse_mode(){
 	erase(0, buff.size() + 1);
 	buff = next('\n');
 	for(int i = 0; i < alpha; i++){
-		_serv->mode(_fd, sign + tab[i], buff);
+		_serv->mode(_fd,  _chan->get_name(), sign + tab[i], buff);
 	}
 	delete[] tab;
 }

@@ -3,13 +3,16 @@
 #include "types/Command.hpp"
 #include "types/Channel.hpp"
 #include "Server.hpp"
+#include "Channel.hpp"
 
 
 class Server;
+class Channel;
 
 class Command{
 	public:
 		Command(int fd, char *buff, Server *serv);
+		Command(int fd, char *buff, Server *serv, Channel *chan);
 		Command(Command const &cpy);
 		~Command();
 		Command const &operator=(Command const &rhs);
@@ -40,6 +43,7 @@ class Command{
 		int				_fd;
 		std::string		_buff;
 		Server			*_serv;
+		Channel			*_chan;
 		w_map_Command	_cmd;
 		std::string		_nickname;
 		std::string		_username;
