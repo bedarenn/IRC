@@ -64,17 +64,17 @@ class Channel;
 /* ****************** FORMAT_CMD ****************** */
 
 # define JOIN_MSG(channel, client) \
-	client.get_name() + " JOIN " + channel + " " + client.get_nickname() + " :realname"
+	client.get_nickname() + " JOIN " + channel
 # define INVI_MSG(channel, op, client) \
-	op.get_name() + " INVITE " + client.get_nickname() + " " + channel
+	op.get_nickname() + " INVITE " + client.get_nickname() + " " + channel
 # define KICK_MSG(channel, op, client, msg) \
-	op.get_name() + " KICK " + channel + " " + client.get_nickname() + " " + msg
+	op.get_nickname() + " KICK " + channel + " " + client.get_nickname() + " " + msg
 # define MODE_MSG(channel, op, md, s) \
-	op.get_name() + " MODE " + channel + " " + md
+	op.get_nickname() + " MODE " + channel + " " + md
 # define MODE_MSG_ARG(channel, op, md, arg, s) \
-	op.get_name() + " MODE " + channel + " " + md + " " + arg
+	op.get_nickname() + " MODE " + channel + " " + md + " " + arg
 # define PRIV_MSG(client, target, str) \
-	client.get_name() + " PRIVMSG " + target + " " + str
+	client.get_nickname() + " PRIVMSG " + target + " " + str
 # define PONG_MSG(token) \
 	"PONG " + token
 # define QUIT_MSG(str) \
