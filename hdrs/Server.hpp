@@ -19,7 +19,7 @@ public:
 	void	event();
 
 	void	connect();
-	void	read(w_vect_pollfd::iterator& poll);
+	ssize_t	read(const w_fd& fd);
 
 	void	join(const w_fd& fd, const std::string& channel, const std::string& pass);
 	void	invite(const w_fd& fd, const std::string& channel, const std::string& client);
