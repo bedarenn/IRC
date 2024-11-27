@@ -31,6 +31,7 @@ class Command{
 		void		parse_mode();
 		void		parse_quit();
 		void		parse_ping();
+		void		parse_msg();
 
 		bool		check_new();
 		void		new_client();
