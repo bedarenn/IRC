@@ -96,7 +96,7 @@ bool	Channel::mode(const Client& op, const std::string& md, const std::string& a
 		return (false);
 	}
 	if (md.empty()) {
-		return (true);
+		return (mode_empty(op));
 	}
 	if (!op.is__in_map(_op)) {
 		op.send_to_fd(W_ERR_CHANOPRIVSNEEDED(op, "MODE", _server));
@@ -173,7 +173,7 @@ bool	Channel::mode_pass(const Client& op, const std::string& md, const std::stri
 	case 'l':
 		return (mode_l(op, md, arg));
 	default:
-		return (mode_empty(op));
+		return (false);
 	}
 }
 
@@ -326,15 +326,15 @@ bool	Channel::mode_empty(const Client& op) {
 	std::stringstream	str;
 	std::stringstream	size;
 
-	if (_inv_only == true)
+	if (_inv_only)
 		str << "i";
-	if (_r_topic == true)
+	if (_r_topic)
 		str << "t";
-	if (_r_op == true)
+	if (_r_op)
 		str << "k";
-	if (_inv_only == true)
+	if (_inv_only)
 		str << "i";
-	if (_r_limit == true) {
+	if (_r_limit) {
 		str << "i";
 		size << _limit;
 		op.send_to_fd(W_RPL_CHANNELMODEIS_ARG(op, _name, "+" + str.str(), size.str(), _server));
@@ -373,7 +373,7 @@ void	Channel::cast_f(void (Channel::*f)(const Client&)) {
 void	Channel::send_topic(const Client& client) {
 	if (!_topic.empty()) {
 		client.send_to_fd(W_RPL_TOPIC(_name, client, _topic, _server));
-		//client.send_to_fd(W_RPL_TOPICWHOTIME(_name, _topic_change, get_topic_time(), _server));
+		client.send_to_fd(W_RPL_TOPICWHOTIME(_name, _topic_change, get_topic_time(), _server));
 	}
 	else {
 		cast_send(W_RPL_NOTOPIC(_name, client, _server));

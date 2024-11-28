@@ -141,7 +141,6 @@ void	Server::kick(const w_fd& fd, const std::string& channel, const std::string&
 	try {
 		Client	op = get_client(fd);
 
-		std::cout << "KICK_CHAN: " << channel << std::endl;
 		if (channel.empty() || client.empty()) {
 			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "KICK", _name));
 			return ;
@@ -184,7 +183,6 @@ void	Server::mode(const w_fd& fd, const std::string& channel, const std::string&
 	try {
 		Client	op = get_client(fd);
 
-		std::cout << "MODE_CHAN: " << channel << std::endl;
 		if (channel.empty()) {
 			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _name));
 			return ;
