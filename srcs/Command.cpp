@@ -229,8 +229,13 @@ void	Command::parse_quit(){
 ////////////////////////////////////////////////////////////////////// MODE /////////////////////////////////////////////////////////////////////////////
 
 void	Command::parse_mode(){
-	std::string sign, data = "itkol";
+	std::string sign, channel, data = "itkol";
 	std::string buff = next(' ');
+	if(!counter('#', buff))
+		_serv->mode(_fd, "", "", "");
+	channel = buff;	
+	erase(0, buff.size() + 1);
+	buff = next(' ');
 	int s = 0, alpha = 0;
 	for(size_t i = 0; i < buff.size(); i++){
 		if(buff[i] == '-' || buff[i] == '+'){
@@ -241,7 +246,7 @@ void	Command::parse_mode(){
 			alpha++;
 	}
 	if(!s || !alpha){
-		_serv->mode(_fd, _chan->get_name(), "", "");
+		_serv->mode(_fd, channel, "", "");
 		return ;	
 	}
 	std::string *tab = new std::string[alpha]();
@@ -257,7 +262,7 @@ void	Command::parse_mode(){
 	erase(0, buff.size() + 1);
 	buff = next('\n');
 	for(int i = 0; i < alpha; i++){
-		_serv->mode(_fd,  _chan->get_name(), sign + tab[i], buff);
+		_serv->mode(_fd, channel, sign + tab[i], buff);
 	}
 	delete[] tab;
 }
