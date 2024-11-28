@@ -1,8 +1,6 @@
 #include "Command.hpp"
 
-////////////////////////////////////////////////////////////////// CONSTRUCT /////////////////////////////////////////////////////////////////////////
-
-Command::Command(int fd, char *buff, Server *serv): _fd(fd), _buff(buff), _serv(serv) {
+Command::Command(int fd, const std::string& buff, Server *serv): _fd(fd), _buff(buff), _serv(serv) {
 	std::cout << _buff << std::endl;
 	init_cmd();
 	treatement();

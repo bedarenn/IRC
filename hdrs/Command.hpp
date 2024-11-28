@@ -11,7 +11,8 @@ class Channel;
 
 class Command{
 	public:
-		Command(int fd, char *buff, Server *serv);
+		Command(int fd, const std::string& buff, Server *serv);
+		Command(int fd, char *buff, Server *serv, Channel *chan);
 		Command(Command const &cpy);
 		~Command();
 		Command const &operator=(Command const &rhs);

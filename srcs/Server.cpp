@@ -56,8 +56,13 @@ void	Server::event() {
 
 	if (_fds[0].revents)
 		connect();
-	for (w_vect_pollfd::iterator it = _fds.begin() + 1; it < _fds.end(); it++)
-		if (it->revents) read(it);
+	size_t	i = 1;
+	while (i < _fds.size()) {
+		if (_fds[i].revents && read(_fds[i].fd) == 0)
+				_fds.erase(_fds.begin() + i);
+		else
+			i++;
+	}
 }
 
 void	Server::connect() {
@@ -72,24 +77,28 @@ void	Server::connect() {
 	else
 		std::cerr << SRV_ERROR_ACCEPT(client) << std::endl; 
 }
-
-void	Server::read(w_vect_pollfd::iterator& poll) {
-	ssize_t	size;
+ssize_t	Server::read(const w_fd& fd) {
+	ssize_t		size = 0;
+	std::string	str("");
 
 	bzero(buff, BUFFER_SIZE);
-	size = recv(poll->fd, &buff, BUFFER_SIZE, 0);
-	if (size < 0) {
-		std::cerr << SRV_ERROR_RECV << std::endl;
+	size += recv(fd, buff, BUFFER_SIZE, 0);
+	if (size <= 0)
+		return (size);
+	buff[size] = '\0';
+	str = std::string(str + buff);
+	if (size > 2)
+	//std::cout << static_cast<int>(buff[size - 2]) << static_cast<int>(buff[size - 1]) << str << std::endl;
+	while (size < 2 || buff[size - 2] != '\r' || buff[size - 1] != '\n') {
+		std::cout << "qwe:" << str << std::endl;
+		size += recv(fd, buff, BUFFER_SIZE, 0);
+		if (size > 0) {
+			buff[size] = '\0';
+			str = std::string(str + buff);
+		}
 	}
-	else if (size == 0) {
-		buff[0] = '\0';
-		close(poll->fd);
-		_fds.erase(poll);
-	}
-	else {
-		buff[size] = '\0';
-		Command(poll->fd, buff, this);
-	}
+	Command(fd, str, this);
+	return (size);
 }
 
 void	Server::join(const w_fd& fd, const std::string& channel, const std::string& pass) {
@@ -240,18 +249,12 @@ void	Server::quit(const w_fd& fd, const std::string& str) {
 
 void	Server::new_fd(const w_fd& socket) {
 	w_pollfd	fd;
-	ssize_t		size;
 
 	fd.fd = socket;
 	fd.events = POLLIN;
 	fd.revents = 0;
 	_fds.push_back(fd);
-	bzero(buff, BUFFER_SIZE);
-	size = recv(socket, &buff, BUFFER_SIZE, 0);
-	if (size >= 0) {
-		buff[size] = '\0';
-	}
-	Command(socket, buff, this);
+	read(socket);
 }
 void	Server::new_client(const std::string& name, const std::string& nickname, const w_fd& fd) {
 	Client(name, nickname, fd).add_to_map(_client);
