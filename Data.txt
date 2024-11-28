@@ -1,125 +1,19 @@
+test :
+connection avec netcat, envoie de texte:
+	*le buffer n'est pas clean a chaque envoie et renvoie la totalité
+	 + boucle inf a la deco.
 
-Command JOIN:
-/join #chan1, #chan2
-	<< JOIN #chan1, #chan2
-	<< MODE #chan1
-	<< WHO #chan1 %chtsunfra,152
+pareil avec les ctrl + D:
+	test du sujet: "com ^D man ^D de" => "commande"
+	on recoit: "com(premier ^D)
+			   "comman(second ^D)
+			   "commande"
 
-/join #chan1 kld, #chan2
-	<< JOIN #chan1 kld, 
-	<< MODE #chan1
-	<< WHO #chan1 %chtsunfra,152
+dans un channel, "mode +kl pop":
+	*execute "mode +k pop. mode +l pop"
+	 'pop' n'est pas un chiffre, ne doit rien faire;
+	 libera.chat demande envoie 'not enough arg',
 
-/join #chan1 kld #chan2
-	<< JOIN #chan1 kld
-	<< MODE #chan1
-	<< WHO #chan1 %chtsunfra,152
+apres avoir recu un message privé:
+	*quand on repond, erreur: "ircserv 432 quentin pierre123 :No such nick/channel"
 
-/join #chan1 ,#chan2
-	<< JOIN #chan1 ,#chan2
-	<< MODE #chan1
-	<< WHO #chan1 %chtsunfra,152
-
-/join #general,#random
-	<< JOIN #general,#random
-	<< MODE #general
-	<< WHO #general %chtsunfra,152
-	<< MODE #Random
-	<< WHO #Random %chtsunfra,152
-
-/join #private password123
-	<< JOIN #private password123
-	<< MODE #private
-	<< WHO #private %chtsunfra,152
-
-/join #chan1,#chan2 password123
-	<< JOIN #chan1,#chan2 password
-	>> @time=2024-11-16T09:13:13.970Z :qdeviann!~qdeviann@rtr.23.90.210.20.unyc.it JOIN #chan1 * :realname
-	<< MODE #chan1
-	<< WHO #chan1 %chtsunfra,152
-	<< MODE #chan2
-	<< WHO #chan2 %chtsunfra,152
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-Command PRIVMSG:
-/privmsg Alice :Salut Alice, comment ça va ?
-	<< privmsg alice :Salut Alice, comment ça va ?clear
-
-/msg alice comment ca va?
-	<< PRIVMSG alice :comment ca va?
-
-/privmsg #general :Bonjour tout le monde !
-	<< privmsg #general :Bonjour tout le monde !
-	>> @time=2024-11-16T08:08:51.222Z :zirconium.libera.chat 404 qdeviann #general :Cannot send to nick/channe
-
-/privmsg #general :
-	<< privmsg #general :
-	>> @time=2024-11-16T08:10:16.925Z :zirconium.libera.chat 412 qdeviann :No text to send
-
-/privmsg #general :Ceci est un test avec des caractères spéciaux: @#$%^&*!
-		<< PRIVMSG #qwert :Ceci est un test avec des caractères spéciaux: @#$%^&*!
-		>> @time=2024-11-16T08:14:35.326Z :copper.libera.chat 401 qdeviann #qwert :No such nick/channe
-	prompt:
-		>#qwert<|:Ceci est un test avec des caractères spéciaux: @#$%^&*!
-			   *|#qwert :No such nick/channel
-
-/privmsg UnknownUser :Hello, tu es là ?
-		<< PRIVMSG UnknownUser ::Hello, tu es là ?
-		>> @time=2024-11-16T08:16:41.119Z :copper.libera.chat 401 qdeviann UnknownUser :No such nick/channel
-	prompt:
-		>UnknownUser<|:Hello, tu es là ?
-					*|UnknownUser :No such nick/channel
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-Command KICK:
-/kick #test42 qdeviann :Violation des règles.
-	<< KICK #test42 #test42 :qdeviann :violation des regles
-
-/kick qdeviann :violation des regles
-		<< KICK #test42 qdeviann ::violation du chat
-		>> @time=2024-11-16T08:47:20.454Z :qdeviann!~qdeviann@rtr.23.90.210.20.unyc.it KICK #test42 qdeviann ::violation du chat
-	prompt
-		*|You have been kicked from #test42 by qdeviann (:violation du chat)
-
-/kick qdeviann
-		<< KICK #test42 qdeviann
-		>> @time=2024-11-16T08:48:49.831Z :qdeviann!~qdeviann@rtr.23.90.210.20.unyc.it KICK #test42 qdeviann :qdeviann
-	prompt
-		*|You have been kicked from #test42 by qdeviann (qdeviann)
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-Command MODE:
-/mode +ki pass123
-		<< MODE #test42 +ki pass123
-		>> @time=2024-11-16T08:33:01.146Z :qdeviann!~qdeviann@rtr.23.90.210.20.unyc.it MODE #test42 +ki pass123
-	prompt
-		*|qdeviann sets channel keyword to pass123
-		*|qdeviann sets mode +i on #test42
-
-/mode +itk password123
-		<< MODE #test42 +itk pass123
-		>> @time=2024-11-16T08:31:05.689Z :qdeviann!~qdeviann@rtr.23.90.210.20.unyc.it MODE #test42 +ik pass123
-	prompt
-		*|qdeviann sets mode +i on #test42
-		*|qdeviann sets channel keyword to pass123
-
-/mode +xyz
-		<< MODE #test42 +xyz
-		>> @time=2024-11-16T08:30:21.496Z :copper.libera.chat 472 qdeviann x :is an unknown mode char to me
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-Command TOPIC:
-/topic moto
-		<< TOPIC #test42 :moto
-	prompt
-		*| qdeviann has changed the topic to: moto
-
-/topic :moto
-		<< TOPIC #test42 ::moto
-	prompt
-		*| qdeviann has changed the topic to: :moto

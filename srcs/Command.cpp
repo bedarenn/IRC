@@ -209,13 +209,13 @@ void	Command::parse_topic(){
 		_serv->topic(_fd, "", "");
 		return ;
 	}
-	topic = buff;
+	channel = buff;
 	erase(0, buff.size() + 1);
 	buff = next(' ');
 	if(buff.empty() || counter(',', buff) || counter('#', buff)){
-		_serv->topic(_fd, "", topic);
+		_serv->topic(_fd, channel, "");
 	}
-	channel = buff;
+	topic = buff;
 	_serv->topic(_fd, channel, topic);
 }
 
@@ -277,7 +277,7 @@ void	Command::parse_ping(){
 
 void	Command::parse_msg(){
 	std::string buff = next(' '), msg;
-	erase(0, buff.size());
+	erase(0, buff.size() + 1);
 	if(counter('#', buff)){
 		msg = next('\n');
 		msg = trim(msg, ':');
