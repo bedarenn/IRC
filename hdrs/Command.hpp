@@ -33,11 +33,10 @@ class Command{
 		void		parse_ping();
 		void		parse_msg();
 
-		bool		check_new();
 		void		new_client();
-		void		comp_pass(std::string &pass);
-		void		set_nick(std::string &nick);
-		void 		set_user(std::string &user);
+		void		comp_pass(std::string pass);
+		void		set_nick(std::string nick);
+		void 		set_user(std::string user);
 
 
 	private:
@@ -47,7 +46,6 @@ class Command{
 		w_map_Command	_cmd;
 		std::string		_nickname;
 		std::string		_username;
-		bool			_new;
 		bool			_nick;
 		bool			_user;
 		bool			_password;
