@@ -68,7 +68,7 @@ class Channel;
 /* ****************** FORMAT_CMD ****************** */
 
 # define JOIN_MSG(channel, client) \
-	client.get_nickname() + " JOIN " + channel
+	client.get_name() + " JOIN " + channel
 # define INVI_MSG(channel, op, client) \
 	op.get_nickname() + " INVITE " + client.get_nickname() + " " + channel
 # define KICK_MSG(channel, op, client, msg) \

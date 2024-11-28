@@ -4,7 +4,7 @@
 
 Client::Client() {}
 Client::Client(const std::string& name, const std::string& nickname, const w_fd& fd)
-	: _name(name + "@localhost"), _nickname(nickname), _fd(fd) {}
+	: _name(name), _nickname(nickname), _fd(fd) {}
 Client::~Client() {}
 Client::Client(const Client& cpy) { *this = cpy; }
 

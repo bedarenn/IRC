@@ -373,7 +373,7 @@ void	Channel::cast_f(void (Channel::*f)(const Client&)) {
 void	Channel::send_topic(const Client& client) {
 	if (!_topic.empty()) {
 		client.send_to_fd(W_RPL_TOPIC(_name, client, _topic, _server));
-		client.send_to_fd(W_RPL_TOPICWHOTIME(_name, _topic_change, get_topic_time(), _server));
+		//client.send_to_fd(W_RPL_TOPICWHOTIME(_name, _topic_change, get_topic_time(), _server));
 	}
 	else {
 		cast_send(W_RPL_NOTOPIC(_name, client, _server));

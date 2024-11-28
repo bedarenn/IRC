@@ -314,7 +314,7 @@ void 		Command::set_user(std::string user){
 	user.erase(user.size() - 1, 1);
 	user.erase(user.find(' '), user.size());
 	_username = user;
-	_user = true;	
+	_user = true;
 }
 
 void	Command::new_client(){
