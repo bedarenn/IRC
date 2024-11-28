@@ -1,7 +1,7 @@
 #include "Command.hpp"
 
 Command::Command(int fd, const std::string& buff, Server *serv): _fd(fd), _buff(buff), _serv(serv) {
-	std::cout << _buff << std::endl;
+	//std::cout << _buff << std::endl;
 	init_cmd();
 	treatement();
 }
@@ -26,7 +26,6 @@ void	Command::init_cmd(){
 	_cmd["QUIT"] = &Command::parse_quit;
 	_cmd["PING"] = &Command::parse_ping;
 	_cmd["PRIVMSG"] = &Command::parse_msg;
-	_new = false;
 	_nick = false;
 	_user = false;
 	_password = false;
@@ -35,21 +34,23 @@ void	Command::init_cmd(){
 
 void	Command::treatement(){
 	
-	std::stringstream ss(_buff);
-	std::string	data;
-	
-	getline(ss, data, ' ');
-	if(data == "CAP"){
-		erase(0, _buff.find('\n') + 1);
-		new_client();
-		return ;
-	}
-	w_map_Command::iterator it;
-	for(it = _cmd.begin(); it != _cmd.end(); it++){
-		if(it->first == data){
-			erase(0, _buff.find(' ') + 1);
-			erase(_buff.find(13), 2);
-			(this->*(it->second))();
+	if(_buff.find('\n') != std::string::npos){
+
+		std::stringstream ss(_buff);
+		std::string	data;
+
+		getline(ss, data, ' ');
+		if(data == "CAP" || data == "PASS"){
+			new_client();
+			return ;
+		}
+		w_map_Command::iterator it;
+		for(it = _cmd.begin(); it != _cmd.end(); it++){
+			if(it->first == data){
+				erase(0, _buff.find(' ') + 1);
+				erase(_buff.find(13), 2);
+				(this->*(it->second))();
+			}
 		}
 	}
 }
@@ -227,8 +228,13 @@ void	Command::parse_quit(){
 ////////////////////////////////////////////////////////////////////// MODE /////////////////////////////////////////////////////////////////////////////
 
 void	Command::parse_mode(){
-	std::string sign, data = "itkol";
+	std::string sign, channel, data = "itkol";
 	std::string buff = next(' ');
+	if(!counter('#', buff))
+		_serv->mode(_fd, "", "", "");
+	channel = buff;	
+	erase(0, buff.size() + 1);
+	buff = next(' ');
 	int s = 0, alpha = 0;
 	for(size_t i = 0; i < buff.size(); i++){
 		if(buff[i] == '-' || buff[i] == '+'){
@@ -239,7 +245,7 @@ void	Command::parse_mode(){
 			alpha++;
 	}
 	if(!s || !alpha){
-		_serv->mode(_fd, _chan->get_name(), "", "");
+		_serv->mode(_fd, channel, "", "");
 		return ;	
 	}
 	std::string *tab = new std::string[alpha]();
@@ -255,7 +261,7 @@ void	Command::parse_mode(){
 	erase(0, buff.size() + 1);
 	buff = next('\n');
 	for(int i = 0; i < alpha; i++){
-		_serv->mode(_fd,  _chan->get_name(), sign + tab[i], buff);
+		_serv->mode(_fd, channel, sign + tab[i], buff);
 	}
 	delete[] tab;
 }
@@ -286,13 +292,9 @@ void	Command::parse_msg(){
 
 ////////////////////////////////////////////////////////////////// NEW CLIENT ////////////////////////////////////////////////////////////////////////////////
 
-void		Command::comp_pass(std::string &pass){
-	std::string key = pass.substr(0, pass.find(' '));
-	if(key != "PASS"){
-		_mad = true;
-		return ;
-	}
+void		Command::comp_pass(std::string pass){
 	pass.erase(0, pass.find(' ') + 1);
+	pass.erase(pass.size() - 1, 1);
 	if(pass == _serv->get_pass())
 		_password = true;
 	else{
@@ -300,50 +302,65 @@ void		Command::comp_pass(std::string &pass){
 	}
 }
 
-void		Command::set_nick(std::string &nick){
+void		Command::set_nick(std::string nick){
+	nick.erase(0 , nick.find(' ') + 1);
+	nick.erase(nick.size() - 1, 1);
 	_nickname = nick;
 	_nick = true;
 }
 
-void 		Command::set_user(std::string &user){
+void 		Command::set_user(std::string user){
+	user.erase(0 , user.find(' ') + 1);
+	user.erase(user.size() - 1, 1);
 	user.erase(user.find(' '), user.size());
 	_username = user;
 	_user = true;	
 }
 
-bool	Command::check_new(){
-	if(_password && _nick && _user)
-		_new = true;
-	if(_mad)
-		return (true);
-	return (false);
-}
-
-void		Command::new_client(){
-	std::string buff;
-	buff = next('\n');
-	if(buff.empty())
-		new_client();
-	buff.erase(buff.size() - 1, 1);
-	comp_pass(buff);
-	if(_mad == true){
-		//std::string err = ERR_PASS(_serv->get_name());
-		//send(_fd, err.c_str(), err.size(), 0);
-		_buff = '\0';
-		close(_fd);
-		return ;
+void	Command::new_client(){
+	std::string buff = next(' ');
+	if(buff == "CAP"){
+		buff = next('\n');
+		erase(0, buff.size() + 1);
 	}
-	erase(0, _buff.find('\n') + 1);
-	buff = next('\n');
-	buff.erase(buff.size() - 1, 1);
-	buff.erase(0, buff.find(' ') + 1);
-	set_nick(buff);
-	erase(0, _buff.find('\n') + 1);
-	buff = next('\n');
-	buff.erase(buff.size() - 1, 1);
-	buff.erase(0, buff.find(' ') + 1);
-	set_user(buff);
-	erase(0, _buff.find('\n') + 1);
-	_serv->new_client(_username, _nickname, _fd);
+	if(_buff.empty())
+		return;
+	buff = next(' ');
+	if (buff == "PASS"){
+		buff = next('\n');
+		comp_pass(buff);
+		if(_mad){
+			close(_fd);		
+			return ;
+		}
+		erase(0, buff.size() + 1);
+	}
+	buff = next(' ');
+	if(buff == "NICK"){
+		buff = next('\n');
+		set_nick(buff);
+		erase(0, buff.size() + 1);
+	}
+	buff = next(' ');
+	if(buff == "USER"){
+		buff = next('\n');
+		set_user(buff);
+		erase(0, buff.size() + 1);
+	}
+	if(_password && _nick && _user)
+		_serv->new_client(_nickname, _username, _fd);
 }
 
+/*
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+CAP LS 302^M$
+$
+PASS pop^M$
+NICK tonup1^M$
+USER upman1 0 * :realname^M$
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+CAP LS 302^M$
+PASS pop^M$
+NICK tonup1^M$
+USER upman1 0 * :realname^M$
+*/
