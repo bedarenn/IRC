@@ -15,7 +15,11 @@ class Channel;
 
 /* **************** FORMAT_SUCCESS **************** */
 
-# define W_RPL_CHANNELMODEIS(client, channel, md, arg, s) \
+# define W_RPL_CHANNELMODEIS_EMPTY(client, channel, s) \
+	W_RPL(s, "324") + client.get_name() + " " + channel
+# define W_RPL_CHANNELMODEIS(client, channel, md, s) \
+	W_RPL(s, "324") + client.get_name() + " " + channel + " " + md
+# define W_RPL_CHANNELMODEIS_ARG(client, channel, md, arg, s) \
 	W_RPL(s, "324") + client.get_name() + " " + channel + " " + md + " " + arg
 # define W_RPL_NOTOPIC(channel, client, s) \
 	W_RPL(s, "331") + client.get_nickname() + " " + channel + " :No topic is set"

@@ -337,8 +337,12 @@ bool	Channel::mode_empty(const Client& op) {
 	if (_r_limit == true) {
 		str << "i";
 		size << _limit;
+		op.send_to_fd(W_RPL_CHANNELMODEIS_ARG(op, _name, "+" + str.str(), size.str(), _server));
 	}
-	op.send_to_fd(W_RPL_CHANNELMODEIS(op, _name, "+" + str.str(), size.str(), _server));
+	else if (!str.str().empty())
+		op.send_to_fd(W_RPL_CHANNELMODEIS(op, _name, "+" + str.str(), _server));
+	else
+		op.send_to_fd(W_RPL_CHANNELMODEIS_EMPTY(op, _name, _server));
 	return (true);
 }
 
