@@ -173,7 +173,7 @@ bool	Channel::mode_pass(const Client& op, const std::string& md, const std::stri
 	case 'l':
 		return (mode_l(op, md, arg));
 	default:
-		return (false);
+		return (mode_empty(op));
 	}
 }
 
@@ -321,6 +321,25 @@ bool	Channel::mode_l(const Client& op, const std::string& md, const std::string&
 	default:
 		return (false);
 	}
+}
+bool	Channel::mode_empty(const Client& op) {
+	std::stringstream	str;
+	std::stringstream	size;
+
+	if (_inv_only == true)
+		str << "i";
+	if (_r_topic == true)
+		str << "t";
+	if (_r_op == true)
+		str << "k";
+	if (_inv_only == true)
+		str << "i";
+	if (_r_limit == true) {
+		str << "i";
+		size << _limit;
+	}
+	op.send_to_fd(W_RPL_CHANNELMODEIS(op, _name, "+" + str.str(), size.str(), _server));
+	return (true);
 }
 
 bool	Channel::is_on_channel(const std::string& client) const {

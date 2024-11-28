@@ -38,6 +38,7 @@ public:
 	bool	mode_k(const Client& op, const std::string& md, const std::string& arg);
 	bool	mode_o(const Client& op, const std::string& md, const std::string& arg);
 	bool	mode_l(const Client& op, const std::string& md, const std::string& arg);
+	bool	mode_empty(const Client& op);
 
 	bool	is_on_channel(const std::string& client) const;
 

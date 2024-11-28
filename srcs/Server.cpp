@@ -87,8 +87,6 @@ ssize_t	Server::read(const w_fd& fd) {
 		return (size);
 	buff[size] = '\0';
 	str = std::string(str + buff);
-	if (size > 2)
-	//std::cout << static_cast<int>(buff[size - 2]) << static_cast<int>(buff[size - 1]) << str << std::endl;
 	while (size < 2 || buff[size - 2] != '\r' || buff[size - 1] != '\n') {
 		std::cout << "qwe:" << str << std::endl;
 		size += recv(fd, buff, BUFFER_SIZE, 0);
