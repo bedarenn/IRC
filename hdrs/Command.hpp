@@ -32,6 +32,7 @@ class Command{
 		void		parse_quit();
 		void		parse_ping();
 		void		parse_msg();
+		void		parse_part();
 
 		void		new_client();
 		void		comp_pass(std::string pass);

@@ -26,6 +26,7 @@ void	Command::init_cmd(){
 	_cmd["QUIT"] = &Command::parse_quit;
 	_cmd["PING"] = &Command::parse_ping;
 	_cmd["PRIVMSG"] = &Command::parse_msg;
+	_cmd["PART"] = &Command::parse_part;
 	_nick = false;
 	_user = false;
 	_password = false;
@@ -227,6 +228,23 @@ void	Command::parse_quit(){
 
 ////////////////////////////////////////////////////////////////////// MODE /////////////////////////////////////////////////////////////////////////////
 
+std::string	clean_double(std::string data){
+	std::string ref = "itkol";
+	std::string result;
+	result += data[0];
+	int count = 0;
+	for(size_t i = 0; i < ref.size(); i++){
+		count = 0;
+		for(size_t j = 0; j < data.size(); j++){
+			if(data[j] == ref[i])
+				count++;
+		}
+		if(count)
+			result += ref[i];
+	}
+	return(result);
+}
+
 void	Command::parse_mode(){
 	std::string sign, channel, data = "itkol";
 	std::string buff = next(' ');
@@ -235,6 +253,8 @@ void	Command::parse_mode(){
 	channel = buff;	
 	erase(0, buff.size() + 1);
 	buff = next(' ');
+	int save = buff.size() + 1;
+	buff = clean_double(buff);
 	int s = 0, alpha = 0;
 	for(size_t i = 0; i < buff.size(); i++){
 		if(buff[i] == '-' || buff[i] == '+'){
@@ -244,27 +264,48 @@ void	Command::parse_mode(){
 		if(isalpha(buff[i]))
 			alpha++;
 	}
-	if(!s || !alpha){
+	if(!s || !alpha || s > 1){
 		_serv->mode(_fd, channel, "", "");
 		return ;	
 	}
-	std::string *tab = new std::string[alpha]();
+	std::string tab, arg;
 	buff = trim(buff, sign[0]);
 	for(size_t i = 0; i < buff.size(); i++){
 		if(data.find(buff[i]) != std::string::npos)
 			tab[i] = buff[i];
-		else{
-			delete[] tab;
+		else
 			return ;
-		}
 	}
-	erase(0, buff.size() + 1);
-	buff = next('\n');
+	erase(0, save);
 	for(int i = 0; i < alpha; i++){
-		_serv->mode(_fd, channel, sign + tab[i], buff);
+		if(tab[i] == 'l' || tab[i] == 'k' || tab[i] == 'o'){
+			arg = next(' ');
+			save = arg.size() + 1;
+			if(arg.empty()){
+				arg = next('\n');
+				if(arg.empty()){
+					_serv->mode(_fd, channel, sign + tab[i], "");
+					return ;
+				}
+				save = arg.size() + 1;
+				arg = trim(buff, ' ');
+			}
+			erase(0, save);
+		}
+		_serv->mode(_fd, channel, sign + tab[i], arg);
 	}
-	delete[] tab;
 }
+
+//////////////////////////////////////////////////////////////////// PART ///////////////////////////////////////////////////////////////////////////////////
+//bool	Server::leave_channel(const Client& client, const std::string& channel) {
+
+void	Command::parse_part(){
+	std::string buff = next(' ');
+	Client client = _serv->get_client(_fd);
+	_serv->leave_channel(client, buff);
+}
+
+
 
 //////////////////////////////////////////////////////////////////// PING ///////////////////////////////////////////////////////////////////////////////////
 
