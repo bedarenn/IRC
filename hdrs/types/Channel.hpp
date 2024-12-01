@@ -22,19 +22,19 @@ class Channel;
 # define W_RPL_CHANNELMODEIS_ARG(client, channel, md, arg, s) \
 	W_RPL(s, "324") + client.get_name() + " " + channel + " " + md + " " + arg
 # define W_RPL_NOTOPIC(channel, client, s) \
-	W_RPL(s, "331") + client.get_nickname() + " " + channel + " :No topic is set"
+	W_RPL(s, "331") + client.get_name() + " " + channel + " :No topic is set"
 # define W_RPL_TOPIC(channel, client, topic, s) \
-	W_RPL(s, "332") + client.get_nickname() + " " + channel + " :" + topic
+	W_RPL(s, "332") + client.get_name() + " " + channel + " :" + topic
 # define W_RPL_TOPIC_T(channel, client, topic, s) \
 	W_RPL(s, "332") + "oui" + " " + channel + " :" + topic
 # define W_RPL_TOPICWHOTIME(channel, client, date, s) \
-	W_RPL(s, "333") + client.get_nickname() + " " + channel + " " + client.get_name() + " " + date
+	W_RPL(s, "333") + client.get_name() + " " + channel + " " + client.get_name() + " " + date
 # define W_RPL_INVITING(client, l_client, channel, s) \
-	W_RPL(s, "341") + client.get_nickname() + " " + l_client.get_nickname() + " " + channel
+	W_RPL(s, "341") + client.get_name() + " " + l_client.get_name() + " " + channel
 # define W_RPL_NAMREPLY(channel, client, l_client, s) \
-	W_RPL(s, "353") + client.get_nickname() + " = " + channel + " :" + l_client.get_nickname()
+	W_RPL(s, "353") + client.get_name() + " = " + channel + " :" + l_client.get_name()
 # define W_RPL_ENDOFNAMES(channel, client, s) \
-	W_RPL(s, "366") + client.get_nickname() + " " + channel + " :End of /NAMES list"
+	W_RPL(s, "366") + client.get_name() + " " + channel + " :End of /NAMES list"
 
 /* ***************** FORMAT_FAIL ****************** */
 
@@ -45,9 +45,9 @@ class Channel;
 # define W_ERR_NONICKNAMEGIVEN(client, s) \
 	W_ERC(client, s, "431") + ":No nickname given"
 # define W_ERR_ERRONEUSNICKNAME(client, s) \
-	W_ERC(client, s, "432") + client.get_nickname() + " " + ":Erroneus nickname"
+	W_ERC(client, s, "432") + client.get_name() + " " + ":Erroneus nickname"
 # define W_ERR_NICKNAMEINUSE(client, s) \
-	W_ERC(client, s, "433") + client.get_nickname() + " " + ":Nickname is already in use"
+	W_ERC(client, s, "433") + client.get_name() + " " + ":Nickname is already in use"
 # define W_ERR_NOTONCHANNEL(client, cmd, s) \
 	W_ERR(client, cmd, s, "442") + ":You're not on that channel"
 # define ERR_USERONCHANNEL(client, cmd, s) \
@@ -70,15 +70,15 @@ class Channel;
 # define JOIN_MSG(channel, client) \
 	client.get_name() + " JOIN " + channel
 # define INVI_MSG(channel, op, client) \
-	op.get_nickname() + " INVITE " + client.get_nickname() + " " + channel
+	op.get_name() + " INVITE " + client.get_name() + " " + channel
 # define KICK_MSG(channel, op, client, msg) \
-	op.get_nickname() + " KICK " + channel + " " + client.get_nickname() + " " + msg
+	op.get_name() + " KICK " + channel + " " + client.get_name() + " " + msg
 # define MODE_MSG(channel, op, md, s) \
-	op.get_nickname() + " MODE " + channel + " " + md
+	op.get_name() + " MODE " + channel + " " + md
 # define MODE_MSG_ARG(channel, op, md, arg, s) \
-	op.get_nickname() + " MODE " + channel + " " + md + " " + arg
+	op.get_name() + " MODE " + channel + " " + md + " " + arg
 # define PRIV_MSG(client, target, str) \
-	client.get_nickname() + " PRIVMSG " + target + " " + str
+	client.get_name() + " PRIVMSG " + target + " " + str
 # define PONG_MSG(token) \
 	"PONG " + token
 # define QUIT_MSG(str) \

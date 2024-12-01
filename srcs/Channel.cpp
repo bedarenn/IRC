@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <regex.h>
 
-#define REGEX_INT	"^[+]?[0-9]+$"
+#define REGEX_INT	"^\\+?[1-9][0-9]*$"
 
 Channel::Channel(const Client& client, const std::string& name, const std::string& server)
 	: _name(name), _pass(""), _limit(0),
@@ -50,8 +50,8 @@ Channel&	Channel::operator=(const Channel& cpy) {
 
 bool	Channel::join(const Client& client, const std::string& pass) {
 	if (_inv_only) {
-		if (is__invite(client.get_nickname())) {
-			del_invite(client.get_nickname());
+		if (is__invite(client.get_name())) {
+			del_invite(client.get_name());
 			return (join_pass(client));
 		}
 		else
@@ -264,11 +264,10 @@ bool	Channel::mode_o(const Client& op, const std::string& md, const std::string&
 			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
 			return (false);
 		}
-		for (it = _op.begin(); it != _op.end(); it++) {
-			if (arg == it->second.get_nickname())
-				return (false);
-		}
-		for (it = _client.begin(); it != _client.end() && it->second.get_nickname() == arg; it++) ;
+		for (it = _op.begin(); it != _op.end() && it->second.get_name() != arg; it++) ;
+		if (it != _client.end())
+			return (false);
+		for (it = _client.begin(); it != _client.end() && it->second.get_name() != arg; it++) ;
 		if (it == _client.end() || it->second.is__in_map(_op))
 			return (false);
 		it->second.add_to_map(_op);
@@ -279,10 +278,10 @@ bool	Channel::mode_o(const Client& op, const std::string& md, const std::string&
 			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
 			return (false);
 		}
-		for (it = _op.begin(); it != _op.end() && it->second.get_nickname() != arg; it++) ;
-		if (it != _op.end())
+		for (it = _op.begin(); it != _op.end() && it->second.get_name() != arg; it++) ;
+		if (it == _op.end())
 			return (false);
-		for (it = _client.begin(); it != _client.end() && it->second.get_nickname() == arg; it++) ;
+		for (it = _client.begin(); it != _client.end() && it->second.get_name() != arg; it++) ;
 		if (it == _client.end() || !it->second.is__in_map(_op))
 			return (false);
 		it->second.rm__to_map(_op);
@@ -293,6 +292,9 @@ bool	Channel::mode_o(const Client& op, const std::string& md, const std::string&
 	}
 }
 bool	Channel::mode_l(const Client& op, const std::string& md, const std::string& arg) {
+	bool cmp;
+	regex_t	regex;
+
 	switch (md[0]) {
 	case '+':
 		if (_r_limit == true)
@@ -301,13 +303,11 @@ bool	Channel::mode_l(const Client& op, const std::string& md, const std::string&
 			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
 			return (false);
 		}
-		regex_t	regex;
 		regcomp(&regex, REGEX_INT, REG_EXTENDED);
-		if (!regexec(&regex, arg.c_str(), 0, NULL, 0)) {
-			regfree(&regex);
-			return (false);
-		}
+		cmp = regexec(&regex, arg.c_str(), 0, NULL, 0);
 		regfree(&regex);
+		if (cmp)
+			return (false);
 		_limit = atoi(arg.c_str());
 		_r_limit = true;
 		cast_send(MODE_MSG_ARG(_name, op, md, arg, _server));
@@ -348,7 +348,7 @@ bool	Channel::mode_empty(const Client& op) {
 
 bool	Channel::is_on_channel(const std::string& client) const {
 	for (w_map_Client::const_iterator it = _client.begin(); it != _client.end(); it++) {
-		if (it->second.get_nickname() == client)
+		if (it->second.get_name() == client)
 			return (true);
 	}
 	return (false);

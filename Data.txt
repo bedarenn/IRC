@@ -9,13 +9,18 @@ pareil avec les ctrl + D:
 			   "comman(second ^D)
 			   "commande"
 
-dans un channel, "mode +l 10":
-	*il se passe rien.
-dans un channel, "mode +o [USER]":
+#dans un channel, "mode +l 10":
 	*il se passe rien.
 
-a la creation d'un channel, le createur n'est pas operateur.
+#dans un channel, "mode +o [USER]":
+	#*il se passe rien.
 
-apres avoir recu un message privé:
-	*quand on repond, erreur: "ircserv 432 quentin pierre123 :No such nick/channel"
+? a la creation d'un channel, le createur n'est pas operateur.
 
+#apres avoir recu un message privé:
+#	*quand on repond, erreur: "ircserv 432 quentin pierre123 :No such nick/channel"
+
+#fix invite
+
+fix kick:
+	champ du channel vide

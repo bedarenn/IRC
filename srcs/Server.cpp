@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "types/Channel.hpp"
 
 #include <cstring>
 #include <fcntl.h>
@@ -95,6 +96,7 @@ ssize_t	Server::read(const w_fd& fd) {
 			str = std::string(str + buff);
 		}
 	}
+	std::cout << fd << ": " << str << std::endl;
 	Command(fd, str, this);
 	return (size);
 }
@@ -129,18 +131,20 @@ void	Server::invite(const w_fd& fd, const std::string& channel, const std::strin
 			return ;
 		}
 
-		it_channel->second.invite(op, client);
+		if (it_channel->second.invite(op, client)) {
+			w_map_Client::iterator	inv = get_client(client);
+			inv->second.send_to_fd(INVI_MSG(channel, op, inv->second));
+		}
 	} catch (std::exception& err) {
 		std::cerr << "catch: " << err.what() << std::endl;
 		return ;
 	}
-
-
 }
 void	Server::kick(const w_fd& fd, const std::string& channel, const std::string& client, const std::string& msg) {
 	try {
 		Client	op = get_client(fd);
 
+		std::cerr << channel << " " << client << std::endl;
 		if (channel.empty() || client.empty()) {
 			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "KICK", _name));
 			return ;
