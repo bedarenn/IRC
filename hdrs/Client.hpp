@@ -23,6 +23,7 @@ public:
 
 	bool	connect();
 	bool	read_buff(const std::string& str, Server *server);
+	void	exec_cmd(Server *server);
 	ssize_t	send_to_fd(const std::string& str) const;
 
 	const w_fd&			get_fd() const;

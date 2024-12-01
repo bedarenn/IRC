@@ -2,6 +2,7 @@
 #include "Command.hpp"
 
 #include <sys/socket.h>
+#include <sstream>
 
 Client::Client() {}
 Client::Client(const w_fd& fd)
@@ -57,10 +58,20 @@ bool	Client::read_buff(const std::string& str, Server *server) {
 
 	if (_buff.size() < 1 && _buff[_buff.size() - 1] != '\n')
 		return (false);
-	std::cout << _fd << ": " << _buff << std::endl;
-	Command(_fd, _buff, server);
+	std::cout << _fd << ": " << _buff << std::endl; // commenter si cmd ligne par ligne
+	Command(_fd, _buff, server); // commenter si cmd ligne par ligne
+	// exec_cmd(server);
 	_buff.clear();
 	return (true);
+}
+void	Client::exec_cmd(Server *server) {
+	std::stringstream	sstream(_buff);
+	std::string			line;
+
+	while (std::getline(sstream, line)) {
+		std::cout << _fd << ": " << _buff << std::endl;
+		Command(_fd, line, server);
+	}
 }
 
 const w_fd&			Client::get_fd() const { return (_fd); }

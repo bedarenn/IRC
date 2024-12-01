@@ -11,3 +11,6 @@ pareil avec les ctrl + D:
 
 fix kick:
 	champ du channel vide
+
+Separer PASS NICK et NAME en trois commande differente \
+Peut etre considerer que chacune sera envoye indépendamment l'une de l'autre en splitant par defaut.
