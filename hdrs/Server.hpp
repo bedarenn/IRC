@@ -33,6 +33,9 @@ public:
 
 	void	new_fd(const w_fd& socket);
 	void	new_client(const std::string& name, const std::string& nickname, const w_fd& fd);
+	void	new_client_pass(const w_fd& fd, const std::string pass);
+	void	new_client_name(const w_fd& fd, const std::string name);
+	void	new_client_nick(const w_fd& fd, const std::string nick);
 	void	rm__client(const Client& client);
 
 	bool	join__channel(const Client& client, const std::string& channel, const std::string& pass);

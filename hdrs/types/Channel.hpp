@@ -56,6 +56,8 @@ class Channel;
 	W_ERR(client, cmd, s, "461") + ":Not enough parameters"
 # define W_ERR_ALREADYREGISTERED(client, s) \
 	W_ERC(client, s, "462") + ":You may not reregister"
+# define W_ERR_PASSWDMISMATCH(client, s) \
+	W_ERC(client, s, "462") + ":Password incorrect"
 # define W_ERR_CHANNELISFULL(client, cmd, s) \
 	W_ERR(client, cmd, s, "471") + ":Cannot join channel (+l)"
 # define W_ERR_INVITEONLYCHAN(client, cmd, s) \

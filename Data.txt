@@ -1,26 +1,13 @@
 test :
-connection avec netcat, envoie de texte:
-	*le buffer n'est pas clean a chaque envoie et renvoie la totalité
-	 + boucle inf a la deco.
+#connection avec netcat, envoie de texte:
+#	*le buffer n'est pas clean a chaque envoie et renvoie la totalité
+#	 + boucle inf a la deco.
 
 pareil avec les ctrl + D:
-	test du sujet: "com ^D man ^D de" => "commande"
-	on recoit: "com(premier ^D)
-			   "comman(second ^D)
-			   "commande"
-
-#dans un channel, "mode +l 10":
-	*il se passe rien.
-
-#dans un channel, "mode +o [USER]":
-	#*il se passe rien.
-
-? a la creation d'un channel, le createur n'est pas operateur.
-
-#apres avoir recu un message privé:
-#	*quand on repond, erreur: "ircserv 432 quentin pierre123 :No such nick/channel"
-
-#fix invite
+#	test du sujet: "com ^D man ^D de" => "commande"
+#	on recoit: "com(premier ^D)
+#			   "comman(second ^D)
+#			   "commande"
 
 fix kick:
 	champ du channel vide

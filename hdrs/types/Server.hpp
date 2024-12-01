@@ -25,7 +25,3 @@ w_pollfd	set_pollfd(int fd, short int event, short int revent);
 # define SRV_NEW_CLIENT(fd)		"new client: " << fd
 # define SRV_ERROR_ACCEPT(fd)	"error: client connection: " << fd
 # define SRV_ERROR_RECV			"error: recv"
-
-# ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 2048
-# endif

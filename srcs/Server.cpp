@@ -59,8 +59,10 @@ void	Server::event() {
 		connect();
 	size_t	i = 1;
 	while (i < _fds.size()) {
-		if (_fds[i].revents && read(_fds[i].fd) == 0)
-				_fds.erase(_fds.begin() + i);
+		if (_fds[i].revents && read(_fds[i].fd) == 0) {
+			_client.at(_fds[i].fd).rm__to_map(_client);
+			_fds.erase(_fds.begin() + i);
+		}
 		else
 			i++;
 	}
@@ -79,25 +81,15 @@ void	Server::connect() {
 		std::cerr << SRV_ERROR_ACCEPT(client) << std::endl; 
 }
 ssize_t	Server::read(const w_fd& fd) {
-	ssize_t		size = 0;
-	std::string	str("");
+	ssize_t		size;
 
 	bzero(buff, BUFFER_SIZE);
-	size += recv(fd, buff, BUFFER_SIZE, 0);
+	size = recv(fd, buff, BUFFER_SIZE, 0);
 	if (size <= 0)
 		return (size);
 	buff[size] = '\0';
-	str = std::string(str + buff);
-	while (size < 2 || buff[size - 2] != '\r' || buff[size - 1] != '\n') {
-		std::cout << "qwe:" << str << std::endl;
-		size += recv(fd, buff, BUFFER_SIZE, 0);
-		if (size > 0) {
-			buff[size] = '\0';
-			str = std::string(str + buff);
-		}
-	}
-	std::cout << fd << ": " << str << std::endl;
-	Command(fd, str, this);
+	_client.at(fd).read_buff(buff, this);
+	bzero(buff, BUFFER_SIZE);
 	return (size);
 }
 
@@ -240,7 +232,6 @@ void	Server::pong(const w_fd& fd, const std::string& token) {
 void	Server::quit(const w_fd& fd, const std::string& str) {
 	try {
 		Client	client = get_client(fd);
-		client.rm__to_map(_client);
 		for (w_map_Channel::iterator it = _channel.begin(); it != _channel.end(); it++)
 			it->second.quit(client, str);
 	} catch (std::exception& err) {
@@ -256,10 +247,24 @@ void	Server::new_fd(const w_fd& socket) {
 	fd.events = POLLIN;
 	fd.revents = 0;
 	_fds.push_back(fd);
-	read(socket);
+	Client(socket).add_to_map(_client);
 }
 void	Server::new_client(const std::string& name, const std::string& nickname, const w_fd& fd) {
-	Client(name, nickname, fd).add_to_map(_client);
+	new_client_pass(fd, _pass);
+	new_client_name(fd, name);
+	new_client_nick(fd, nickname);
+}
+void	Server::new_client_pass(const w_fd& fd, const std::string pass) {
+	if (pass != _pass)
+		_client.at(fd).send_to_fd(W_ERR_PASSWDMISMATCH(_client.at(fd), _name));
+	else if (!_client.at(fd).connect())
+		_client.at(fd).send_to_fd(W_ERR_ALREADYREGISTERED(_client.at(fd), _name));
+}
+void	Server::new_client_name(const w_fd& fd, const std::string name) {
+	_client.at(fd).set_name(name);
+}
+void	Server::new_client_nick(const w_fd& fd, const std::string nick) {
+	_client.at(fd).set_nickname(nick);
 }
 void	Server::rm__client(const Client& client) {
 	client.rm__to_map(_client);
@@ -300,11 +305,15 @@ const Client&	Server::get_client(const w_fd& fd) const {
 	w_map_Client::const_iterator it = _client.find(fd);
 	if (it == _client.end())
 		throw (std::runtime_error("Client Unknown"));
+	else if (!it->second.is_connect())
+		throw (std::runtime_error("Client Not Connected"));
 	return (it->second);
 }
 w_map_Client::iterator	Server::get_client(const std::string& name) {
 	w_map_Client::iterator it;
 	for (it = _client.begin(); it != _client.end() && it->second.get_name() != name; it++) ;
+	if (it != _client.end() && !it->second.is_connect())
+		return (_client.end());
 	return (it);
 }
 
