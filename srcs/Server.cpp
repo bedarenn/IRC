@@ -259,6 +259,9 @@ void	Server::new_client_pass(const w_fd& fd, const std::string pass) {
 		_client.at(fd).send_to_fd(W_ERR_PASSWDMISMATCH(_client.at(fd), _name));
 	else if (!_client.at(fd).connect())
 		_client.at(fd).send_to_fd(W_ERR_ALREADYREGISTERED(_client.at(fd), _name));
+	// else
+	// 	delete client
+	//	close(fd)
 }
 void	Server::new_client_name(const w_fd& fd, const std::string name) {
 	_client.at(fd).set_name(name);
