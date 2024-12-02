@@ -188,7 +188,6 @@ void	Command::parse_kick(){
 	buff = next('\r');
 	if(!buff.empty())
 		msg = buff;
-	std::cout << _fd << "(): " << channel << " " << nickname << " " << msg << std::endl;
 	_serv->kick(_fd, channel, nickname, msg);
 }
 
@@ -288,12 +287,17 @@ void	Command::parse_mode(){
 }
 
 //////////////////////////////////////////////////////////////////// PART ///////////////////////////////////////////////////////////////////////////////////
-//bool	Server::leave_channel(const Client& client, const std::string& channel) {
+//void	Server::part(const w_fd& fd, const std::string& channel, const std::string& str) {
+
 
 void	Command::parse_part(){
+	std::string channel, str;
 	std::string buff = next(' ');
-	Client client = _serv->get_client(_fd);
-	_serv->leave_channel(client, buff);
+	channel = buff;
+	erase(0, buff.size() + 1);
+	buff = next(' ');
+	str = trim(buff, ':');
+	_serv->part(_fd, channel, str);
 }
 
 //////////////////////////////////////////////////////////////////// PING ///////////////////////////////////////////////////////////////////////////////////
@@ -335,6 +339,5 @@ void		Command::parse_user(){
 	std::string	data;
 
 	getline(ss, data, ' ');
-	std::cout << data << std::endl;
 	_serv->new_client_name(_fd, data);
 }
