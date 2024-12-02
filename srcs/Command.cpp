@@ -1,7 +1,6 @@
 #include "Command.hpp"
 
 Command::Command(int fd, const std::string& buff, Server *serv): _fd(fd), _buff(buff), _serv(serv) {
-	//std::cout << _buff << std::endl;
 	init_cmd();
 	treatement();
 }
@@ -27,24 +26,17 @@ void	Command::init_cmd(){
 	_cmd["PING"] = &Command::parse_ping;
 	_cmd["PRIVMSG"] = &Command::parse_msg;
 	_cmd["PART"] = &Command::parse_part;
-	_nick = false;
-	_user = false;
-	_password = false;
-	_mad = false;
+	_cmd["PASS"] = &Command::parse_pass;
+	_cmd["NICK"] = &Command::parse_nick;
+	_cmd["USER"] = &Command::parse_user;
 }
 
 void	Command::treatement(){
 	
-	if(_buff.find('\n') != std::string::npos){
-
 		std::stringstream ss(_buff);
 		std::string	data;
 
 		getline(ss, data, ' ');
-		if(data == "CAP" || data == "PASS"){
-			new_client();
-			return ;
-		}
 		w_map_Command::iterator it;
 		for(it = _cmd.begin(); it != _cmd.end(); it++){
 			if(it->first == data){
@@ -53,7 +45,6 @@ void	Command::treatement(){
 				(this->*(it->second))();
 			}
 		}
-	}
 }
 
 void	Command::erase(int pos, int size){
@@ -183,18 +174,18 @@ void	Command::parse_kick(){
 	std::string buff = next(' ');
 	erase(0, buff.size() + 1);
 	buff = next(' ');
-	if(buff.empty() || counter(',', buff) || counter('#', buff)){
+	if(buff.empty() || counter(',', buff) || !counter('#', buff)){
 		_serv->kick(_fd, "", "", "");
 		return ;
 	}
-	nickname = buff;
+	channel = buff;
 	erase(0, buff.size() + 1);
 	buff = next(' ');
-	if(buff.empty() || counter(',', buff) || !counter('#', buff)){
-		_serv->kick(_fd, "", nickname, "");
+	if(buff.empty() || counter(',', buff) || counter('#', buff)){
+		_serv->kick(_fd, channel, "", "");
 		return ;
 	}
-	channel = trim(buff, ':');
+	nickname = trim(buff, ':');
 	erase(0, buff.size() + 1);
 	buff = next('\r');
 	msg = buff;
@@ -305,8 +296,6 @@ void	Command::parse_part(){
 	_serv->leave_channel(client, buff);
 }
 
-
-
 //////////////////////////////////////////////////////////////////// PING ///////////////////////////////////////////////////////////////////////////////////
 
 void	Command::parse_ping(){
@@ -333,75 +322,21 @@ void	Command::parse_msg(){
 
 ////////////////////////////////////////////////////////////////// NEW CLIENT ////////////////////////////////////////////////////////////////////////////////
 
-void		Command::comp_pass(std::string pass){
-	pass.erase(0, pass.find(' ') + 1);
-	pass.erase(pass.size() - 1, 1);
-	if(pass == _serv->get_pass())
-		_password = true;
-	else{
-		_mad = true;
-	}
+void		Command::parse_pass(){
+	std::cout << _buff << std::endl;
+	_serv->new_client_pass(_fd, _buff);
 }
 
-void		Command::set_nick(std::string nick){
-	nick.erase(0 , nick.find(' ') + 1);
-	nick.erase(nick.size() - 1, 1);
-	_nickname = nick;
-	_nick = true;
+void		Command::parse_nick(){
+	std::cout << _buff << std::endl;
+	_serv->new_client_nick(_fd, _buff);
 }
 
-void 		Command::set_user(std::string user){
-	user.erase(0 , user.find(' ') + 1);
-	user.erase(user.size() - 1, 1);
-	user.erase(user.find(' '), user.size());
-	_username = user;
-	_user = true;
-}
+void		Command::parse_user(){
+	std::stringstream ss(_buff);
+	std::string	data;
 
-void	Command::new_client(){
-	std::string buff = next(' ');
-	if(buff == "CAP"){
-		buff = next('\n');
-		erase(0, buff.size() + 1);
-	}
-	if(_buff.empty())
-		return;
-	buff = next(' ');
-	if (buff == "PASS"){
-		buff = next('\n');
-		comp_pass(buff);
-		if(_mad){
-			close(_fd);		
-			return ;
-		}
-		erase(0, buff.size() + 1);
-	}
-	buff = next(' ');
-	if(buff == "NICK"){
-		buff = next('\n');
-		set_nick(buff);
-		erase(0, buff.size() + 1);
-	}
-	buff = next(' ');
-	if(buff == "USER"){
-		buff = next('\n');
-		set_user(buff);
-		erase(0, buff.size() + 1);
-	}
-	if(_password && _nick && _user)
-		_serv->new_client(_nickname, _username, _fd);
+	getline(ss, data, ' ');
+	std::cout << data << std::endl;
+	_serv->new_client_name(_fd, data);
 }
-
-/*
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-CAP LS 302^M$
-$
-PASS pop^M$
-NICK tonup1^M$
-USER upman1 0 * :realname^M$
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-CAP LS 302^M$
-PASS pop^M$
-NICK tonup1^M$
-USER upman1 0 * :realname^M$
-*/

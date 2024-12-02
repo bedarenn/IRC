@@ -33,24 +33,15 @@ class Command{
 		void		parse_ping();
 		void		parse_msg();
 		void		parse_part();
-
-		void		new_client();
-		void		comp_pass(std::string pass);
-		void		set_nick(std::string nick);
-		void 		set_user(std::string user);
-
+		void		parse_pass();
+		void		parse_nick();
+		void		parse_user();
 
 	private:
 		int				_fd;
 		std::string		_buff;
 		Server			*_serv;
 		w_map_Command	_cmd;
-		std::string		_nickname;
-		std::string		_username;
-		bool			_nick;
-		bool			_user;
-		bool			_password;
-		bool			_mad;
 };
 
 std::string *fill_tab(int size, std::string data);
