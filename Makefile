@@ -31,8 +31,8 @@ clean:
 fclean:
 	@$(CC) $(DIR_MANDA) fclean
 	@$(CC) $(DIR_BONUS) fclean
-	rm -f $(NAME)
-	rm -f $(NAME_BONUS)
+	@rm -f $(NAME)
+	@rm -f $(NAME_BONUS)
 
 re: fclean all bonus
 
