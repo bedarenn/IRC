@@ -48,6 +48,8 @@ class Channel;
 	W_ERC(client, s, "432") + client.get_nickname() + " " + ":Erroneus nickname"
 # define W_ERR_NICKNAMEINUSE(client, s) \
 	W_ERC(client, s, "433") + client.get_nickname() + " " + ":Nickname is already in use"
+# define W_ERR_USERNOTINCHANNEL(channel, op, client, s) \
+	W_ERC(client, s, "441") + op.get_nickname() + " " + client.get_nickname() + " " + channel + " :They aren't on that channel"
 # define W_ERR_NOTONCHANNEL(client, cmd, s) \
 	W_ERR(client, cmd, s, "442") + ":You're not on that channel"
 # define ERR_USERONCHANNEL(client, cmd, s) \

@@ -136,20 +136,29 @@ void	Server::kick(const w_fd& fd, const std::string& channel, const std::string&
 	try {
 		Client	op = get_client(fd);
 
-		std::cout << "KICK: " << channel << " " << client << std::endl;
 		if (channel.empty() || client.empty()) {
 			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "KICK", _name));
 			return ;
 		}
+
 		w_map_Channel::iterator it_channel = _channel.find(channel);
 
 		if (it_channel == _channel.end()) {
+			op.send_to_fd(W_ERR_NOSUCHCHANNEL(op, "KICK", _name));
+			return ;
+		}
+
+		if (it_channel->second.is_on_channel(op.get_name())) {
 			op.send_to_fd(W_ERR_NOTONCHANNEL(op, "KICK", _name));
 			return ;
 		}
 
 		w_map_Client::iterator	it_client = get_client(client);
 
+		if (it_client == _client.end() || !it_channel->second.is_on_channel(client)) {
+			op.send_to_fd(W_ERR_USERNOTINCHANNEL(channel, op, it_client->second, _name));
+			return ;
+		}
 		it_channel->second.kick(op, it_client->second, msg);
 	} catch (std::exception& err) {
 		std::cerr << "catch: " << err.what() << std::endl;
