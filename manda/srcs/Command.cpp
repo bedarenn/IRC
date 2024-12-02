@@ -170,11 +170,9 @@ void	Command::parse_invite(){
 //////////////////////////////////////////////////////////////////// KICK ///////////////////////////////////////////////////////////////////////////////
 
 void	Command::parse_kick(){
-	std::string nickname, channel, msg;
+	std::string nickname, channel, msg = "";
 	std::string buff = next(' ');
-	erase(0, buff.size() + 1);
-	buff = next(' ');
-	if(buff.empty() || counter(',', buff) || !counter('#', buff)){
+ 	if(buff.empty() || counter(',', buff) || !counter('#', buff)){
 		_serv->kick(_fd, "", "", "");
 		return ;
 	}
@@ -185,10 +183,12 @@ void	Command::parse_kick(){
 		_serv->kick(_fd, channel, "", "");
 		return ;
 	}
-	nickname = trim(buff, ':');
+	nickname = buff;
 	erase(0, buff.size() + 1);
 	buff = next('\r');
-	msg = buff;
+	if(!buff.empty())
+		msg = buff;
+	std::cout << _fd << "(): " << channel << " " << nickname << " " << msg << std::endl;
 	_serv->kick(_fd, channel, nickname, msg);
 }
 
@@ -323,12 +323,10 @@ void	Command::parse_msg(){
 ////////////////////////////////////////////////////////////////// NEW CLIENT ////////////////////////////////////////////////////////////////////////////////
 
 void		Command::parse_pass(){
-	std::cout << _buff << std::endl;
 	_serv->new_client_pass(_fd, _buff);
 }
 
 void		Command::parse_nick(){
-	std::cout << _buff << std::endl;
 	_serv->new_client_nick(_fd, _buff);
 }
 
