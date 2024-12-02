@@ -11,7 +11,7 @@
 Channel::Channel(const Client& client, const std::string& name, const std::string& server)
 	: _name(name), _pass(""), _limit(0),
 	_inv_only(false), _r_topic(false), _r_op(true), _r_pass(false), _r_limit(false),
-	_topic(name), _topic_time(std::time(0)), _topic_change(client),
+	_topic(""), _topic_time(std::time(0)), _topic_change(client),
 	_server(server) {
 	join_pass(client);
 	client.add_to_map(_op);

@@ -136,7 +136,7 @@ void	Server::kick(const w_fd& fd, const std::string& channel, const std::string&
 	try {
 		Client	op = get_client(fd);
 
-		std::cerr << channel << " " << client << std::endl;
+		std::cout << "KICK: " << channel << " " << client << std::endl;
 		if (channel.empty() || client.empty()) {
 			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "KICK", _name));
 			return ;
