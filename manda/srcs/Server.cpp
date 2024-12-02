@@ -254,22 +254,37 @@ void	Server::new_client(const std::string& name, const std::string& nickname, co
 	new_client_nick(fd, nickname);
 }
 void	Server::new_client_pass(const w_fd& fd, const std::string pass) {
-	Client	client(_client.at(fd));
-
-	if (pass != _pass)
-		client.send_to_fd(W_ERR_PASSWDMISMATCH(_client.at(fd), _name));
-	else if (!_client.at(fd).connect())
-		client.send_to_fd(W_ERR_ALREADYREGISTERED(_client.at(fd), _name));
-	else {
-		client.rm__to_map(_client);
+	try {
+		if (pass != _pass)
+			_client.at(fd).send_to_fd(W_ERR_PASSWDMISMATCH(_client.at(fd), _name));
+		else if (!_client.at(fd).connect())
+			_client.at(fd).send_to_fd(W_ERR_ALREADYREGISTERED(_client.at(fd), _name));
+		else {
+			_client.at(fd).connect();
+			return ;
+		}
+		_client.at(fd).rm__to_map(_client);
 		close_fd(fd);
+	} catch (std::exception& err) {
+		std::cerr << "catch_pass: " << fd << ": " << err.what() << std::endl;
+		return ;
 	}
 }
 void	Server::new_client_name(const w_fd& fd, const std::string name) {
-	_client.at(fd).set_name(name);
+	try {
+		_client.at(fd).set_name(name);
+	} catch (std::exception& err) {
+		std::cerr << "catch_name: " << fd << ": " << err.what() << std::endl;
+		return ;
+	}
 }
 void	Server::new_client_nick(const w_fd& fd, const std::string nick) {
-	_client.at(fd).set_nickname(nick);
+	try {
+		_client.at(fd).set_nickname(nick);
+	} catch (std::exception& err) {
+		std::cerr << "catch_nick: " << fd << ": " << err.what() << std::endl;
+		return ;
+	}
 }
 void	Server::rm__client(const Client& client, const std::string& str) {
 	std::string	s;
