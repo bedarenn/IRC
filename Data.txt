@@ -1,18 +1,7 @@
-test :
-#connection avec netcat, envoie de texte:
-#	*le buffer n'est pas clean a chaque envoie et renvoie la totalité
-#	 + boucle inf a la deco.
-
-pareil avec les ctrl + D:
-#	test du sujet: "com ^D man ^D de" => "commande"
-#	on recoit: "com(premier ^D)
-#			   "comman(second ^D)
-#			   "commande"
-
 fix kick:
 	champ du channel vide
 
-1 buffer per Client
+fix topic
 
 Separer PASS NICK et NAME en trois commande differente \
 Peut etre considerer que chacune sera envoye indépendamment l'une de l'autre

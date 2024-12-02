@@ -56,11 +56,11 @@ ssize_t	Client::send_to_fd(const std::string& str) const {
 bool	Client::read_buff(const std::string& str, Server *server) {
 	_buff = std::string(_buff + str);
 
-	if (_buff.size() < 1 && _buff[_buff.size() - 1] != '\n')
+	if (_buff.size() < 1 && _buff.find('\n') == std::string::npos)
 		return (false);
-	std::cout << _fd << ": " << _buff << std::endl; // commenter si cmd ligne par ligne
-	Command(_fd, _buff, server); // commenter si cmd ligne par ligne
-	// exec_cmd(server);
+	// std::cout << _fd << ": " << _buff << std::endl; // commenter si cmd ligne par ligne
+	// Command(_fd, _buff, server); // commenter si cmd ligne par ligne
+	exec_cmd(server);
 	_buff.clear();
 	return (true);
 }
@@ -69,7 +69,7 @@ void	Client::exec_cmd(Server *server) {
 	std::string			line;
 
 	while (std::getline(sstream, line)) {
-		std::cout << _fd << ": " << _buff << std::endl;
+		std::cout << _fd << ": " << line << std::endl;
 		Command(_fd, line, server);
 	}
 }
