@@ -19,11 +19,12 @@ public:
 	bool	kick(const Client& op, const Client& client, const std::string& msg);
 	bool	topic(const Client& op, const std::string& value);
 	bool	mode(const Client& op, const std::string& md, const std::string& arg);
+	bool	part(const Client& client, const std::string& str);
 	bool	quit(const Client& client, const std::string& str);
 
 	bool	join_pass(const Client& client);
 	bool	invite_pass(const Client& op, const std::string& client);
-	bool	kick_pass(const Client& op, const Client& client, std::string msg);
+	bool	kick_pass(const Client& op, const Client& client, const std::string& msg);
 	bool	topic_pass(const Client& op, const std::string& value);
 	bool	mode_pass(const Client& op, const std::string& md, const std::string& arg);
 
@@ -42,8 +43,8 @@ public:
 
 	bool	is_on_channel(const std::string& client) const;
 
-	void	cast_send(const std::string& str);
-	void	cast_send(const std::string& str, const Client& client);
+	void	cast_send(const std::string& str) const;
+	void	cast_send(const std::string& str, const Client& client) const;
 	void	cast_f(void (Channel::*f)(const Client&));
 
 	void	send_topic(const Client& client);

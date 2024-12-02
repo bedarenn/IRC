@@ -13,8 +13,8 @@ Channel::Channel(const Client& client, const std::string& name, const std::strin
 	_inv_only(false), _r_topic(false), _r_op(true), _r_pass(false), _r_limit(false),
 	_topic(""), _topic_time(std::time(0)), _topic_change(client),
 	_server(server) {
-	join_pass(client);
 	client.add_to_map(_op);
+	join_pass(client);
 	if (!_pass.empty())
 		_r_pass = true;
 }
@@ -108,6 +108,20 @@ bool	Channel::mode(const Client& op, const std::string& md, const std::string& a
 	}
 	return (mode_pass(op, md, arg));
 }
+bool	Channel::part(const Client& client, const std::string& str) {
+	if (!is_on_channel(client.get_name())) {
+		client.send_to_fd(W_ERR_NOTONCHANNEL(client, "PART", _server));
+		return (false);
+	}
+	if (rm__client(client)) {
+		if (str.empty())
+			cast_send(PART_MSG(_name, client));
+		else
+			cast_send(PART_MSG_MSG(_name, client, str));
+		return (true);
+	}
+	return (false);
+}
 bool	Channel::quit(const Client& client, const std::string& str) {
 	if (rm__client(client)) {
 		cast_send(QUIT_MSG(str));
@@ -144,15 +158,17 @@ bool	Channel::invite_pass(const Client& op, const std::string& client) {
 	_invite.push_back(client);
 	return (true);
 }
-bool	Channel::kick_pass(const Client& op, const Client& client, std::string msg) {
+bool	Channel::kick_pass(const Client& op, const Client& client, const std::string& msg) {
 	if (!rm__client(client)) {
 		op.send_to_fd(W_ERR_NOTONCHANNEL(op, "KICK", _server));
 		return (false);
 	}
 
+	std::string	str;
 	if (msg.empty())
-		msg = KICK_MSG_DEFAULT;
-	std::string	str(KICK_MSG(_name, op, client, msg));
+		std::string	str(KICK_MSG(_name, op, client));
+	else
+		std::string	str(KICK_MSG_MSG(_name, op, client, msg));
 	cast_send(str);
 	client.send_to_fd(str);
 	return (true);
@@ -358,13 +374,13 @@ bool	Channel::is_on_channel(const std::string& client) const {
 	return (false);
 }
 
-void	Channel::cast_send(const std::string& str) {
-	for (w_map_Client::iterator it = _client.begin(); it != _client.end(); it++) {
+void	Channel::cast_send(const std::string& str) const {
+	for (w_map_Client::const_iterator it = _client.begin(); it != _client.end(); it++) {
 		it->second.send_to_fd(str);
 	}
 }
-void	Channel::cast_send(const std::string& str, const Client& client) {
-	for (w_map_Client::iterator it = _client.begin(); it != _client.end(); it++) {
+void	Channel::cast_send(const std::string& str, const Client& client) const {
+	for (w_map_Client::const_iterator it = _client.begin(); it != _client.end(); it++) {
 		if (it->second != client)
 			it->second.send_to_fd(str);
 	}
@@ -380,10 +396,12 @@ void	Channel::send_topic(const Client& client) {
 	else
 		cast_send(W_RPL_NOTOPIC(_name, client, _server));
 }
-
 void	Channel::send_list(const Client& client) {
 	for (w_map_Client::iterator it = _client.begin(); it != _client.end(); it++) {
-		client.send_to_fd(W_RPL_NAMREPLY(_name, client, it->second, _server));
+		if (it->second.is__in_map(_op))
+			client.send_to_fd(W_RPL_NAMREPLY(_name, client, "@" + it->second.get_nickname(), _server));
+		else
+			client.send_to_fd(W_RPL_NAMREPLY(_name, client, it->second.get_nickname(), _server));
 	}
 	client.send_to_fd(W_RPL_ENDOFNAMES(_name, client, _server));
 }

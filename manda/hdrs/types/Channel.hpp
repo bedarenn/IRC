@@ -32,7 +32,7 @@ class Channel;
 # define W_RPL_INVITING(client, l_client, channel, s) \
 	W_RPL(s, "341") + client.get_nickname() + " " + l_client.get_nickname() + " " + channel
 # define W_RPL_NAMREPLY(channel, client, l_client, s) \
-	W_RPL(s, "353") + client.get_nickname() + " = " + channel + " :" + l_client.get_nickname()
+	W_RPL(s, "353") + client.get_nickname() + " = " + channel + " :" + l_client
 # define W_RPL_ENDOFNAMES(channel, client, s) \
 	W_RPL(s, "366") + client.get_nickname() + " " + channel + " :End of /NAMES list"
 
@@ -73,8 +73,14 @@ class Channel;
 	client.get_nickname() + " JOIN " + channel
 # define INVI_MSG(channel, op, client) \
 	op.get_nickname() + " INVITE " + client.get_nickname() + " " + channel
-# define KICK_MSG(channel, op, client, msg) \
+# define KICK_MSG_MSG(channel, op, client, msg) \
 	op.get_nickname() + " KICK " + channel + " " + client.get_nickname() + " " + msg
+# define KICK_MSG(channel, op, client) \
+	op.get_nickname() + " KICK " + channel + " " + client.get_nickname()
+# define PART_MSG_MSG(channel, client, msg) \
+	client.get_nickname() + " PART " + channel + " " + client.get_nickname() + " " + msg
+# define PART_MSG(channel, client) \
+	client.get_nickname() + " PART " + channel + " " + client.get_nickname()
 # define MODE_MSG(channel, op, md, s) \
 	op.get_nickname() + " MODE " + channel + " " + md
 # define MODE_MSG_ARG(channel, op, md, arg, s) \
@@ -86,6 +92,6 @@ class Channel;
 # define QUIT_MSG(str) \
 	"QUIT " + str
 
-# define KICK_MSG_DEFAULT "You have been kick form this server."
+# define _DEFAULT "You have been kick form this server."
 
 typedef std::vector<std::string>	w_vect_invite;

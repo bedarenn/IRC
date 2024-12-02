@@ -26,9 +26,10 @@ public:
 	void	kick(const w_fd& fd, const std::string& channel, const std::string& client, const std::string& msg);
 	void	topic(const w_fd& fd, const std::string& channel, const std::string& value);
 	void	mode(const w_fd& fd, const std::string& channel, const std::string& md, const std::string& arg);
-	void	send_chan(const w_fd& fd, const std::string& chan, const std::string& str);
-	void	send_priv(const w_fd& fd, const std::string& priv, const std::string& str);
-	void	pong(const w_fd& fd, const std::string& token);
+	void	send_chan(const w_fd& fd, const std::string& chan, const std::string& str) const;
+	void	send_priv(const w_fd& fd, const std::string& priv, const std::string& str) const;
+	void	pong(const w_fd& fd, const std::string& token) const;
+	void	part(const w_fd& fd, const std::string& channel, const std::string& str);
 	void	quit(const w_fd& fd, const std::string& str);
 
 	void	new_fd(const w_fd& socket);

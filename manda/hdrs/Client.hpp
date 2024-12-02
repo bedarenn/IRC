@@ -14,8 +14,8 @@ public:
 	Client(const Client& cpy);
 
 	Client&	operator=(const Client& cpy);
-	bool	operator==(const Client& cpy);
-	bool	operator!=(const Client& cpy);
+	bool	operator==(const Client& cpy) const;
+	bool	operator!=(const Client& cpy) const;
 
 	bool	is__in_map(const w_map_Client& map_client) const;
 	bool	add_to_map(w_map_Client& map_client) const;

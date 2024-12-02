@@ -194,10 +194,10 @@ void	Server::mode(const w_fd& fd, const std::string& channel, const std::string&
 		return ;
 	}
 }
-void	Server::send_chan(const w_fd& fd, const std::string& chan, const std::string& str) {
+void	Server::send_chan(const w_fd& fd, const std::string& chan, const std::string& str) const {
 	try {
 		Client	client = get_client(fd);
-		w_map_Channel::iterator it_channel = _channel.find(chan);
+		w_map_Channel::const_iterator it_channel = _channel.find(chan);
 
 		if (it_channel == _channel.end()) {
 			client.send_to_fd(W_ERR_NOSUCHNICK(client, chan, _name));
@@ -209,11 +209,11 @@ void	Server::send_chan(const w_fd& fd, const std::string& chan, const std::strin
 		return ;
 	}
 }
-void	Server::send_priv(const w_fd& fd, const std::string& priv, const std::string& str) {
+void	Server::send_priv(const w_fd& fd, const std::string& priv, const std::string& str) const {
 	try {
 		Client	client = get_client(fd);
 
-		w_map_Client::iterator it;
+		w_map_Client::const_iterator it;
 		for (it = _client.begin(); it != _client.end() && it->second.get_name() != priv; it++) ;
 		if (it == _client.end()) {
 			client.send_to_fd(W_ERR_NOSUCHNICK(client, priv, _name));
@@ -226,8 +226,21 @@ void	Server::send_priv(const w_fd& fd, const std::string& priv, const std::strin
 		return ;
 	}
 }
-void	Server::pong(const w_fd& fd, const std::string& token) {
+void	Server::pong(const w_fd& fd, const std::string& token) const {
 	send_msg(fd, PONG_MSG(token));
+}
+void	Server::part(const w_fd& fd, const std::string& channel, const std::string& str) {
+	Client client = get_client(fd);
+
+	if (channel.empty()) {
+		client.send_to_fd(W_ERR_NEEDMOREPARAMS(client, "PART", _name));
+		return ;
+	}
+	w_map_Channel::iterator	it = _channel.find(channel);
+
+	it->second.part(client, str);
+	if (it->second.empty())
+		_channel.erase(it);
 }
 void	Server::quit(const w_fd& fd, const std::string& str) {
 	try {
