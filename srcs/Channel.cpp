@@ -80,6 +80,10 @@ bool	Channel::kick(const Client& op, const Client& client, const std::string& ms
 	return (kick_pass(op, client, msg));
 }
 bool	Channel::topic(const Client& op, const std::string& value) {
+	if (value.empty()) {
+		send_topic(op);
+		return (true);
+	}
 	if (!op.is__in_map(_client)) {
 		op.send_to_fd(W_ERR_NOTONCHANNEL(op, "TOPIC", _server));
 		return (false);
@@ -371,13 +375,10 @@ void	Channel::cast_f(void (Channel::*f)(const Client&)) {
 }
 
 void	Channel::send_topic(const Client& client) {
-	if (!_topic.empty()) {
+	if (!_topic.empty())
 		client.send_to_fd(W_RPL_TOPIC(_name, client, _topic, _server));
-		client.send_to_fd(W_RPL_TOPICWHOTIME(_name, _topic_change, get_topic_time(), _server));
-	}
-	else {
+	else
 		cast_send(W_RPL_NOTOPIC(_name, client, _server));
-	}
 }
 
 void	Channel::send_list(const Client& client) {

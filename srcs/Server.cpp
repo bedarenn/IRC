@@ -160,7 +160,7 @@ void	Server::topic(const w_fd& fd, const std::string& channel, const std::string
 	try {
 		Client	op = get_client(fd);
 
-		if (channel.empty() || value.empty()) {
+		if (channel.empty()) {
 			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "TOPIC", _name));
 			return ;
 		}
