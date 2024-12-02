@@ -36,7 +36,7 @@ public:
 	void	new_client_pass(const w_fd& fd, const std::string pass);
 	void	new_client_name(const w_fd& fd, const std::string name);
 	void	new_client_nick(const w_fd& fd, const std::string nick);
-	void	rm__client(const Client& client);
+	void	rm__client(const Client& client, const std::string& str);
 
 	bool	join__channel(const Client& client, const std::string& channel, const std::string& pass);
 	bool	leave_channel(const Client& client, const std::string& channel);
@@ -49,6 +49,8 @@ public:
 
 	const Client&	get_client(const w_fd& fd) const;
 	w_map_Client::iterator	get_client(const std::string& name);
+
+	void	close_fd(const w_fd& fd);
 
 private:
 	std::string	_name;

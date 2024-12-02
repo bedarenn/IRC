@@ -1,7 +1,7 @@
-fix kick:
+ix kick:
 	champ du channel vide
 
-fix topic
+#fix topic
 
 Separer PASS NICK et NAME en trois commande differente \
 Peut etre considerer que chacune sera envoye indépendamment l'une de l'autre

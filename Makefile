@@ -1,63 +1,47 @@
 ##################################### NAME #####################################
 
 NAME := ircserv
+NAME_BONUS := bot
 
 ################################### COMPILER ###################################
 
-CC := c++
+CC := make --no-print-directory -C
 
 ################################# DIRECTORIES ##################################
 
-DIR_SRCS := srcs/
-DIR_HDRS := hdrs/
-DIR_OBJS := objs/
-DIR_LIBS := libs/
-
-#################################### FLAGS #####################################
-
-CFLAGS := -Wall -Wextra -std=c++98 #-Werror
-IFLAGS := -I$(DIR_HDRS)
-LFLAGS := -L$(DIR_LIBS)
-
-#################################### FILES #####################################
-
-include sources.mk
-
-################################### OBJECTS ####################################
-
-OBJS = $(addprefix $(DIR_OBJS), $(SRCS:%.cpp=%.o))
+DIR_MANDA = manda/
+DIR_BONUS = bonus/
 
 #################################### RULES #####################################
 
-debug:
 all:
+bonus:
 
-$(NAME): $(OBJS)
-	@printf "$(GREEN)compile $@                                         $(NC)\n"
-	@$(CC) $^ $(LFLAGS) -o $@
-
-$(DIR_OBJS)%.o: $(DIR_SRCS)%.cpp
-	@mkdir -p $(@D)
-	@printf "$(BROWN)compile $(notdir $<)                              $(NC) \r"
-	@$(CC) $(CFLAGS) $(IFLAGS) -c $< -o $@
+$(NAME): $(DIR_MANDA)
+	@$(CC) $<
+	@cp $<$@ .
+$(NAME_BONUS): $(DIR_BONUS)
+	@$(CC) $<
+	@cp $<$@ .
 
 clean:
-	@printf "$(RED)clean objs$(NC)\n"
-	@rm -rf $(DIR_OBJS)
+	@$(CC) $(DIR_MANDA) clean
+	@$(CC) $(DIR_BONUS) clean
 
-fclean: clean
-	@printf "$(RED)clean $(NAME)$(NC)\n"
+fclean:
+	@$(CC) $(DIR_MANDA) fclean
+	@$(CC) $(DIR_BONUS) fclean
 	@rm -f $(NAME)
+	@rm -f $(NAME_BONUS)
 
-re: fclean debug
+re: fclean all bonus
 
 run: all
 	@flatpak run io.github.Hexchat > /dev/null 2>&1 &
 	@./ircserv 8080 pop
 
-all:	$(NAME)
-debug:	CFLAGS += -g
-debug:	$(NAME)
+all: $(NAME)
+bonus: $(NAME_BONUS)
 
 #################################### PHONY #####################################
 .PHONY: all debug clean fclean re
