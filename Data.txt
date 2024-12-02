@@ -1,4 +1,4 @@
-fix kick:
+ix kick:
 	champ du channel vide
 
 #fix topic
