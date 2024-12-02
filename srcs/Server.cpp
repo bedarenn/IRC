@@ -232,8 +232,7 @@ void	Server::pong(const w_fd& fd, const std::string& token) {
 void	Server::quit(const w_fd& fd, const std::string& str) {
 	try {
 		Client	client = get_client(fd);
-		for (w_map_Channel::iterator it = _channel.begin(); it != _channel.end(); it++)
-			it->second.quit(client, str);
+		rm__client(client, str);
 	} catch (std::exception& err) {
 		std::cerr << "catch: " << err.what() << std::endl;
 		return ;
@@ -255,13 +254,16 @@ void	Server::new_client(const std::string& name, const std::string& nickname, co
 	new_client_nick(fd, nickname);
 }
 void	Server::new_client_pass(const w_fd& fd, const std::string pass) {
+	Client	client(_client.at(fd));
+
 	if (pass != _pass)
-		_client.at(fd).send_to_fd(W_ERR_PASSWDMISMATCH(_client.at(fd), _name));
+		client.send_to_fd(W_ERR_PASSWDMISMATCH(_client.at(fd), _name));
 	else if (!_client.at(fd).connect())
-		_client.at(fd).send_to_fd(W_ERR_ALREADYREGISTERED(_client.at(fd), _name));
-	// else
-	// 	delete client
-	//	close(fd)
+		client.send_to_fd(W_ERR_ALREADYREGISTERED(_client.at(fd), _name));
+	else {
+		client.rm__to_map(_client);
+		close_fd(fd);
+	}
 }
 void	Server::new_client_name(const w_fd& fd, const std::string name) {
 	_client.at(fd).set_name(name);
@@ -269,11 +271,17 @@ void	Server::new_client_name(const w_fd& fd, const std::string name) {
 void	Server::new_client_nick(const w_fd& fd, const std::string nick) {
 	_client.at(fd).set_nickname(nick);
 }
-void	Server::rm__client(const Client& client) {
+void	Server::rm__client(const Client& client, const std::string& str) {
+	std::string	s;
+
+	if (str.empty())
+		s = "- UNKNOWN -";
+	else
+		s = str;
+	for (w_map_Channel::iterator it = _channel.begin(); it != _channel.end(); it++)
+		it->second.quit(client, str);
 	client.rm__to_map(_client);
-	for (w_map_Channel::iterator it = _channel.begin(); it != _channel.end(); it++) {
-		it->second.rm__client(client);
-	}
+	close_fd(client.get_fd());
 }
 
 bool	Server::join__channel(const Client& client, const std::string& channel, const std::string& pass) {
@@ -303,7 +311,6 @@ w_port		Server::get_port() const	{ return(_port); }
 w_pass		Server::get_pass() const	{ return(_pass); }
 std::string Server::get_name() const	{ return(_name); }
 
-
 const Client&	Server::get_client(const w_fd& fd) const {
 	w_map_Client::const_iterator it = _client.find(fd);
 	if (it == _client.end())
@@ -318,6 +325,16 @@ w_map_Client::iterator	Server::get_client(const std::string& name) {
 	if (it != _client.end() && !it->second.is_connect())
 		return (_client.end());
 	return (it);
+}
+
+void	Server::close_fd(const w_fd& fd) {
+	w_vect_pollfd::iterator	it;
+
+	for (it = _fds.begin(); it != _fds.end() && it->fd != fd; it++) ;
+	if (it == _fds.end())
+		return ;
+	close(it->fd);
+	_fds.erase(it);	
 }
 
 w_pollfd	set_pollfd(int fd, short int event, short int revent) {
