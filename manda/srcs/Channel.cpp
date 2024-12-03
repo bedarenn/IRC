@@ -50,8 +50,8 @@ Channel&	Channel::operator=(const Channel& cpy) {
 
 bool	Channel::join(const Client& client, const std::string& pass) {
 	if (_inv_only) {
-		if (is__invite(client.get_name())) {
-			del_invite(client.get_name());
+		if (is__invite(client.get_nickname())) {
+			del_invite(client.get_nickname());
 			return (join_pass(client));
 		}
 		else
@@ -73,6 +73,10 @@ bool	Channel::invite(const Client& op, const std::string& client) {
 	return (invite_pass(op, client));
 }
 bool	Channel::kick(const Client& op, const Client& client, const std::string& msg) {
+	if (!op.is__in_map(_client)) {
+		op.send_to_fd(W_ERR_NOTONCHANNEL(op, "KICK", _server));
+		return (false);
+	}
 	if (_r_op && !op.is__in_map(_op)) {
 		op.send_to_fd(W_ERR_CHANOPRIVSNEEDED(op, "KICK", _server));
 		return (false);
@@ -109,7 +113,7 @@ bool	Channel::mode(const Client& op, const std::string& md, const std::string& a
 	return (mode_pass(op, md, arg));
 }
 bool	Channel::part(const Client& client, const std::string& str) {
-	if (!is_on_channel(client.get_name())) {
+	if (!is_on_channel(client.get_nickname())) {
 		client.send_to_fd(W_ERR_NOTONCHANNEL(client, "PART", _server));
 		return (false);
 	}
@@ -124,7 +128,10 @@ bool	Channel::part(const Client& client, const std::string& str) {
 }
 bool	Channel::quit(const Client& client, const std::string& str) {
 	if (rm__client(client)) {
-		cast_send(QUIT_MSG(str));
+		if (str.empty())
+			cast_send(QUIT_MSG(client));
+		else
+			cast_send(QUIT_MSG_MSG(client, str));
 		return (true);
 	}
 	return (false);
@@ -160,15 +167,15 @@ bool	Channel::invite_pass(const Client& op, const std::string& client) {
 }
 bool	Channel::kick_pass(const Client& op, const Client& client, const std::string& msg) {
 	if (!rm__client(client)) {
-		op.send_to_fd(W_ERR_NOTONCHANNEL(op, "KICK", _server));
+		op.send_to_fd(W_ERR_USERNOTINCHANNEL(_name, op, client, _server));
 		return (false);
 	}
 
 	std::string	str;
 	if (msg.empty())
-		std::string	str(KICK_MSG(_name, op, client));
+		str = KICK_MSG(_name, op, client);
 	else
-		std::string	str(KICK_MSG_MSG(_name, op, client, msg));
+		str = KICK_MSG_MSG(_name, op, client, msg);
 	cast_send(str);
 	client.send_to_fd(str);
 	return (true);
@@ -284,10 +291,10 @@ bool	Channel::mode_o(const Client& op, const std::string& md, const std::string&
 			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
 			return (false);
 		}
-		for (it = _op.begin(); it != _op.end() && it->second.get_name() != arg; it++) ;
+		for (it = _op.begin(); it != _op.end() && it->second.get_nickname() != arg; it++) ;
 		if (it != _client.end())
 			return (false);
-		for (it = _client.begin(); it != _client.end() && it->second.get_name() != arg; it++) ;
+		for (it = _client.begin(); it != _client.end() && it->second.get_nickname() != arg; it++) ;
 		if (it == _client.end() || it->second.is__in_map(_op))
 			return (false);
 		it->second.add_to_map(_op);
@@ -298,10 +305,10 @@ bool	Channel::mode_o(const Client& op, const std::string& md, const std::string&
 			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
 			return (false);
 		}
-		for (it = _op.begin(); it != _op.end() && it->second.get_name() != arg; it++) ;
+		for (it = _op.begin(); it != _op.end() && it->second.get_nickname() != arg; it++) ;
 		if (it == _op.end())
 			return (false);
-		for (it = _client.begin(); it != _client.end() && it->second.get_name() != arg; it++) ;
+		for (it = _client.begin(); it != _client.end() && it->second.get_nickname() != arg; it++) ;
 		if (it == _client.end() || !it->second.is__in_map(_op))
 			return (false);
 		it->second.rm__to_map(_op);
@@ -367,11 +374,11 @@ bool	Channel::mode_empty(const Client& op) {
 }
 
 bool	Channel::is_on_channel(const std::string& client) const {
-	for (w_map_Client::const_iterator it = _client.begin(); it != _client.end(); it++) {
-		if (it->second.get_name() == client)
-			return (true);
-	}
-	return (false);
+	w_map_Client::const_iterator it;
+	for (it = _client.begin(); it != _client.end() && it->second.get_nickname() != client; it++) ;
+	if (it == _client.end())
+		return (false);
+	return (true);
 }
 
 void	Channel::cast_send(const std::string& str) const {
@@ -394,7 +401,7 @@ void	Channel::send_topic(const Client& client) {
 	if (!_topic.empty())
 		client.send_to_fd(W_RPL_TOPIC(_name, client, _topic, _server));
 	else
-		cast_send(W_RPL_NOTOPIC(_name, client, _server));
+		client.send_to_fd(W_RPL_NOTOPIC(_name, client, _server));
 }
 void	Channel::send_list(const Client& client) {
 	for (w_map_Client::iterator it = _client.begin(); it != _client.end(); it++) {

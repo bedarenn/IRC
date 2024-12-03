@@ -88,16 +88,28 @@ ssize_t	Server::read(const w_fd& fd) {
 	if (size <= 0)
 		return (size);
 	buff[size] = '\0';
-	_client.at(fd).read_buff(buff, this);
-	bzero(buff, BUFFER_SIZE);
+	try {
+		w_map_Client::iterator	it = _client.find(fd);
+		if (it == _client.end())
+			throw (std::runtime_error("Client Unknown"));
+		Client	client = it->second;
+		client.read_buff(buff, this);
+	} catch (std::exception& err) {
+		std::cerr << "catch: " << err.what() << std::endl;
+	}
 	return (size);
 }
 
 void	Server::join(const w_fd& fd, const std::string& channel, const std::string& pass) {
 	try {
 		Client	client = get_client(fd);
+
 		if (channel.empty()) {
 			client.send_to_fd(W_ERR_NEEDMOREPARAMS(client, "JOIN", _name));
+			return ;
+		}
+		if (channel[0] == '#' || channel.find('#', 1) != std::string::npos) {
+			client.send_to_fd(W_ERR_BADCHANMASK(client, channel, _name));
 			return ;
 		}
 		if (!join__channel(client, channel, pass))
@@ -124,7 +136,7 @@ void	Server::invite(const w_fd& fd, const std::string& channel, const std::strin
 		}
 
 		if (it_channel->second.invite(op, client)) {
-			w_map_Client::iterator	inv = get_client(client);
+			w_map_Client::const_iterator	inv = get_client(client);
 			inv->second.send_to_fd(INVI_MSG(channel, op, inv->second));
 		}
 	} catch (std::exception& err) {
@@ -136,21 +148,20 @@ void	Server::kick(const w_fd& fd, const std::string& channel, const std::string&
 	try {
 		Client	op = get_client(fd);
 
-		std::cout << "KICK: " << channel << " " << client << std::endl;
 		if (channel.empty() || client.empty()) {
 			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "KICK", _name));
 			return ;
 		}
-		w_map_Channel::iterator it_channel = _channel.find(channel);
 
+		w_map_Channel::iterator it_channel = _channel.find(channel);
 		if (it_channel == _channel.end()) {
-			op.send_to_fd(W_ERR_NOTONCHANNEL(op, "KICK", _name));
+			op.send_to_fd(W_ERR_NOSUCHCHANNEL(op, "KICK", _name));
 			return ;
 		}
 
-		w_map_Client::iterator	it_client = get_client(client);
-
-		it_channel->second.kick(op, it_client->second, msg);
+		w_map_Client::const_iterator	it_client = get_client(client);
+		if (it_client != _client.end())
+			it_channel->second.kick(op, it_client->second, msg);
 	} catch (std::exception& err) {
 		std::cerr << "catch: " << err.what() << std::endl;
 		return ;
@@ -213,10 +224,10 @@ void	Server::send_priv(const w_fd& fd, const std::string& priv, const std::strin
 	try {
 		Client	client = get_client(fd);
 
-		w_map_Client::const_iterator it;
-		for (it = _client.begin(); it != _client.end() && it->second.get_name() != priv; it++) ;
+		w_map_Client::const_iterator	it = get_client(priv);
 		if (it == _client.end()) {
-			client.send_to_fd(W_ERR_NOSUCHNICK(client, priv, _name));
+			std::cerr << "PRIV END" << std::endl;
+			//client.send_to_fd(W_ERR_NOSUCHNICK(client, priv, _name));
 			return ;
 		}
 
@@ -245,7 +256,9 @@ void	Server::part(const w_fd& fd, const std::string& channel, const std::string&
 void	Server::quit(const w_fd& fd, const std::string& str) {
 	try {
 		Client	client = get_client(fd);
-		rm__client(client, str);
+		for (w_map_Channel::iterator it = _channel.begin(); it != _channel.end(); it++)
+			it->second.quit(client, str);
+		rm__client(fd);
 	} catch (std::exception& err) {
 		std::cerr << "catch: " << err.what() << std::endl;
 		return ;
@@ -299,17 +312,13 @@ void	Server::new_client_nick(const w_fd& fd, const std::string nick) {
 		return ;
 	}
 }
-void	Server::rm__client(const Client& client, const std::string& str) {
-	std::string	s;
-
-	if (str.empty())
-		s = "- UNKNOWN -";
-	else
-		s = str;
-	for (w_map_Channel::iterator it = _channel.begin(); it != _channel.end(); it++)
-		it->second.quit(client, str);
-	client.rm__to_map(_client);
-	close_fd(client.get_fd());
+void	Server::rm__client(const w_fd fd) {
+	{
+		w_map_Client::iterator	it = _client.find(fd);
+		if (it != _client.end())
+			_client.erase(it);
+	}
+	close_fd(fd);
 }
 
 bool	Server::join__channel(const Client& client, const std::string& channel, const std::string& pass) {
@@ -318,16 +327,6 @@ bool	Server::join__channel(const Client& client, const std::string& channel, con
 	if (it == _channel.end())
 		return (false);
 	it->second.join(client, pass);
-	return (true);
-}
-bool	Server::leave_channel(const Client& client, const std::string& channel) {
-	w_map_Channel::iterator	it = _channel.find(channel);
-
-	if (it == _channel.end())
-		return (false);
-	it->second.rm__client(client);
-	if (it->second.empty())
-		_channel.erase(it);
 	return (true);
 }
 
@@ -347,10 +346,10 @@ const Client&	Server::get_client(const w_fd& fd) const {
 		throw (std::runtime_error("Client Not Connected"));
 	return (it->second);
 }
-w_map_Client::iterator	Server::get_client(const std::string& name) {
-	w_map_Client::iterator it;
-	for (it = _client.begin(); it != _client.end() && it->second.get_name() != name; it++) ;
-	if (it != _client.end() && !it->second.is_connect())
+const w_map_Client::const_iterator	Server::get_client(const std::string& name) const {
+	w_map_Client::const_iterator it;
+	for (it = _client.begin(); it != _client.end() && it->second.get_nickname() != name; it++) ;
+	if (it == _client.end() || !it->second.is_connect())
 		return (_client.end());
 	return (it);
 }

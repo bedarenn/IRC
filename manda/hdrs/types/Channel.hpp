@@ -48,6 +48,8 @@ class Channel;
 	W_ERC(client, s, "432") + client.get_nickname() + " " + ":Erroneus nickname"
 # define W_ERR_NICKNAMEINUSE(client, s) \
 	W_ERC(client, s, "433") + client.get_nickname() + " " + ":Nickname is already in use"
+# define W_ERR_USERNOTINCHANNEL(channel, op, client, s) \
+	W_ERC(client, s, "441") + op.get_nickname() + " " + client.get_nickname() + " " + channel + " :They aren't on that channel"
 # define W_ERR_NOTONCHANNEL(client, cmd, s) \
 	W_ERR(client, cmd, s, "442") + ":You're not on that channel"
 # define ERR_USERONCHANNEL(client, cmd, s) \
@@ -64,6 +66,8 @@ class Channel;
 	W_ERR(client, cmd, s, "473") + ":Cannot join channel (+i)"
 # define W_ERR_BADCHANNELKEY(client, cmd, s) \
 	W_ERR(client, cmd, s, "475") + ":Cannot join channel (+k)"
+# define W_ERR_BADCHANMASK(client, channel, s) \
+	W_ERC(client, s, "476") + channel + " :Bad Channel Mask"
 # define W_ERR_CHANOPRIVSNEEDED(client, cmd, s) \
 	W_ERR(client, cmd, s, "482") + ":You're not channel operator"
 
@@ -89,8 +93,10 @@ class Channel;
 	client.get_nickname() + " PRIVMSG " + target + " " + str
 # define PONG_MSG(token) \
 	"PONG " + token
-# define QUIT_MSG(str) \
-	"QUIT " + str
+# define QUIT_MSG(client) \
+	client.get_nickname() + " QUIT"
+# define QUIT_MSG_MSG(client, str) \
+	client.get_nickname() + " QUIT :" + str
 
 # define _DEFAULT "You have been kick form this server."
 
