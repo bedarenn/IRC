@@ -67,7 +67,7 @@ void	Client::exec_cmd(Server *server) {
 	std::string			line;
 
 	while (std::getline(sstream, line)) {
-		std::cout << _fd << " << " << line << std::endl;
+		std::cout << _fd << " << " << line << std::flush;
 		Command(_fd, line, server);
 	}
 	_buff.clear();

@@ -108,7 +108,7 @@ void	Server::join(const w_fd& fd, const std::string& channel, const std::string&
 			client.send_to_fd(W_ERR_NEEDMOREPARAMS(client, "JOIN", _name));
 			return ;
 		}
-		if (channel[0] == '#' && channel.find('#', 1) != std::string::npos) {
+		if (channel[0] == '#' || channel.find('#', 1) != std::string::npos) {
 			client.send_to_fd(W_ERR_BADCHANMASK(client, channel, _name));
 			return ;
 		}
