@@ -73,6 +73,10 @@ bool	Channel::invite(const Client& op, const std::string& client) {
 	return (invite_pass(op, client));
 }
 bool	Channel::kick(const Client& op, const Client& client, const std::string& msg) {
+	if (!op.is__in_map(_client)) {
+		op.send_to_fd(W_ERR_NOTONCHANNEL(op, "KICK", _server));
+		return (false);
+	}
 	if (_r_op && !op.is__in_map(_op)) {
 		op.send_to_fd(W_ERR_CHANOPRIVSNEEDED(op, "KICK", _server));
 		return (false);
@@ -163,15 +167,15 @@ bool	Channel::invite_pass(const Client& op, const std::string& client) {
 }
 bool	Channel::kick_pass(const Client& op, const Client& client, const std::string& msg) {
 	if (!rm__client(client)) {
-		op.send_to_fd(W_ERR_NOTONCHANNEL(op, "KICK", _server));
+		op.send_to_fd(W_ERR_USERNOTINCHANNEL(_name, op, client, _server));
 		return (false);
 	}
 
 	std::string	str;
 	if (msg.empty())
-		std::string	str(KICK_MSG(_name, op, client));
+		str = KICK_MSG(_name, op, client);
 	else
-		std::string	str(KICK_MSG_MSG(_name, op, client, msg));
+		str = KICK_MSG_MSG(_name, op, client, msg);
 	cast_send(str);
 	client.send_to_fd(str);
 	return (true);
@@ -370,11 +374,11 @@ bool	Channel::mode_empty(const Client& op) {
 }
 
 bool	Channel::is_on_channel(const std::string& client) const {
-	for (w_map_Client::const_iterator it = _client.begin(); it != _client.end(); it++) {
-		if (it->second.get_nickname() == client)
-			return (true);
-	}
-	return (false);
+	w_map_Client::const_iterator it;
+	for (it = _client.begin(); it != _client.end() && it->second.get_nickname() != client; it++) ;
+	if (it == _client.end())
+		return (false);
+	return (true);
 }
 
 void	Channel::cast_send(const std::string& str) const {
