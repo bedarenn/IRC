@@ -160,7 +160,7 @@ void	Server::kick(const w_fd& fd, const std::string& channel, const std::string&
 			return ;
 		}
 
-		if (it_channel->second.is_on_channel(op.get_name())) {
+		if (it_channel->second.is_on_channel(op.get_nickname())) {
 			op.send_to_fd(W_ERR_NOTONCHANNEL(op, "KICK", _name));
 			return ;
 		}

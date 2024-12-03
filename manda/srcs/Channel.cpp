@@ -50,8 +50,8 @@ Channel&	Channel::operator=(const Channel& cpy) {
 
 bool	Channel::join(const Client& client, const std::string& pass) {
 	if (_inv_only) {
-		if (is__invite(client.get_name())) {
-			del_invite(client.get_name());
+		if (is__invite(client.get_nickname())) {
+			del_invite(client.get_nickname());
 			return (join_pass(client));
 		}
 		else
@@ -109,7 +109,7 @@ bool	Channel::mode(const Client& op, const std::string& md, const std::string& a
 	return (mode_pass(op, md, arg));
 }
 bool	Channel::part(const Client& client, const std::string& str) {
-	if (!is_on_channel(client.get_name())) {
+	if (!is_on_channel(client.get_nickname())) {
 		client.send_to_fd(W_ERR_NOTONCHANNEL(client, "PART", _server));
 		return (false);
 	}
@@ -287,10 +287,10 @@ bool	Channel::mode_o(const Client& op, const std::string& md, const std::string&
 			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
 			return (false);
 		}
-		for (it = _op.begin(); it != _op.end() && it->second.get_name() != arg; it++) ;
+		for (it = _op.begin(); it != _op.end() && it->second.get_nickname() != arg; it++) ;
 		if (it != _client.end())
 			return (false);
-		for (it = _client.begin(); it != _client.end() && it->second.get_name() != arg; it++) ;
+		for (it = _client.begin(); it != _client.end() && it->second.get_nickname() != arg; it++) ;
 		if (it == _client.end() || it->second.is__in_map(_op))
 			return (false);
 		it->second.add_to_map(_op);
@@ -301,10 +301,10 @@ bool	Channel::mode_o(const Client& op, const std::string& md, const std::string&
 			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
 			return (false);
 		}
-		for (it = _op.begin(); it != _op.end() && it->second.get_name() != arg; it++) ;
+		for (it = _op.begin(); it != _op.end() && it->second.get_nickname() != arg; it++) ;
 		if (it == _op.end())
 			return (false);
-		for (it = _client.begin(); it != _client.end() && it->second.get_name() != arg; it++) ;
+		for (it = _client.begin(); it != _client.end() && it->second.get_nickname() != arg; it++) ;
 		if (it == _client.end() || !it->second.is__in_map(_op))
 			return (false);
 		it->second.rm__to_map(_op);
@@ -371,7 +371,7 @@ bool	Channel::mode_empty(const Client& op) {
 
 bool	Channel::is_on_channel(const std::string& client) const {
 	for (w_map_Client::const_iterator it = _client.begin(); it != _client.end(); it++) {
-		if (it->second.get_name() == client)
+		if (it->second.get_nickname() == client)
 			return (true);
 	}
 	return (false);
