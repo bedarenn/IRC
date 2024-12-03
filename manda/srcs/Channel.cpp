@@ -401,7 +401,7 @@ void	Channel::send_topic(const Client& client) {
 	if (!_topic.empty())
 		client.send_to_fd(W_RPL_TOPIC(_name, client, _topic, _server));
 	else
-		cast_send(W_RPL_NOTOPIC(_name, client, _server));
+		client.send_to_fd(W_RPL_NOTOPIC(_name, client, _server));
 }
 void	Channel::send_list(const Client& client) {
 	for (w_map_Client::iterator it = _client.begin(); it != _client.end(); it++) {
