@@ -66,6 +66,8 @@ class Channel;
 	W_ERR(client, cmd, s, "473") + ":Cannot join channel (+i)"
 # define W_ERR_BADCHANNELKEY(client, cmd, s) \
 	W_ERR(client, cmd, s, "475") + ":Cannot join channel (+k)"
+# define W_ERR_BADCHANMASK(client, channel, s) \
+	W_ERC(client, s, "476") + channel + " :Bad Channel Mask"
 # define W_ERR_CHANOPRIVSNEEDED(client, cmd, s) \
 	W_ERR(client, cmd, s, "482") + ":You're not channel operator"
 
@@ -91,8 +93,10 @@ class Channel;
 	client.get_nickname() + " PRIVMSG " + target + " " + str
 # define PONG_MSG(token) \
 	"PONG " + token
-# define QUIT_MSG(str) \
-	"QUIT " + str
+# define QUIT_MSG(client) \
+	client.get_nickname() + " QUIT"
+# define QUIT_MSG_MSG(client, str) \
+	client.get_nickname() + " QUIT :" + str
 
 # define _DEFAULT "You have been kick form this server."
 

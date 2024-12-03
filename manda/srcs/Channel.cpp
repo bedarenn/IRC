@@ -124,7 +124,10 @@ bool	Channel::part(const Client& client, const std::string& str) {
 }
 bool	Channel::quit(const Client& client, const std::string& str) {
 	if (rm__client(client)) {
-		cast_send(QUIT_MSG(str));
+		if (str.empty())
+			cast_send(QUIT_MSG(client));
+		else
+			cast_send(QUIT_MSG_MSG(client, str));
 		return (true);
 	}
 	return (false);
