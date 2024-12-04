@@ -14,7 +14,7 @@ Server::~Server() {
 }
 Server::Server(const Server &cpy) { *this = cpy; }
 
-Server &Server::operator=(const Server &cpy) {
+Server&	Server::operator=(const Server &cpy) {
 	if (this == &cpy)
 		return (*this);
 	_name = cpy._name;
