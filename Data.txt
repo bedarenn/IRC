@@ -3,3 +3,20 @@ send (JOIN)
 
 PRIVMSG .ping
 send PONG
+
+test:
+
+utilisation de la command NICK -> ecrase les premiers caractere du nickname
+	nick: quentin1234
+	/nick tutu
+	nick: tututin1234
+
+en ayant retirer les if du parsing -> /join ne marche plus.
+	/join #chan: 
+ 		* #chan :Bad Channel Mask
+	/join chan: 
+		* chan :No topic is set
+		* Users on chan: @tutu
+		* chan :End of /NAMES list
+
+

@@ -92,8 +92,7 @@ ssize_t	Server::read(const w_fd& fd) {
 		w_map_Client::iterator	it = _client.find(fd);
 		if (it == _client.end())
 			throw (std::runtime_error("Client Unknown"));
-		Client	client = it->second;
-		client.read_buff(buff, this);
+		it->second.read_buff(buff, this);
 	} catch (std::exception& err) {
 		std::cerr << "catch: " << err.what() << std::endl;
 	}
