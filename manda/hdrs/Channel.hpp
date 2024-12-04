@@ -41,7 +41,9 @@ public:
 	bool	mode_l(const Client& op, const std::string& md, const std::string& arg);
 	bool	mode_empty(const Client& op);
 
-	bool	is_on_channel(const std::string& client) const;
+	bool	is_on_channel(const w_fd& fd) const;
+	bool	is_on_channel(const Client& client) const;
+	bool	is_on_channel(const std::string& nick) const;
 
 	void	cast_send(const std::string& str) const;
 	void	cast_send(const std::string& str, const Client& client) const;

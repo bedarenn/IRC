@@ -113,15 +113,18 @@ bool	Channel::mode(const Client& op, const std::string& md, const std::string& a
 	return (mode_pass(op, md, arg));
 }
 bool	Channel::part(const Client& client, const std::string& str) {
-	if (!is_on_channel(client.get_nickname())) {
+	if (!is_on_channel(client)) {
 		client.send_to_fd(W_ERR_NOTONCHANNEL(client, "PART", _server));
 		return (false);
 	}
 	if (rm__client(client)) {
+		std::string	s;
 		if (str.empty())
-			cast_send(PART_MSG(_name, client));
+			s = PART_MSG(_name, client);
 		else
-			cast_send(PART_MSG_MSG(_name, client, str));
+			s = PART_MSG_MSG(_name, client, str);
+		cast_send(s);
+		client.send_to_fd(s);
 		return (true);
 	}
 	return (false);
@@ -373,11 +376,27 @@ bool	Channel::mode_empty(const Client& op) {
 	return (true);
 }
 
-bool	Channel::is_on_channel(const std::string& client) const {
+bool	Channel::is_on_channel(const w_fd& fd) const {
 	w_map_Client::const_iterator it;
-	for (it = _client.begin(); it != _client.end() && it->second.get_nickname() != client; it++) ;
+	for (it = _client.begin(); it != _client.end() && it->second.get_fd() != fd; it++) ;
 	if (it == _client.end())
 		return (false);
+	return (true);
+}
+bool	Channel::is_on_channel(const Client& client) const {
+	w_map_Client::const_iterator it;
+	for (it = _client.begin(); it != _client.end() && it->second != client; it++) ;
+	if (it == _client.end())
+		return (false);
+	std::cout << "IS IT ?? " << it->second.get_fd() << "" << std::endl;
+	return (true);
+}
+bool	Channel::is_on_channel(const std::string& nick) const {
+	w_map_Client::const_iterator it;
+	for (it = _client.begin(); it != _client.end() && it->second.get_nickname() != nick; it++) ;
+	if (it == _client.end())
+		return (false);
+	std::cout << "IS IT ?? " << it->second.get_fd() << "" << std::endl;
 	return (true);
 }
 

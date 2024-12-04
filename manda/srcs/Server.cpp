@@ -254,8 +254,13 @@ void	Server::part(const w_fd& fd, const std::string& channel, const std::string&
 		client.send_to_fd(W_ERR_NEEDMOREPARAMS(client, "PART", _name));
 		return ;
 	}
+	std::cout << "PART ?? " << _name << std::endl;
 	w_map_Channel::iterator	it = _channel.find(channel);
 
+	if (it == _channel.end()) {
+		client.send_to_fd(W_ERR_NOSUCHCHANNEL(client, "PART", _name));
+		return ;
+	}
 	it->second.part(client, str);
 	if (it->second.empty())
 		_channel.erase(it);
