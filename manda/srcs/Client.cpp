@@ -1,5 +1,4 @@
 #include "Client.hpp"
-#include "Command.hpp"
 
 #include <sys/socket.h>
 #include <sstream>
@@ -21,8 +20,8 @@ Client&	Client::operator=(const Client& cpy) {
 	_buff = cpy._buff;
 	return (*this);
 }
-bool	Client::operator==(const Client& cpy) const { return (_fd == cpy._fd); }
-bool	Client::operator!=(const Client& cpy) const { return (_fd != cpy._fd); }
+bool	Client::operator==(const Client& cpy) const	{ return (_fd == cpy._fd); }
+bool	Client::operator!=(const Client& cpy) const	{ return (_fd != cpy._fd); }
 
 bool	Client::is__in_map(const w_map_Client& map_client) const {
 	w_map_Client::const_iterator	it = map_client.find(_fd);
@@ -53,24 +52,12 @@ bool	Client::connect() {
 ssize_t	Client::send_to_fd(const std::string& str) const {
 	return (send_msg(_fd, str));
 }
-bool	Client::read_buff(const std::string& str, Server *server) {
+bool	Client::read_buff(const std::string& str) {
 	_buff = std::string(_buff + str);
 
 	if (_buff.find('\n') != std::string::npos)
-		exec_cmd(server);
-	else
-		return (false);
-	return (true);
-}
-void	Client::exec_cmd(Server *server) {
-	std::stringstream	sstream(_buff);
-	std::string			line;
-
-	while (std::getline(sstream, line)) {
-		std::cout << _fd << " << " << line << std::flush;
-		Command(_fd, line, server);
-	}
-	_buff.clear();
+		return (true);
+	return (false);
 }
 
 const w_fd&			Client::get_fd() const { return (_fd); }
@@ -80,8 +67,9 @@ bool				Client::is_connect() const {
 	return (_is_connect);
 }
 
-const std::string&	Client::get_name() const { return (_name); }
-const std::string&	Client::get_nickname() const { return (_nickname); }
+const std::string&	Client::get_name() const		{ return (_name); }
+const std::string&	Client::get_nickname() const	{ return (_nickname); }
+const std::string&	Client::get_buff() const		{ return (_buff); }
 bool				Client::set_name(const std::string& value) {
 	if (!_is_connect)
 		return (false);
@@ -94,6 +82,7 @@ bool				Client::set_nickname(const std::string& value) {
 	_nickname = value;
 	return (true);
 }
+void				Client::clear_buff()	{ _buff.clear(); }
 
 std::ostream&	operator<<(std::ostream& out, const Client& client) {
 	out << client._fd << ": " << client._nickname;

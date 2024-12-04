@@ -59,10 +59,8 @@ void	Server::event() {
 		connect();
 	size_t	i = 1;
 	while (i < _fds.size()) {
-		if (_fds[i].revents && read(_fds[i].fd) == 0) {
-			_client.at(_fds[i].fd).rm__to_map(_client);
-			_fds.erase(_fds.begin() + i);
-		}
+		if (_fds[i].revents && read(_fds[i].fd) <= 0)
+			rm__client(_fds[i].fd);
 		else
 			i++;
 	}
@@ -92,11 +90,22 @@ ssize_t	Server::read(const w_fd& fd) {
 		w_map_Client::iterator	it = _client.find(fd);
 		if (it == _client.end())
 			throw (std::runtime_error("Client Unknown"));
-		it->second.read_buff(buff, this);
+		if (it->second.read_buff(buff))
+			exec(it->second.get_fd(), it->second.get_buff(), it->second);
 	} catch (std::exception& err) {
 		std::cerr << "catch: " << err.what() << std::endl;
 	}
 	return (size);
+}
+void	Server::exec(w_fd fd, std::string str, Client& client) {
+	client.clear_buff();
+	std::stringstream	sstream(str);
+	std::string			line;
+
+	while (std::getline(sstream, line)) {
+		std::cout << fd << " << " << line << std::endl;
+		Command(fd, line, this);
+	}
 }
 
 void	Server::join(const w_fd& fd, const std::string& channel, const std::string& pass) {
@@ -107,7 +116,7 @@ void	Server::join(const w_fd& fd, const std::string& channel, const std::string&
 			client.send_to_fd(W_ERR_NEEDMOREPARAMS(client, "JOIN", _name));
 			return ;
 		}
-		if (channel[0] == '#' || channel.find('#', 1) != std::string::npos) {
+		if (channel[0] != '#' || channel.find('#', 1) != std::string::npos) {
 			client.send_to_fd(W_ERR_BADCHANMASK(client, channel, _name));
 			return ;
 		}
@@ -225,8 +234,7 @@ void	Server::send_priv(const w_fd& fd, const std::string& priv, const std::strin
 
 		w_map_Client::const_iterator	it = get_client(priv);
 		if (it == _client.end()) {
-			std::cerr << "PRIV END" << std::endl;
-			//client.send_to_fd(W_ERR_NOSUCHNICK(client, priv, _name));
+			client.send_to_fd(W_ERR_NOSUCHNICK(client, priv, _name));
 			return ;
 		}
 

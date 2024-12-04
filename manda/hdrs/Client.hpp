@@ -2,8 +2,6 @@
 
 # include "types/Client.hpp"
 
-# include "types/Server.hpp"
-
 class Server;
 class Channel;
 
@@ -22,7 +20,7 @@ public:
 	bool	rm__to_map(w_map_Client& map_client) const;
 
 	bool	connect();
-	bool	read_buff(const std::string& str, Server *server);
+	bool	read_buff(const std::string& str);
 	void	exec_cmd(Server *server);
 	ssize_t	send_to_fd(const std::string& str) const;
 
@@ -31,8 +29,10 @@ public:
 
 	const std::string&	get_name() const;
 	const std::string&	get_nickname() const;
+	const std::string&	get_buff() const;
 	bool				set_name(const std::string& value);
 	bool				set_nickname(const std::string& value);
+	void				clear_buff();
 
 	friend std::ostream&	operator<<(std::ostream& out, const Client& client);
 
