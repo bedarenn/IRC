@@ -33,18 +33,19 @@ void	Command::init_cmd(){
 
 void	Command::treatement(){
 	
-		std::stringstream ss(_buff);
-		std::string	data;
+	std::stringstream ss(_buff);
+	std::string	data;
 
-		getline(ss, data, ' ');
-		w_map_Command::iterator it;
-		for(it = _cmd.begin(); it != _cmd.end(); it++){
-			if(it->first == data){
-				erase(0, _buff.find(' ') + 1);
+	getline(ss, data, ' ');
+	w_map_Command::iterator it;
+	for(it = _cmd.begin(); it != _cmd.end(); it++){
+		if(it->first == data){
+			erase(0, _buff.find(' ') + 1);
+			if(_buff.find(13) != std::string::npos)
 				erase(_buff.find(13), 2);
-				(this->*(it->second))();
-			}
+			(this->*(it->second))();
 		}
+	}
 }
 
 void	Command::erase(int pos, int size){

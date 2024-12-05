@@ -32,7 +32,7 @@ bool	parse(char **av) {
 void	sig_quit(int code) {
 	g_loop = 0;
 	if (code == SIGINT)
-		 << std::endl;
+		std::cout << std::endl;
 }
 
 void	set_sig(void) {

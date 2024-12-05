@@ -6,6 +6,11 @@
 # include <cstdlib>
 # include <fcntl.h>
 # include <cstring>
+# include <sstream>
+# include <ctime>
+# include <map>
+# include <algorithm>
+
 
 # define BUFFER_SIZE 1024
 
@@ -15,16 +20,26 @@ class Bot{
 	public:
 		Bot(int port, std::string pass);
 		~Bot();
-		void	send_msg(std::string str);
-		void	connect_to_serv();
-		void	loop();
-		void	treat_cmd();
+
+		void		send_msg(std::string str);
+		void		connect_to_serv();
+		void		loop();
+		void		treat_cmd();
+		void		ShiFuMi();
+		void		init_map(int paper, int rock, int scissors);
+		
+		std::string	trim(std::string buff, char c);
+		std::string	next(char find);
+		
 
 	private:
 		int			_fd;
 		int			_port;
 		std::string _pass;
 		std::string	_cmd;
+		std::map<int, std::string>	_shifumi;
+		std::string	_target;
 };
+
 
 # define CONNECT_MSG(_pass) "PASS " + _pass + "\r\nNICK bot\r\nUSER bot1\r\n"
