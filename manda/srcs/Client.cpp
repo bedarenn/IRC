@@ -67,7 +67,7 @@ void	Client::exec_cmd(Server *server) {
 	std::string			line;
 
 	while (std::getline(sstream, line)) {
-		std::cout << _fd << " << " << line << std::flush;
+		//std::cout << _fd << " << " << line << std::flush;
 		Command(_fd, line, server);
 	}
 	_buff.clear();
@@ -102,6 +102,6 @@ std::ostream&	operator<<(std::ostream& out, const Client& client) {
 
 ssize_t	send_msg(const w_fd& fd, const std::string& str) {
 	std::string s = W_SND(str);
-	std::cout << fd << " >> " << s << std::endl;
+	 << fd << " >> " << s << std::endl;
 	return (send(fd, s.c_str(), s.size(), 0));
 }

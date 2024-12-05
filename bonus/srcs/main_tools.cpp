@@ -1,6 +1,6 @@
 #include <signal.h>
 
-#include "bot.hpp"
+#include "Bot.hpp"
 
 void	sig_quit(int code) {
 	g_loop = 0;
