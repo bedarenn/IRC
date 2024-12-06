@@ -38,8 +38,9 @@ class Bot{
 		std::string _pass;
 		std::string	_cmd;
 		std::map<int, std::string>	_shifumi;
+		std::string	_cmd_player;
 		std::string	_target;
 };
 
-
 # define CONNECT_MSG(_pass) "PASS " + _pass + "\r\nNICK bot\r\nUSER bot1\r\n"
+# define CREATE_CHAN	"JOIN #bot\r\n"

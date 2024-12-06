@@ -88,7 +88,6 @@ ssize_t	Server::read(const w_fd& fd) {
 	if (size <= 0)
 		return (size);
 	buff[size] = '\0';
-	std::cout << "BUFF: " << buff << std::endl;
 	try {
 		w_map_Client::iterator	it = _client.find(fd);
 		if (it == _client.end())

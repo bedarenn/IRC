@@ -1,9 +1,6 @@
 #include <iostream>
-
 #include <cstdlib>
-
 #include <signal.h>
-
 #include "Server.hpp"
 
 int g_loop;
