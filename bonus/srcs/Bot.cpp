@@ -1,6 +1,10 @@
 #include "Bot.hpp"
 
-Bot::Bot(int port, std::string pass): _port(port), _pass(pass){}
+Bot::Bot(int port, std::string pass): _port(port), _pass(pass){
+	_shifumi[0] = "paper";
+	_shifumi[1] = "rock";
+	_shifumi[2] = "scissors";
+}
 
 Bot::~Bot(){}
 
@@ -32,18 +36,31 @@ void	Bot::loop(){
 			break ;
 		buff[size] = '\0';
 		_cmd += buff;
-		if(_cmd.find('\r') != std::string::npos && _cmd.find('\n') != std::string::npos)
+		if(_cmd.find('\r') != std::string::npos && _cmd.find('\n') != std::string::npos){
+			_priv = false;
 			treat_cmd();
+			_cmd = "";
+		}
 	}
 }
 
 void	Bot::treat_cmd(){
-	std::cout << "CMD: " << _cmd << std::endl;
+	std::cout << _cmd << std::endl;
 	std::string	data = next(' ');
 	data = trim(data, ':');
 	_target = data;
-	std::cout << "data: " << data << std::endl;
-	_cmd = "";
+	_cmd.erase(0, data.size() + 2);
+	data = next(' ');
+	_cmd.erase(0, data.size() + 1);
+	data = next(' ');
+	_cmd.erase(0, data.size() + 1);
+	data = next(' ');
+	if(data.find(13) != std::string::npos)
+		data = trim(data, 13);
+	if(data.find(10) != std::string::npos)
+		data = trim(data, 10);
+	if(data == "!play")
+		shifumi();
 }
 
 std::string	Bot::next(char find){
@@ -59,32 +76,17 @@ std::string	Bot::trim(std::string buff, char c){
 	return (result);
 }
 
-void	Bot::init_map(int paper, int rock, int scissors){
-	_shifumi[paper] = "paper";
-	_shifumi[rock] = "rock";
-	_shifumi[scissors] = "scissors";
-}
-
-void		Bot::ShiFuMi(){
-
-	std::srand(std::time(0));
-	if(_cmd_player == "paper")
-		init_map(1, 0, 2);
-	if(_cmd_player == "rock")
-		init_map(2, 1, 0);
-	if(_cmd_player == "scissors")
-		init_map(0, 2, 1);
+void		Bot::shifumi(){
+	std::string str = "shi..";
+	send_msg(PRIV_MSG(_target, str));
+	usleep(10);
+	str = "fu..";
+	send_msg(PRIV_MSG(_target, str));
+	usleep(10);
+	str = "mi..";
+	send_msg(PRIV_MSG(_target, str));
+	usleep(10);
 	int rmd = rand() % 3;
-	switch (rmd)
-	{
-		case 0:
-			//send message loose;
-			break;
-		case 1:
-			//send message egual;
-			break;
-		case 2:
-			//send message victory;
-			break;
-	}
+	send_msg(PRIV_MSG(_target, _shifumi[rmd]));
 }
+
