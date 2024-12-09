@@ -1,7 +1,10 @@
 #include "Client.hpp"
 
-#include <sys/socket.h>
 #include <sstream>
+
+#include <sys/socket.h>
+
+#include <unistd.h>
 
 Client::Client() {}
 Client::Client(const w_fd& fd)
@@ -20,8 +23,6 @@ Client&	Client::operator=(const Client& cpy) {
 	_buff = cpy._buff;
 	return (*this);
 }
-bool	Client::operator==(const Client& cpy) const	{ return (_fd == cpy._fd); }
-bool	Client::operator!=(const Client& cpy) const	{ return (_fd != cpy._fd); }
 
 bool	Client::is__in_map(const w_map_Client& map_client) const {
 	w_map_Client::const_iterator	it = map_client.find(_fd);
@@ -29,10 +30,13 @@ bool	Client::is__in_map(const w_map_Client& map_client) const {
 		return (false);
 	return (true);
 }
-bool	Client::add_to_map(w_map_Client& map_client) const {
+bool	Client::add_to_map(w_map_Client& map_client) {
 	if (is__in_map(map_client))
 		return (false);
-	map_client.insert(w_pair_Client(_fd, *this));
+	w_pair_Client	pair;
+	pair.first = _fd;
+	pair.second = this;
+	map_client.insert(pair);
 	return (true);
 }
 bool	Client::rm__to_map(w_map_Client& map_client) const {
@@ -73,7 +77,7 @@ const std::string&	Client::get_buff() const		{ return (_buff); }
 bool				Client::set_name(const std::string& value) {
 	if (!_is_connect)
 		return (false);
-	_name = value + "@localhost";
+	_name = value;
 	return (true);
 }
 bool				Client::set_nickname(const std::string& value) {

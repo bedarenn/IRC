@@ -20,7 +20,7 @@ public:
 
 	void	connect();
 	ssize_t	read(const w_fd& fd);
-	void	exec(w_fd fd, std::string str, Client& client);
+	void	exec(w_fd fd, std::string str, Client *client);
 
 	void	join(const w_fd& fd, const std::string& channel, const std::string& pass);
 	void	invite(const w_fd& fd, const std::string& channel, const std::string& client);
@@ -40,15 +40,15 @@ public:
 	void	new_client_nick(const w_fd& fd, const std::string nick);
 	void	rm__client(const w_fd fd);
 
-	bool	join__channel(const Client& client, const std::string& channel, const std::string& pass);
+	bool	join__channel(Client *client, const std::string& channel, const std::string& pass);
 
-	void	new_map_Channel(const Client& client, const std::string& channel);
+	void	new_map_Channel(Client *client, const std::string& channel);
 
 	w_port		get_port() const;
 	w_pass		get_pass() const;
 	std::string get_name() const;
 
-	const Client&	get_client(const w_fd& fd) const;
+	Client	*get_client(const w_fd& fd) const;
 	const w_map_Client::const_iterator	get_client(const std::string& name) const;
 
 	void	close_fd(const w_fd& fd);

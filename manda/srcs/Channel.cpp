@@ -8,18 +8,18 @@
 
 #define REGEX_INT	"^\\+?[1-9][0-9]*$"
 
-Channel::Channel(const Client& client, const std::string& name, const std::string& server)
+Channel::Channel(Client *client, const std::string& name, const std::string& server)
 	: _name(name), _pass(""), _limit(0),
-	_inv_only(false), _r_topic(false), _r_op(true), _r_pass(false), _r_limit(false),
-	_topic(""), _topic_time(std::time(0)), _topic_change(client),
+	_inv_only(false), _r_topic(false), _r_pass(false), _r_limit(false),
+	_topic(""),
 	_server(server) {
-	client.add_to_map(_op);
+	client->add_to_map(_op);
 	join_pass(client);
 	if (!_pass.empty())
 		_r_pass = true;
 }
 Channel::~Channel() {}
-Channel::Channel(const Channel& cpy) : _topic_change(cpy._topic_change) { *this = cpy; }
+Channel::Channel(const Channel& cpy) { *this = cpy; }
 
 Channel&	Channel::operator=(const Channel& cpy) {
 	if (this == &cpy)
@@ -35,86 +35,85 @@ Channel&	Channel::operator=(const Channel& cpy) {
 
 	_inv_only = cpy._inv_only;
 	_r_topic = cpy._r_topic;
-	_r_op = cpy._r_op;
 	_r_pass = cpy._r_pass;
 	_r_limit = cpy._r_limit;
 
 	_topic = cpy._topic;
-	_topic_time = cpy._topic_time;
-	_topic_change = cpy._topic_change;
 
 	_server = cpy._server;
 
 	return (*this);
 }
 
-bool	Channel::join(const Client& client, const std::string& pass) {
+bool	Channel::join(Client *client, const std::string& pass) {
 	if (_inv_only) {
-		if (is__invite(client.get_nickname())) {
-			del_invite(client.get_nickname());
+		if (is__invite(client->get_nickname())) {
+			del_invite(client->get_nickname());
 			return (join_pass(client));
 		}
 		else
-			client.send_to_fd(W_ERR_INVITEONLYCHAN(client, "JOIN", _server));
+			client->send_to_fd(W_ERR_INVITEONLYCHAN(client, _name, _server));
 		return (false);
 	}
 	if (_r_pass) {
 		if (pass == _pass)
 			return (join_pass(client));
 		else
-			client.send_to_fd(W_ERR_BADCHANNELKEY(client, "JOIN", _server));
+			client->send_to_fd(W_ERR_BADCHANNELKEY(client, _name, _server));
 		return (false);
 	}
 	return (join_pass(client));
 }
-bool	Channel::invite(const Client& op, const std::string& client) {
-	if (_r_op && !op.is__in_map(_op))
-		return (false);
-	return (invite_pass(op, client));
-}
-bool	Channel::kick(const Client& op, const Client& client, const std::string& msg) {
-	if (!op.is__in_map(_client)) {
-		op.send_to_fd(W_ERR_NOTONCHANNEL(op, "KICK", _server));
+bool	Channel::invite(Client *op, const std::string& client) {
+	if (!op->is__in_map(_op)) {
+		op->send_to_fd(W_ERR_CHANOPRIVSNEEDED(op, _name, _server));
 		return (false);
 	}
-	if (_r_op && !op.is__in_map(_op)) {
-		op.send_to_fd(W_ERR_CHANOPRIVSNEEDED(op, "KICK", _server));
+	return (invite_pass(op, client));
+}
+bool	Channel::kick(Client *op, Client *client, const std::string& msg) {
+	if (!op->is__in_map(_client)) {
+		op->send_to_fd(W_ERR_NOTONCHANNEL(op, _name, _server));
+		return (false);
+	}
+	if (!op->is__in_map(_op)) {
+		op->send_to_fd(W_ERR_CHANOPRIVSNEEDED(op, _name, _server));
 		return (false);
 	}
 	return (kick_pass(op, client, msg));
 }
-bool	Channel::topic(const Client& op, const std::string& value) {
+bool	Channel::topic(Client *op, const std::string& value) {
 	if (value.empty()) {
 		send_topic(op);
 		return (true);
 	}
-	if (!op.is__in_map(_client)) {
-		op.send_to_fd(W_ERR_NOTONCHANNEL(op, "TOPIC", _server));
+	if (!op->is__in_map(_client)) {
+		op->send_to_fd(W_ERR_NOTONCHANNEL(op, _name, _server));
 		return (false);
 	}
-	if (_r_topic && !op.is__in_map(_op)) {
-		op.send_to_fd(W_ERR_CHANOPRIVSNEEDED(op, "TOPIC", _server));
+	if (_r_topic && !op->is__in_map(_op)) {
+		op->send_to_fd(W_ERR_CHANOPRIVSNEEDED(op, _name, _server));
 		return (false);
 	}
-	return (topic_pass(op, value));
+	return (topic_pass(value));
 }
-bool	Channel::mode(const Client& op, const std::string& md, const std::string& arg) {
-	if (!op.is__in_map(_client)) {
-		op.send_to_fd(W_ERR_NOTONCHANNEL(op, "MODE", _server));
+bool	Channel::mode(Client *op, const std::string& md, const std::string& arg) {
+	if (!op->is__in_map(_client)) {
+		op->send_to_fd(W_ERR_NOTONCHANNEL(op, _name, _server));
 		return (false);
 	}
 	if (md.empty()) {
 		return (mode_empty(op));
 	}
-	if (!op.is__in_map(_op)) {
-		op.send_to_fd(W_ERR_CHANOPRIVSNEEDED(op, "MODE", _server));
+	if (!op->is__in_map(_op)) {
+		op->send_to_fd(W_ERR_CHANOPRIVSNEEDED(op, _name, _server));
 		return (false);
 	}
 	return (mode_pass(op, md, arg));
 }
-bool	Channel::part(const Client& client, const std::string& str) {
+bool	Channel::part(Client *client, const std::string& str) {
 	if (!is_on_channel(client)) {
-		client.send_to_fd(W_ERR_NOTONCHANNEL(client, "PART", _server));
+		client->send_to_fd(W_ERR_NOTONCHANNEL(client, _name, _server));
 		return (false);
 	}
 	if (rm__client(client)) {
@@ -124,12 +123,12 @@ bool	Channel::part(const Client& client, const std::string& str) {
 		else
 			s = PART_MSG_MSG(_name, client, str);
 		cast_send(s);
-		client.send_to_fd(s);
+		client->send_to_fd(s);
 		return (true);
 	}
 	return (false);
 }
-bool	Channel::quit(const Client& client, const std::string& str) {
+bool	Channel::quit(Client *client, const std::string& str) {
 	if (rm__client(client)) {
 		if (str.empty())
 			cast_send(QUIT_MSG(client));
@@ -140,9 +139,9 @@ bool	Channel::quit(const Client& client, const std::string& str) {
 	return (false);
 }
 
-bool	Channel::join_pass(const Client& client) {
+bool	Channel::join_pass(Client *client) {
 	if (_r_limit && _client.size() >= _limit) {
-		client.send_to_fd(W_ERR_CHANNELISFULL(client, "JOIN", _server));
+		client->send_to_fd(W_ERR_CHANNELISFULL(client, _name, _server));
 		return (false);
 	}
 	if (!add_client(client))
@@ -152,25 +151,25 @@ bool	Channel::join_pass(const Client& client) {
 	send_list(client);
 	return (true);
 }
-bool	Channel::invite_pass(const Client& op, const std::string& client) {
-	if (!op.is__in_map(_client)) {
-		op.send_to_fd(W_ERR_NOTONCHANNEL(op, "INVITE", _server));
+bool	Channel::invite_pass(Client *op, const std::string& client) {
+	if (!op->is__in_map(_client)) {
+		op->send_to_fd(W_ERR_NOTONCHANNEL(op, _name, _server));
 		return (false);
 	}
-	if (!op.is__in_map(_op)) {
-		op.send_to_fd(W_ERR_CHANOPRIVSNEEDED(op, "INVITE", _server));
+	if (!op->is__in_map(_op)) {
+		op->send_to_fd(W_ERR_CHANOPRIVSNEEDED(op, _name, _server));
 		return (false);
 	}
 	if (is_on_channel(client)) {
-		op.send_to_fd(W_ERR_CHANOPRIVSNEEDED(op, "INVITE", _server));
+		op->send_to_fd(W_ERR_USERONCHANNEL(op, client, _name, _server));
 		return (false);
 	}
 	_invite.push_back(client);
 	return (true);
 }
-bool	Channel::kick_pass(const Client& op, const Client& client, const std::string& msg) {
+bool	Channel::kick_pass(Client *op, Client *client, const std::string& msg) {
 	if (!rm__client(client)) {
-		op.send_to_fd(W_ERR_USERNOTINCHANNEL(_name, op, client, _server));
+		op->send_to_fd(W_ERR_USERNOTINCHANNEL(op, _name, client->get_nickname(), _server));
 		return (false);
 	}
 
@@ -180,17 +179,15 @@ bool	Channel::kick_pass(const Client& op, const Client& client, const std::strin
 	else
 		str = KICK_MSG_MSG(_name, op, client, msg);
 	cast_send(str);
-	client.send_to_fd(str);
+	client->send_to_fd(str);
 	return (true);
 }
-bool	Channel::topic_pass(const Client& op, const std::string& value) {
+bool	Channel::topic_pass(const std::string& value) {
 	_topic = value;
-	_topic_time = std::time(0);
-	_topic_change = op;
 	cast_f(&Channel::send_topic);
 	return (true);
 }
-bool	Channel::mode_pass(const Client& op, const std::string& md, const std::string& arg) {
+bool	Channel::mode_pass(Client *op, const std::string& md, const std::string& arg) {
 	switch (md[1]) {
 	case 'i':
 		return (mode_i(op, md));
@@ -207,11 +204,11 @@ bool	Channel::mode_pass(const Client& op, const std::string& md, const std::stri
 	}
 }
 
-bool	Channel::add_client(const Client& client) {
-	return (client.add_to_map(_client));
+bool	Channel::add_client(Client *client) {
+	return (client->add_to_map(_client));
 }
-bool	Channel::rm__client(const Client& client) {
-	return (client.rm__to_map(_client) || client.rm__to_map(_op));
+bool	Channel::rm__client(Client *client) {
+	return (client->rm__to_map(_client) || client->rm__to_map(_op));
 }
 
 bool	Channel::is__invite(const std::string& client) const {	
@@ -227,7 +224,7 @@ bool	Channel::del_invite(const std::string& client) {
 	return (true);
 }
 
-bool	Channel::mode_i(const Client& op, const std::string& md) {
+bool	Channel::mode_i(Client *op, const std::string& md) {
 	switch (md[0]) {
 	case '+':
 		if (_inv_only == true)
@@ -245,7 +242,7 @@ bool	Channel::mode_i(const Client& op, const std::string& md) {
 		return (false);
 	}
 }
-bool	Channel::mode_t(const Client& op, const std::string& md) {
+bool	Channel::mode_t(Client *op, const std::string& md) {
 	switch (md[0]) {
 	case '+':
 		if (_r_topic == true)
@@ -263,13 +260,13 @@ bool	Channel::mode_t(const Client& op, const std::string& md) {
 		return (false);
 	}
 }
-bool	Channel::mode_k(const Client& op, const std::string& md, const std::string& arg) {
+bool	Channel::mode_k(Client *op, const std::string& md, const std::string& arg) {
 	switch (md[0]) {
 	case '+':
 		if (_r_pass == true)
 			return (false);
 		if (arg.empty()) {
-			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
+			op->send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
 			return (false);
 		}
 		_pass = arg;
@@ -286,42 +283,42 @@ bool	Channel::mode_k(const Client& op, const std::string& md, const std::string&
 		return (false);
 	}
 }
-bool	Channel::mode_o(const Client& op, const std::string& md, const std::string& arg) {
+bool	Channel::mode_o(Client *op, const std::string& md, const std::string& arg) {
 	w_map_Client::iterator	it;
 	switch (md[0]) {
 	case '+':
 		if (arg.empty()) {
-			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
+			op->send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
 			return (false);
 		}
-		for (it = _op.begin(); it != _op.end() && it->second.get_nickname() != arg; it++) ;
+		for (it = _op.begin(); it != _op.end() && it->second->get_nickname() != arg; it++) ;
 		if (it != _client.end())
 			return (false);
-		for (it = _client.begin(); it != _client.end() && it->second.get_nickname() != arg; it++) ;
-		if (it == _client.end() || it->second.is__in_map(_op))
+		for (it = _client.begin(); it != _client.end() && it->second->get_nickname() != arg; it++) ;
+		if (it == _client.end() || it->second->is__in_map(_op))
 			return (false);
-		it->second.add_to_map(_op);
+		it->second->add_to_map(_op);
 		cast_send(MODE_MSG_ARG(_name, op, md, arg, _server));
 		return (true);
 	case '-':
 		if (arg.empty()) {
-			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
+			op->send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
 			return (false);
 		}
-		for (it = _op.begin(); it != _op.end() && it->second.get_nickname() != arg; it++) ;
+		for (it = _op.begin(); it != _op.end() && it->second->get_nickname() != arg; it++) ;
 		if (it == _op.end())
 			return (false);
-		for (it = _client.begin(); it != _client.end() && it->second.get_nickname() != arg; it++) ;
-		if (it == _client.end() || !it->second.is__in_map(_op))
+		for (it = _client.begin(); it != _client.end() && it->second->get_nickname() != arg; it++) ;
+		if (it == _client.end() || !it->second->is__in_map(_op))
 			return (false);
-		it->second.rm__to_map(_op);
+		it->second->rm__to_map(_op);
 		cast_send(MODE_MSG_ARG(_name, op, md, arg, _server));
 		return (true);
 	default:
 		return (false);
 	}
 }
-bool	Channel::mode_l(const Client& op, const std::string& md, const std::string& arg) {
+bool	Channel::mode_l(Client *op, const std::string& md, const std::string& arg) {
 	bool cmp;
 	regex_t	regex;
 
@@ -330,7 +327,7 @@ bool	Channel::mode_l(const Client& op, const std::string& md, const std::string&
 		if (_r_limit == true)
 			return (false);
 		if (arg.empty()) {
-			op.send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
+			op->send_to_fd(W_ERR_NEEDMOREPARAMS(op, "MODE", _server));
 			return (false);
 		}
 		regcomp(&regex, REGEX_INT, REG_EXTENDED);
@@ -352,97 +349,93 @@ bool	Channel::mode_l(const Client& op, const std::string& md, const std::string&
 		return (false);
 	}
 }
-bool	Channel::mode_empty(const Client& op) {
-	std::stringstream	str;
-	std::stringstream	size;
+bool	Channel::mode_empty(Client *op) {
+	std::stringstream	mod;
+	std::stringstream	arg;
 
 	if (_inv_only)
-		str << "i";
+		mod << "i";
 	if (_r_topic)
-		str << "t";
-	if (_r_op)
-		str << "k";
-	if (_inv_only)
-		str << "i";
-	if (_r_limit) {
-		str << "i";
-		size << _limit;
-		op.send_to_fd(W_RPL_CHANNELMODEIS_ARG(op, _name, "+" + str.str(), size.str(), _server));
+		mod << "t";
+	if (_r_pass) {
+		mod << "k";
+		arg << _pass;
 	}
-	else if (!str.str().empty())
-		op.send_to_fd(W_RPL_CHANNELMODEIS(op, _name, "+" + str.str(), _server));
+	if (_r_limit) {
+		mod << "l";
+		if (_r_pass)
+			arg << " ";
+		arg << _limit;
+	}
+	else if (mod.str().empty())
+		op->send_to_fd(W_RPL_CHANNELMODEIS_EMPTY(op, _name, _server));
+	else if (arg.str().empty())
+		op->send_to_fd(W_RPL_CHANNELMODEIS(op, _name, "+" + mod.str(), _server));
 	else
-		op.send_to_fd(W_RPL_CHANNELMODEIS_EMPTY(op, _name, _server));
+		op->send_to_fd(W_RPL_CHANNELMODEIS_ARG(op, _name, "+" + mod.str(), arg.str(), _server));
 	return (true);
 }
 
 bool	Channel::is_on_channel(const w_fd& fd) const {
 	w_map_Client::const_iterator it;
-	for (it = _client.begin(); it != _client.end() && it->second.get_fd() != fd; it++) ;
+	for (it = _client.begin(); it != _client.end() && it->second->get_fd() != fd; it++) ;
 	if (it == _client.end())
 		return (false);
 	return (true);
 }
-bool	Channel::is_on_channel(const Client& client) const {
+bool	Channel::is_on_channel(Client *client) const {
 	w_map_Client::const_iterator it;
 	for (it = _client.begin(); it != _client.end() && it->second != client; it++) ;
 	if (it == _client.end())
 		return (false);
-	std::cout << "IS IT ?? " << it->second.get_fd() << "" << std::endl;
+	std::cout << "IS IT ?? " << it->second->get_fd() << "" << std::endl;
 	return (true);
 }
 bool	Channel::is_on_channel(const std::string& nick) const {
 	w_map_Client::const_iterator it;
-	for (it = _client.begin(); it != _client.end() && it->second.get_nickname() != nick; it++) ;
+	for (it = _client.begin(); it != _client.end() && it->second->get_nickname() != nick; it++) ;
 	if (it == _client.end())
 		return (false);
-	std::cout << "IS IT ?? " << it->second.get_fd() << "" << std::endl;
+	std::cout << "IS IT ?? " << it->second->get_fd() << "" << std::endl;
 	return (true);
 }
 
 void	Channel::cast_send(const std::string& str) const {
 	for (w_map_Client::const_iterator it = _client.begin(); it != _client.end(); it++) {
-		it->second.send_to_fd(str);
+		it->second->send_to_fd(str);
 	}
 }
-void	Channel::cast_send(const std::string& str, const Client& client) const {
+void	Channel::cast_send(const std::string& str, Client *client) const {
 	for (w_map_Client::const_iterator it = _client.begin(); it != _client.end(); it++) {
 		if (it->second != client)
-			it->second.send_to_fd(str);
+			it->second->send_to_fd(str);
 	}
 }
-void	Channel::cast_f(void (Channel::*f)(const Client&)) {
+void	Channel::cast_f(void (Channel::*f)(Client *)) {
 	for (w_map_Client::iterator it = _client.begin(); it != _client.end(); it++)
 		(this->*f)(it->second);
 }
 
-void	Channel::send_topic(const Client& client) {
+void	Channel::send_topic(Client *client) {
 	if (!_topic.empty())
-		client.send_to_fd(W_RPL_TOPIC(_name, client, _topic, _server));
+		client->send_to_fd(W_RPL_TOPIC(client, _name, _topic, _server));
 	else
-		client.send_to_fd(W_RPL_NOTOPIC(_name, client, _server));
+		client->send_to_fd(W_RPL_NOTOPIC(client, _name, _server));
 }
-void	Channel::send_list(const Client& client) {
+void	Channel::send_list(Client *client) {
 	for (w_map_Client::iterator it = _client.begin(); it != _client.end(); it++) {
-		if (it->second.is__in_map(_op))
-			client.send_to_fd(W_RPL_NAMREPLY(_name, client, "@" + it->second.get_nickname(), _server));
+		if (it->second->is__in_map(_op))
+			client->send_to_fd(W_RPL_NAMREPLY(client, _name, "@" + it->second->get_nickname(), _server));
 		else
-			client.send_to_fd(W_RPL_NAMREPLY(_name, client, it->second.get_nickname(), _server));
+			client->send_to_fd(W_RPL_NAMREPLY(client, _name, it->second->get_nickname(), _server));
 	}
-	client.send_to_fd(W_RPL_ENDOFNAMES(_name, client, _server));
+	client->send_to_fd(W_RPL_ENDOFNAMES(client, _name, _server));
 }
 
 const std::string&	Channel::get_topic() const { return (_topic); }
 void	Channel::set_topic(const std::string& value) { _topic = value; }
 const std::string&	Channel::get_name() const { return (_name); }
 void	Channel::set_name(const std::string& value) { _name = value; }
-
-std::string	Channel::get_topic_time() const {
-	std::ostringstream	oss;
-	oss << _topic_time;
-
-	return (oss.str());
-}
 
 bool	Channel::empty() {
 	return (_client.empty());

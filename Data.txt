@@ -4,8 +4,4 @@ send (JOIN)
 PRIVMSG .ping
 send PONG
 
-test:
-
-invite ne fonctionne pas, message 341 non envoyé
-/invite nick chan => throw append
-/mode +o fonctionne mais pas de message de retour
+LEAK?
