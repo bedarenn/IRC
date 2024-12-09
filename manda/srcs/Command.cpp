@@ -260,6 +260,8 @@ void	Command::parse_mode(){
 	}
 	if(sign.empty())
 		sign = "+";
+	if(!alpha)
+		_serv->mode(_fd, channel, "", "");
 	std::string tab, arg;
 	buff = trim(buff, sign[0]);
 	for(size_t i = 0; i < buff.size(); i++){

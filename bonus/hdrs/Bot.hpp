@@ -31,7 +31,6 @@ class Bot{
 		
 		std::string	trim(std::string buff, char c);
 		std::string	next(char find);
-		
 
 	private:
 		int							_fd;

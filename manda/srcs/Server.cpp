@@ -49,6 +49,7 @@ void	Server::run() {
 		event();
 	}
 }
+
 void	Server::event() {
 	if (poll(_fds.data(), _fds.size(), 0) < 0) {
 		g_loop = 0;
