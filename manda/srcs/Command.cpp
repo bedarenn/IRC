@@ -33,18 +33,20 @@ void	Command::init_cmd(){
 
 void	Command::treatement(){
 	
-		std::stringstream ss(_buff);
-		std::string	data;
-
-		getline(ss, data, ' ');
-		w_map_Command::iterator it;
-		for(it = _cmd.begin(); it != _cmd.end(); it++){
-			if(it->first == data){
-				erase(0, _buff.find(' ') + 1);
+	std::stringstream ss(_buff);
+	std::string	data;
+	getline(ss, data, ' ');
+	w_map_Command::iterator it;
+	for(it = _cmd.begin(); it != _cmd.end(); it++){
+		if(it->first == data){
+			erase(0, _buff.find(' ') + 1);
+			if(_buff.find(13) != std::string::npos)
 				erase(_buff.find(13), 2);
-				(this->*(it->second))();
-			}
+			if(_buff.find(10) != std::string::npos)
+				erase(_buff.find(10), 1);
+			(this->*(it->second))();
 		}
+	}
 }
 
 void	Command::erase(int pos, int size){
@@ -72,9 +74,12 @@ int	counter(char c, std::string str){
 }
 
 std::string	trim(std::string buff, char c){
-	std::string result;
-	result = buff.erase(buff.find(c), 1);
-	return (result);
+	if(buff.find(c) != std::string::npos){
+		std::string result;
+		result = buff.erase(buff.find(c), 1);
+		return (result);
+	}
+	return(buff);
 }
 
 //////////////////////////////////////////////////////////////////// JOIN ////////////////////////////////////////////////////////////////////////////////
@@ -236,7 +241,7 @@ std::string	clean_double(std::string data){
 }
 
 void	Command::parse_mode(){
-	std::string sign, channel, data = "itkol";
+	std::string sign = "", channel, data = "itkol";
 	std::string buff = next(' ');
 	// if(!counter('#', buff))
 	// 	_serv->mode(_fd, "", "", "");
@@ -245,15 +250,15 @@ void	Command::parse_mode(){
 	buff = next(' ');
 	int save = buff.size() + 1;
 	buff = clean_double(buff);
-	int s = 0, alpha = 0;
+	int alpha = 0;
 	for(size_t i = 0; i < buff.size(); i++){
-		if(buff[i] == '-' || buff[i] == '+'){
+		if(buff[i] == '-' || buff[i] == '+')
 			sign = buff[i];
-			s++;
-		}
 		if(isalpha(buff[i]))
 			alpha++;
 	}
+	if(sign.empty())
+		sign = "+";
 	// if(!s || !alpha || s > 1){
 	// 	_serv->mode(_fd, channel, "", "");
 	// 	return ;	

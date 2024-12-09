@@ -91,6 +91,6 @@ std::ostream&	operator<<(std::ostream& out, const Client& client) {
 
 ssize_t	send_msg(const w_fd& fd, const std::string& str) {
 	std::string s = W_SND(str);
-	std::cout << fd << " >> " << s << std::endl;
+	//std::cout << fd << " >> " << s << std::endl;
 	return (send(fd, s.c_str(), s.size(), 0));
 }
