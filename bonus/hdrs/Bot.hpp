@@ -26,6 +26,8 @@ class Bot{
 		void		loop();
 		void		treat_cmd();
 		void		shifumi();
+		void		launch_game();
+		void		invite();
 		
 		std::string	trim(std::string buff, char c);
 		std::string	next(char find);

@@ -48,18 +48,35 @@ void	Bot::treat_cmd(){
 	std::string	data = next(' ');
 	data = trim(data, ':');
 	_target = data;
+	std::cout << "data1: " << data << std::endl;
 	_cmd.erase(0, data.size() + 2);
 	data = next(' ');
+	std::cout << "data2: " << data << std::endl;
+	if(data == "PRIVMSG"){
+		_cmd.erase(0, data.size() + 1);
+		launch_game();
+	}
+}
+
+
+void	Bot::launch_game(){
+	std::string data = next(' ');
+	std::cout << "data3: " << data << std::endl;
+	if(data.find('#') != std::string::npos)
+		_target = data;
 	_cmd.erase(0, data.size() + 1);
 	data = next(' ');
-	_cmd.erase(0, data.size() + 1);
-	data = next(' ');
+	std::cout << "data4: " << data << std::endl;
 	if(data.find(13) != std::string::npos)
 		data = trim(data, 13);
 	if(data.find(10) != std::string::npos)
 		data = trim(data, 10);
 	if(data == "!play")
 		shifumi();
+}
+
+void	Bot::invite(){
+
 }
 
 std::string	Bot::next(char find){
@@ -78,13 +95,13 @@ std::string	Bot::trim(std::string buff, char c){
 void		Bot::shifumi(){
 	std::string str = "shi..";
 	send_msg(PRIV_MSG(_target, str));
-	usleep(10);
+	usleep(10000);
 	str = "fu..";
 	send_msg(PRIV_MSG(_target, str));
-	usleep(10);
+	usleep(10000);
 	str = "mi..";
 	send_msg(PRIV_MSG(_target, str));
-	usleep(10);
+	usleep(10000);
 	int rmd = rand() % 3;
 	send_msg(PRIV_MSG(_target, _shifumi[rmd]));
 }
