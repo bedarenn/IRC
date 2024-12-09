@@ -56,8 +56,11 @@ void	Bot::treat_cmd(){
 		_cmd.erase(0, data.size() + 1);
 		launch_game();
 	}
+	if(data == "INVITE"){
+		_cmd.erase(0, data.size() + 1);
+		invite();
+	}
 }
-
 
 void	Bot::launch_game(){
 	std::string data = next(' ');
@@ -76,7 +79,10 @@ void	Bot::launch_game(){
 }
 
 void	Bot::invite(){
-
+	std::string data = next(' ');
+	_cmd.erase(0, data.size() + 1);
+	data = next(' ');
+	send_msg(JOIN_CHAN(data));
 }
 
 std::string	Bot::next(char find){

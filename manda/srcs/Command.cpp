@@ -260,17 +260,15 @@ void	Command::parse_mode(){
 	}
 	if(sign.empty())
 		sign = "+";
-	// if(!s || !alpha || s > 1){
-	// 	_serv->mode(_fd, channel, "", "");
-	// 	return ;	
-	// }
 	std::string tab, arg;
 	buff = trim(buff, sign[0]);
 	for(size_t i = 0; i < buff.size(); i++){
 		if(data.find(buff[i]) != std::string::npos)
 			tab[i] = buff[i];
-		else
+		else{
+			_serv->mode(_fd, channel, "", "");
 			return ;
+		}
 	}
 	erase(0, save);
 	for(int i = 0; i < alpha; i++){

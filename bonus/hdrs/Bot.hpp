@@ -45,5 +45,7 @@ class Bot{
 
 # define CONNECT_MSG(_pass) "PASS " + _pass + "\r\nNICK bot\r\nUSER bot1\r\n"
 # define CREATE_CHAN "JOIN #bot\r\n"
+# define JOIN_CHAN(chan) "JOIN " + chan + "\r\n"
 # define PRIV_MSG(target, str) "PRIVMSG " + target + " " + str + "\r\n"
+
 //# define 
