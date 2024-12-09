@@ -3,3 +3,4 @@ ircserv
 *.vscode
 bircd/bircd
 bot
+.nfs*

@@ -27,6 +27,7 @@ void	Bot::connect_to_serv(){
 
 void	Bot::loop(){
 	ssize_t		size;
+	bool		_priv;
 	char		buff[BUFFER_SIZE];
 
 	while(true){
