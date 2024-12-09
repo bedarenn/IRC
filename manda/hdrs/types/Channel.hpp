@@ -66,6 +66,8 @@ class Channel;
 	W_RPL(s, "476") + chn + " :Bad Channel Mask"
 # define W_ERR_CHANOPRIVSNEEDED(clt, chn, s) \
 	W_RPL_CHN(clt, chn, s, "482") + ":You're not channel operator"
+# define ERR_INVALIDMODEPARAM(clt, chn, mod, arg, des, s) \
+	W_RPL_CHN(clt, chn, s, "696") + mod + " " + arg + " :" + des
 
 /* ****************** FORMAT_CMD ****************** */
 
