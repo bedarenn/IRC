@@ -73,7 +73,7 @@ const std::string&	Client::get_buff() const		{ return (_buff); }
 bool				Client::set_name(const std::string& value) {
 	if (!_is_connect)
 		return (false);
-	_name = value;
+	_name = value + "@localhost";
 	return (true);
 }
 bool				Client::set_nickname(const std::string& value) {
@@ -91,6 +91,6 @@ std::ostream&	operator<<(std::ostream& out, const Client& client) {
 
 ssize_t	send_msg(const w_fd& fd, const std::string& str) {
 	std::string s = W_SND(str);
-	//std::cout << fd << " >> " << s << std::endl;
+	std::cout << fd << " >> " << s << std::endl;
 	return (send(fd, s.c_str(), s.size(), 0));
 }

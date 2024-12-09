@@ -38,7 +38,7 @@ re: fclean all bonus
 
 run: all
 	@flatpak run io.github.Hexchat > /dev/null 2>&1 &
-	@./ircserv 8080 pop
+	@./ircserv 8080 qwe | cat -e
 
 all: $(NAME)
 bonus: $(NAME_BONUS)
