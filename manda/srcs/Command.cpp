@@ -226,7 +226,8 @@ void	Command::parse_quit(){
 std::string	clean_double(std::string data){
 	std::string ref = "itkol";
 	std::string result;
-	result += data[0];
+	if(data[0] == '-' || data[0] == '+')
+		result += data[0];
 	int count = 0;
 	for(size_t i = 0; i < ref.size(); i++){
 		count = 0;
@@ -259,17 +260,17 @@ void	Command::parse_mode(){
 	}
 	if(sign.empty())
 		sign = "+";
-	// if(!s || !alpha || s > 1){
-	// 	_serv->mode(_fd, channel, "", "");
-	// 	return ;	
-	// }
+	if(!alpha)
+		_serv->mode(_fd, channel, "", "");
 	std::string tab, arg;
 	buff = trim(buff, sign[0]);
 	for(size_t i = 0; i < buff.size(); i++){
 		if(data.find(buff[i]) != std::string::npos)
 			tab[i] = buff[i];
-		else
+		else{
+			_serv->mode(_fd, channel, "", "");
 			return ;
+		}
 	}
 	erase(0, save);
 	for(int i = 0; i < alpha; i++){
@@ -287,12 +288,12 @@ void	Command::parse_mode(){
 			}
 			erase(0, save);
 		}
+		std::cout << "mode: " << sign+ tab[i] << std::endl;
 		_serv->mode(_fd, channel, sign + tab[i], arg);
 	}
 }
 
 //////////////////////////////////////////////////////////////////// PART ///////////////////////////////////////////////////////////////////////////////////
-
 
 void	Command::parse_part(){
 	std::string channel, str;
@@ -339,9 +340,5 @@ void		Command::parse_nick(){
 }
 
 void		Command::parse_user(){
-	std::stringstream ss(_buff);
-	std::string	data;
-
-	getline(ss, data, ' ');
-	_serv->new_client_name(_fd, data);
+	_serv->new_client_name(_fd, _buff);
 }
