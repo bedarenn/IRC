@@ -37,7 +37,6 @@ void	Bot::loop(){
 		buff[size] = '\0';
 		_cmd += buff;
 		if(_cmd.find('\r') != std::string::npos && _cmd.find('\n') != std::string::npos){
-			_priv = false;
 			treat_cmd();
 			_cmd = "";
 		}
