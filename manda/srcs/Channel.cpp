@@ -266,7 +266,7 @@ bool	Channel::mode_k(Client *op, const std::string& md, const std::string& arg) 
 		if (_r_pass == true)
 			return (false);
 		if (arg.empty()) {
-			op->send_to_fd(ERR_INVALIDMODEPARAM(op, _name, "+k", arg, "Not enough parameters", _server));
+			op->send_to_fd(W_ERR_INVALIDMODEPARAM(op, _name, "+k", arg, "Not enough parameters", _server));
 			return (false);
 		}
 		_pass = arg;
@@ -288,16 +288,16 @@ bool	Channel::mode_o(Client *op, const std::string& md, const std::string& arg) 
 	switch (md[0]) {
 	case '+':
 		if (arg.empty()) {
-			op->send_to_fd(ERR_INVALIDMODEPARAM(op, _name, "+o", arg, "Not enough parameters", _server));
+			op->send_to_fd(W_ERR_INVALIDMODEPARAM(op, _name, "+o", arg, "Not enough parameters", _server));
 			return (false);
 		}
 		for (it = _client.begin(); it != _client.end() && it->second->get_nickname() != arg; it++) ;
 		if (it == _client.end()) {
-			op->send_to_fd(ERR_INVALIDMODEPARAM(op, _name, "+o", arg, "They aren't on that channel", _server));
+			op->send_to_fd(W_ERR_INVALIDMODEPARAM(op, _name, "+o", arg, "They aren't on that channel", _server));
 			return (false);
 		}
 		if (it->second->is__in_map(_op)) {
-			op->send_to_fd(ERR_INVALIDMODEPARAM(op, _name, "+o", arg, "is already operator", _server));
+			op->send_to_fd(W_ERR_INVALIDMODEPARAM(op, _name, "+o", arg, "is already operator", _server));
 			return (false);
 		}
 		it->second->add_to_map(_op);
@@ -305,16 +305,16 @@ bool	Channel::mode_o(Client *op, const std::string& md, const std::string& arg) 
 		return (true);
 	case '-':
 		if (arg.empty()) {
-			op->send_to_fd(ERR_INVALIDMODEPARAM(op, _name, "-o", arg, "Not enough parameters", _server));
+			op->send_to_fd(W_ERR_INVALIDMODEPARAM(op, _name, "-o", arg, "Not enough parameters", _server));
 			return (false);
 		}
 		for (it = _client.begin(); it != _client.end() && it->second->get_nickname() != arg; it++) ;
 		if (it == _client.end()) {
-			op->send_to_fd(ERR_INVALIDMODEPARAM(op, _name, "-o", arg, "They aren't on that channel", _server));
+			op->send_to_fd(W_ERR_INVALIDMODEPARAM(op, _name, "-o", arg, "They aren't on that channel", _server));
 			return (false);
 		}
 		if (!it->second->is__in_map(_op)) {
-			op->send_to_fd(ERR_INVALIDMODEPARAM(op, _name, "-o", arg, "is not operator", _server));
+			op->send_to_fd(W_ERR_INVALIDMODEPARAM(op, _name, "-o", arg, "is not operator", _server));
 			return (false);
 		}
 		it->second->rm__to_map(_op);
@@ -333,14 +333,14 @@ bool	Channel::mode_l(Client *op, const std::string& md, const std::string& arg) 
 		if (_r_limit == true)
 			return (false);
 		if (arg.empty()) {
-			op->send_to_fd(ERR_INVALIDMODEPARAM(op, _name, "+o", arg, "Not enough parameters", _server));
+			op->send_to_fd(W_ERR_INVALIDMODEPARAM(op, _name, "+l", arg, "Not enough parameters", _server));
 			return (false);
 		}
 		regcomp(&regex, REGEX_INT, REG_EXTENDED);
 		cmp = regexec(&regex, arg.c_str(), 0, NULL, 0);
 		regfree(&regex);
 		if (cmp) {
-			op->send_to_fd(ERR_INVALIDMODEPARAM(op, _name, "+o", arg, "Not a number", _server));
+			op->send_to_fd(W_ERR_INVALIDMODEPARAM(op, _name, "+l", arg, "Not a number", _server));
 			return (false);
 		}
 		_limit = atoi(arg.c_str());

@@ -12,6 +12,8 @@ public:
 	Client(const Client& cpy);
 
 	Client&	operator=(const Client& cpy);
+	bool	operator!=(const std::string& nick);
+	bool	operator==(const std::string& nick);
 
 	bool	is__in_map(const w_map_Client& map_client) const;
 	bool	add_to_map(w_map_Client& map_client);

@@ -5,34 +5,3 @@ PRIVMSG .ping
 send PONG
 
 LEAK?
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-4 << INVITE bot #chan
-_buff: #chan
-buff: #chan
-channel: #chan nick: bot
-catch: std::bad_alloc
-
-4 << INVITE #chan bot
-_buff: bot
-buff: bot
-channel: bot nick: #chan
-4 >> :ircserv 403 titi bot :No such channel
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-4 << KICK #chan #chan :tata
-channel: #chan nick: tata
-
-4 << KICK #chan tata
-channel: #chan nick: tata
-4 >> :titi KICK #chan tata
-
-4 << KICK #chan tata :test
-4 >> :titi KICK #chan tata :test
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-4 << MODE #q ikl pass
-4 >> :tata MODE #q +k pass
-4 >> :ircserv 696 tata #q +o  :Not enough parameters

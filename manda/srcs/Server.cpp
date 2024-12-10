@@ -151,7 +151,8 @@ void	Server::invite(const w_fd& fd, const std::string& channel, const std::strin
 
 		if (it_channel->second.invite(op, clt)) {
 			w_map_Client::const_iterator	inv = get_client(clt);
-			inv->second->send_to_fd(INVI_MSG(channel, op, inv->second));
+			if (inv != _client.end())
+				inv->second->send_to_fd(INVI_MSG(channel, op, inv->second));
 		}
 	} catch (std::exception& err) {
 		std::cerr << "catch: " << err.what() << std::endl;
@@ -160,6 +161,7 @@ void	Server::invite(const w_fd& fd, const std::string& channel, const std::strin
 }
 void	Server::kick(const w_fd& fd, const std::string& channel, const std::string& clt, const std::string& msg) {
 	try {
+		std::cerr << "KICK: " << channel << " " << clt << " " << msg << std::endl;
 		Client	*op = get_client(fd);
 
 		if (channel.empty() || clt.empty()) {
@@ -174,8 +176,11 @@ void	Server::kick(const w_fd& fd, const std::string& channel, const std::string&
 		}
 
 		w_map_Client::const_iterator	it_client = get_client(clt);
-		if (it_client != _client.end())
-			it_channel->second.kick(op, it_client->second, msg);
+		if (it_client == _client.end()) {
+			op->send_to_fd(W_ERR_USERNOTINCHANNEL(op, channel, clt, _name));
+			return ;
+		}
+		it_channel->second.kick(op, it_client->second, msg);
 	} catch (std::exception& err) {
 		std::cerr << "catch: " << err.what() << std::endl;
 		return ;
@@ -356,7 +361,7 @@ w_pass		Server::get_pass() const	{ return(_pass); }
 std::string Server::get_name() const	{ return(_name); }
 
 Client	*Server::get_client(const w_fd& fd) const {
-	w_map_Client::const_iterator it = _client.find(fd);
+	w_map_Client::const_iterator	it = _client.find(fd);
 	if (it == _client.end())
 		throw (std::runtime_error("Client Unknown"));
 	else if (!it->second->is_connect())
@@ -364,7 +369,7 @@ Client	*Server::get_client(const w_fd& fd) const {
 	return (it->second);
 }
 const w_map_Client::const_iterator	Server::get_client(const std::string& name) const {
-	w_map_Client::const_iterator it;
+	w_map_Client::const_iterator	it;
 	for (it = _client.begin(); it != _client.end() && it->second->get_nickname() != name; it++) ;
 	if (it == _client.end() || !it->second->is_connect())
 		return (_client.end());

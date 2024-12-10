@@ -44,8 +44,8 @@ class Channel;
 	W_RPL_CHN(clt, nck, s, "432") + ":Erroneus nickname"
 # define W_ERR_NICKNAMEINUSE(clt, nck, s) \
 	W_RPL_CHN(clt, nck, s, "433") + ":Nickname is already in use"
-# define W_ERR_USERNOTINCHANNEL(clt, chn, nick, s) \
-	W_RPL_CLT(clt, s, "441") + nick + " " + chn + " :They aren't on that channel"
+# define W_ERR_USERNOTINCHANNEL(clt, chn, nck, s) \
+	W_RPL_CLT(clt, s, "441") + chn + " " + nck + " :They aren't on that channel"
 # define W_ERR_NOTONCHANNEL(clt, chn, s) \
 	W_RPL_CHN(clt, chn, s, "442") + ":You're not on that channel"
 # define W_ERR_USERONCHANNEL(clt, nck, chn, s) \
@@ -66,7 +66,7 @@ class Channel;
 	W_RPL(s, "476") + chn + " :Bad Channel Mask"
 # define W_ERR_CHANOPRIVSNEEDED(clt, chn, s) \
 	W_RPL_CHN(clt, chn, s, "482") + ":You're not channel operator"
-# define ERR_INVALIDMODEPARAM(clt, chn, mod, arg, des, s) \
+# define W_ERR_INVALIDMODEPARAM(clt, chn, mod, arg, des, s) \
 	W_RPL_CHN(clt, chn, s, "696") + mod + " " + arg + " :" + des
 
 /* ****************** FORMAT_CMD ****************** */

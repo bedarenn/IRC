@@ -23,6 +23,8 @@ Client&	Client::operator=(const Client& cpy) {
 	_buff = cpy._buff;
 	return (*this);
 }
+bool	Client::operator!=(const std::string& nick)	{ return (_nickname != nick); }
+bool	Client::operator==(const std::string& nick)	{ return (_nickname == nick); }
 
 bool	Client::is__in_map(const w_map_Client& map_client) const {
 	w_map_Client::const_iterator	it = map_client.find(_fd);

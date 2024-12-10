@@ -184,10 +184,10 @@ void	Command::parse_kick(){
 	channel = buff;
 	erase(0, buff.size() + 1);
 	buff = next(' ');
-	if(counter('#', buff)){
-		erase(0, buff.size() + 1);
-		buff = next(' ');
-	}
+	// if(counter('#', buff)){
+	// 	erase(0, buff.size() + 1);
+	// 	buff = next(' ');
+	// }
 	// if(buff.empty() || counter(',', buff) || counter('#', buff)){
 	// 	_serv->kick(_fd, channel, "", "");
 	// 	return ;
@@ -197,7 +197,6 @@ void	Command::parse_kick(){
 	buff = next('\r');
 	if(!buff.empty())
 		msg = buff;
-	std::cout << "channel: " << channel << " " << "nick: " << nickname << std::endl;
 	_serv->kick(_fd, channel, nickname, msg);
 }
 
@@ -249,17 +248,13 @@ std::string	clean_double(std::string data){
 void	Command::parse_mode(){
 	std::string sign = "", channel, data = "itkol";
 	std::string buff = next(' ');
-	//std::cout << "buff1: " << buff << std::endl;
 	// if(!counter('#', buff))
 	// 	_serv->mode(_fd, "", "", "");
 	channel = buff;	
-	//std::cout << "channel: " << channel << std::endl;
 	erase(0, buff.size() + 1);
 	buff = next(' ');
-	//std::cout << "buff2: " << buff << std::endl;
 	int save = buff.size() + 1;
 	buff = clean_double(buff);
-	//std::cout << "buff(clean_double): " << buff << std::endl;
 	int alpha = 0;
 	for(size_t i = 0; i < buff.size(); i++){
 		if(buff[i] == '-' || buff[i] == '+')
@@ -273,7 +268,6 @@ void	Command::parse_mode(){
 		_serv->mode(_fd, channel, "", "");
 	std::string tab, arg;
 	buff = trim(buff, sign[0]);
-	//std::cout << "buff2(trim sign): " << buff << std::endl;
 	for(size_t i = 0; i < buff.size(); i++){
 		if(data.find(buff[i]) != std::string::npos)
 			tab[i] = buff[i];
@@ -284,13 +278,12 @@ void	Command::parse_mode(){
 	}
 	erase(0, save);
 	for(int i = 0; i < alpha; i++){
-		if((tab[i] == 'l' || tab[i] == 'k' || tab[i] == 'o') && sign[0] == '+'){
+		if(((tab[i] == 'l' || tab[i] == 'k') && sign[0] == '+') || tab[i] == 'o'){
+			std::cerr << "ICI" << std::endl;
 			arg = next(' ');
-			std::cout << "arg[" << i << "]: " << arg << std::endl;
 			save = arg.size() + 1;
 			if(arg.empty()){
 				arg = next('\n');
-				std::cout << "arg[" << i << "]: " << arg << std::endl;
 				if(arg.empty()){
 					_serv->mode(_fd, channel, sign + tab[i], "");
 					return ;
@@ -300,7 +293,6 @@ void	Command::parse_mode(){
 			}
 			erase(0, save);
 		}
-		std::cout << "mode: " << sign+ tab[i] << std::endl;
 		_serv->mode(_fd, channel, sign + tab[i], arg);
 	}
 }
