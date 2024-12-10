@@ -6,7 +6,10 @@ Bot::Bot(int port, std::string pass): _port(port), _pass(pass){
 	_shifumi[2] = "scissors";
 }
 
-Bot::~Bot(){}
+Bot::~Bot(){
+	send_msg(QUIT);
+	close(_fd);
+}
 
 void	Bot::send_msg(std::string str){
 	send(_fd, str.c_str(), str.size(), 0);
@@ -48,10 +51,8 @@ void	Bot::treat_cmd(){
 	std::string	data = next(' ');
 	data = trim(data, ':');
 	_target = data;
-	std::cout << "data1: " << data << std::endl;
 	_cmd.erase(0, data.size() + 2);
 	data = next(' ');
-	std::cout << "data2: " << data << std::endl;
 	if(data == "PRIVMSG"){
 		_cmd.erase(0, data.size() + 1);
 		launch_game();
@@ -64,18 +65,20 @@ void	Bot::treat_cmd(){
 
 void	Bot::launch_game(){
 	std::string data = next(' ');
-	std::cout << "data3: " << data << std::endl;
 	if(data.find('#') != std::string::npos)
 		_target = data;
 	_cmd.erase(0, data.size() + 1);
 	data = next(' ');
-	std::cout << "data4: " << data << std::endl;
 	if(data.find(13) != std::string::npos)
 		data = trim(data, 13);
 	if(data.find(10) != std::string::npos)
 		data = trim(data, 10);
 	if(data == "!play")
 		shifumi();
+	if(data == "stop"){
+		g_loop = 0;
+		return;
+	}
 }
 
 void	Bot::invite(){
@@ -101,13 +104,13 @@ std::string	Bot::trim(std::string buff, char c){
 void		Bot::shifumi(){
 	std::string str = "shi..";
 	send_msg(PRIV_MSG(_target, str));
-	usleep(10000);
+	usleep(1000000);
 	str = "fu..";
 	send_msg(PRIV_MSG(_target, str));
-	usleep(10000);
+	usleep(1000000);
 	str = "mi..";
 	send_msg(PRIV_MSG(_target, str));
-	usleep(10000);
+	usleep(1000000);
 	int rmd = rand() % 3;
 	send_msg(PRIV_MSG(_target, _shifumi[rmd]));
 }

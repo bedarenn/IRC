@@ -9,6 +9,7 @@
 # include <sstream>
 # include <ctime>
 # include <map>
+# include <vector>
 # include <algorithm>
 # include <unistd.h>
 
@@ -46,5 +47,7 @@ class Bot{
 # define CREATE_CHAN "JOIN #bot\r\n"
 # define JOIN_CHAN(chan) "JOIN " + chan + "\r\n"
 # define PRIV_MSG(target, str) "PRIVMSG " + target + " " + str + "\r\n"
+# define PART(chan) "bot PART " + chan + "\r\n"
+# define QUIT "QUIT have a good day\r\n"
 
 //# define 
