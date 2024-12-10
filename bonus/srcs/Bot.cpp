@@ -27,10 +27,9 @@ void	Bot::connect_to_serv(){
 
 void	Bot::loop(){
 	ssize_t		size;
-	bool		_priv;
 	char		buff[BUFFER_SIZE];
-
-	while(true){
+	g_loop = 1;
+	while(g_loop){
 		memset(&buff, 0, BUFFER_SIZE);
 		size = recv(_fd, buff, BUFFER_SIZE, 0);
 		if(size == 0)

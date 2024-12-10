@@ -41,7 +41,7 @@ run: re
 	@./ircserv 8080 qwe | cat -e
 
 all: $(NAME)
-bonus: $(NAME)
+bonus: $(NAME_BONUS)
 
 #################################### PHONY #####################################
 .PHONY: all debug clean fclean re

@@ -1,6 +1,7 @@
 #include "Bot.hpp"
 
 int g_loop;
+
 void	set_sig(void);
 
 bool	test_str(const std::string& str){
@@ -35,6 +36,7 @@ int	main(int ac, char **av){
 		if(!parse(av))
 			return (0);
 		Bot bot(atoi(av[1]), av[2]);
+		set_sig();
 		bot.connect_to_serv();
 		bot.loop();
 		return (0);

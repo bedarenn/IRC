@@ -1,2 +1,2 @@
 SRCS = \
-	main.cpp Bot.cpp\
+	main.cpp main_tools.cpp Bot.cpp\
