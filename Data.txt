@@ -1,7 +1,13 @@
-PRIVMSG .add chan
-send (JOIN)
 
-PRIVMSG .ping
-send PONG
+client1 : /join #test
+client2 : PRIVMSG #test coucou
+#Client2 pas dans le chan mais envoie un msg dedans
 
-LEAK?
+regarder d'abord si le client est connecter avant de regarder le pass correct
+
+avis de benoit:
+faut gerer plus de cas d'erreur avec les connexion:
+ meme nickname 
+ nick collision.. (*_*')
+
+voir makefile
