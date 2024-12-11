@@ -44,6 +44,8 @@ class Channel;
 	W_RPL_CHN(clt, nck, s, "432") + ":Erroneus nickname"
 # define W_ERR_NICKNAMEINUSE(clt, nck, s) \
 	W_RPL_CHN(clt, nck, s, "433") + ":Nickname is already in use"
+# define W_ERR_NICKCOLLISION(clt, nck, s) \
+	W_RPL_CHN(clt, nck, s, "436") + ":Nickname is already in use"
 # define W_ERR_USERNOTINCHANNEL(clt, chn, nck, s) \
 	W_RPL_CLT(clt, s, "441") + chn + " " + nck + " :They aren't on that channel"
 # define W_ERR_NOTONCHANNEL(clt, chn, s) \

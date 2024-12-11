@@ -301,16 +301,15 @@ void	Server::new_fd(const w_fd& socket) {
 }
 void	Server::new_client_pass(const w_fd& fd, const std::string pass) {
 	try {
-		if (pass != _pass)
+		if (!_client.at(fd)->connect())
 			_client.at(fd)->send_to_fd(W_ERR_PASSWDMISMATCH(_client.at(fd), _name));
-		else if (!_client.at(fd)->connect())
+		else if (pass != _pass) {
 			_client.at(fd)->send_to_fd(W_ERR_ALREADYREGISTERED(_client.at(fd), _name));
-		else {
-			_client.at(fd)->connect();
-			return ;
+			_client.at(fd)->rm__to_map(_client);
+			close_fd(fd);
 		}
-		_client.at(fd)->rm__to_map(_client);
-		close_fd(fd);
+		else
+			_client.at(fd)->connect();
 	} catch (std::exception& err) {
 		std::cerr << "catch_pass: " << fd << ": " << err.what() << std::endl;
 		return ;
@@ -326,7 +325,12 @@ void	Server::new_client_name(const w_fd& fd, const std::string name) {
 }
 void	Server::new_client_nick(const w_fd& fd, const std::string nick) {
 	try {
-		_client.at(fd)->set_nickname(nick);
+		if (nick.empty())
+			_client.at(fd)->send_to_fd(W_ERR_NONICKNAMEGIVEN(_client.at(fd), _name));
+		else if (get_client(nick) != _client.end())
+			_client.at(fd)->send_to_fd(W_ERR_NICKNAMEINUSE(_client.at(fd), nick, _name));
+		else
+			_client.at(fd)->set_nickname(nick);
 	} catch (std::exception& err) {
 		std::cerr << "catch_nick: " << fd << ": " << err.what() << std::endl;
 		return ;

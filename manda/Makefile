@@ -29,8 +29,8 @@ OBJS = $(addprefix $(DIR_OBJS), $(SRCS:%.cpp=%.o))
 
 #################################### RULES #####################################
 
-debug:
 all:
+debug:
 
 $(NAME): $(OBJS)
 	@printf "$(GREEN)compile $@                                         $(NC)\n"
