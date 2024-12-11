@@ -1,13 +1,40 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 client1 : /join #test
 client2 : PRIVMSG #test coucou
 #Client2 pas dans le chan mais envoie un msg dedans
 
-regarder d'abord si le client est connecter avant de regarder le pass correct
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-avis de benoit:
+regarder d'abord si le client est connecter(W_ERR_ALREADYREGISTERED) avant de regarder le pass correct(W_ERR_PASSWDMISMATCH)
+et si client deja co ne pas le deco apres l'erreur W_ERR_ALREADYREGISTERED.
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+
 faut gerer plus de cas d'erreur avec les connexion:
- meme nickname 
- nick collision.. (*_*')
+- meme nickname 
+- nick collision.. (*_*')
+
+ ERR_NONICKNAMEGIVEN: si le champs est vide, on l'accepte(avec nc);
+
+ ERR_NICKNAMEINUSE: de ce que j'ai vu, quand on envoie ce message hexchat passe
+ 					automatiquement au second nickname donné et si il arrive au dernier
+					et que le probleme n'est pas resolu alors il faut envoyer collision.
+
+436     ERR_NICKCOLLISION
+            "<nick> :Nickname collision KILL"
+
+            - Returned by a server to a client when it detects a
+              nickname collision (registered of a NICK that
+              already exists by another server).
+
+
+j'ai tester sur libera.chat ca donne ca:
+
+*| tortue1 is already in use. Retrying with 2... (2 declenche err:ERR_ERRONEUSNICKNAME)
+*| 2 is erroneous. Retrying with ...
+*| No nickname given
+*| You have not registered
+///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 voir makefile
