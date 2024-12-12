@@ -50,6 +50,7 @@ void	Command::treatement(){
 }
 
 void	Command::erase(int pos, int size){
+	if(!_buff.empty())
 		_buff.erase(pos, size);
 }
 
@@ -88,10 +89,6 @@ void	Command::parse_join(){
 
 	std::string channel, pass;
 	std::string buff = next(' ');
-	// if(buff.empty() || !counter('#', buff)){
-	// 	_serv->join(_fd, "", "");
-	// 	return ;
-	// }
 	if(counter('#', buff) > 1 && counter(',', buff)){
 		multi_join(buff);
 		return ;
@@ -99,13 +96,6 @@ void	Command::parse_join(){
 	channel = buff;
 	erase(0, buff.size() + 1);
 	buff = next(' ');
-	// if(counter('#', buff)){
-	// 		_serv->join(_fd, channel, "");
-	// 		return ;
-	// }
-	// if(counter(',', buff)){
-	// 	buff = trim(buff, ',');
-	// }
 	pass = buff;
 	_serv->join(_fd, channel, pass);
 }
@@ -157,17 +147,9 @@ void	Command::multi_join(std::string buff){
 void	Command::parse_invite(){
 	std::string nickname, channel;
 	std::string buff = next(' ');
-	// if(buff.empty() || counter(',', buff) || counter('#', buff)){
-	// 	_serv->invite(_fd, "", "");
-	// 	return ;
-	// }
 	nickname = buff;
 	erase(0, buff.size() + 1);
 	buff = next(' ');
-	// if(buff.empty() || counter(',', buff) || !counter('#', buff)){
-	// 	_serv->invite(_fd, "", nickname);
-	// 	return ;
-	// }
 	channel = buff;
 	_serv->invite(_fd, channel, nickname);
 } 
@@ -177,21 +159,9 @@ void	Command::parse_invite(){
 void	Command::parse_kick(){
 	std::string nickname, channel, msg = "";
 	std::string buff = next(' ');
- 	// if(buff.empty() || counter(',', buff) || !counter('#', buff)){
-	// 	_serv->kick(_fd, "", "", "");
-	// 	return ;
-	// }
 	channel = buff;
 	erase(0, buff.size() + 1);
 	buff = next(' ');
-	// if(counter('#', buff)){
-	// 	erase(0, buff.size() + 1);
-	// 	buff = next(' ');
-	// }
-	// if(buff.empty() || counter(',', buff) || counter('#', buff)){
-	// 	_serv->kick(_fd, channel, "", "");
-	// 	return ;
-	// }
 	nickname = buff;
 	erase(0, buff.size() + 1);
 	buff = next('\r');
@@ -205,16 +175,9 @@ void	Command::parse_kick(){
 void	Command::parse_topic(){
 	std::string topic, channel;
 	std::string buff = next(' ');
-	// if(buff.empty() || counter(',', buff) || !counter('#', buff)){
-	// 	_serv->topic(_fd, "", "");
-	// 	return ;
-	// }
 	channel = buff;
 	erase(0, buff.size() + 1);
 	buff = next(' ');
-	// if(buff.empty() || counter(',', buff) || counter('#', buff)){
-	// 	_serv->topic(_fd, channel, "");
-	// }
 	topic = trim(buff, ':');
 	_serv->topic(_fd, channel, topic);
 }
@@ -248,8 +211,6 @@ std::string	clean_double(std::string data){
 void	Command::parse_mode(){
 	std::string sign = "", channel, data = "itkol";
 	std::string buff = next(' ');
-	// if(!counter('#', buff))
-	// 	_serv->mode(_fd, "", "", "");
 	channel = buff;	
 	erase(0, buff.size() + 1);
 	buff = next(' ');
