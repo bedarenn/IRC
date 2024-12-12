@@ -19,6 +19,7 @@ public:
 	bool	kick(Client *op, Client *client, const std::string& msg);
 	bool	topic(Client *op, const std::string& value);
 	bool	mode(Client *op, const std::string& md, const std::string& arg);
+	bool	send(Client *client, const std::string& str) const;
 	bool	part(Client *client, const std::string& str);
 	bool	quit(Client *client, const std::string& str);
 

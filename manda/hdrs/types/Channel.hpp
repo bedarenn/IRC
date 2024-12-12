@@ -15,6 +15,8 @@ class Channel;
 
 /* **************** FORMAT_SUCCESS **************** */
 
+# define W_RPL_WELCOME(clt, s) \
+	W_RPL_CLT(clt, s, "001") + ":Welcome to the localhost Network, " + clt->get_nickname()
 # define W_RPL_CHANNELMODEIS_EMPTY(clt, chn, s) \
 	W_RPL_CLT(clt, s, "324") + chn
 # define W_RPL_CHANNELMODEIS(clt, chn, md, s) \
@@ -38,6 +40,12 @@ class Channel;
 	W_RPL_CHN(clt, nck, s, "401") + ":No such nick/channel"
 # define W_ERR_NOSUCHCHANNEL(clt, chn, s) \
 	W_RPL_CHN(clt, chn, s, "403") + ":No such channel"
+# define W_ERR_CANNOTSENDTOCHAN(clt, chn, s) \
+	W_RPL_CHN(clt, chn, s, "404") + ":Cannot send to channel"
+# define W_ERR_NORECIPIENT(clt, cmd, s) \
+	W_RPL_CLT(clt, s, "411") + ":No recipient given (" + cmd + ")"
+# define W_ERR_NOTEXTTOSEND(clt, s) \
+	W_RPL_CLT(clt, s, "412") + ":No text to send"
 # define W_ERR_NONICKNAMEGIVEN(clt, s) \
 	W_RPL_CLT(clt, s, "431") + ":No nickname given"
 # define W_ERR_ERRONEUSNICKNAME(clt, nck, s) \
@@ -91,6 +99,8 @@ class Channel;
 	op->get_nickname() + " MODE " + channel + " " + md + " " + arg
 # define PRIV_MSG(client, target, str) \
 	client->get_nickname() + " PRIVMSG " + target + " " + str
+# define PRIV_MSG_OP(client, target, str) \
+	"@" + client->get_nickname() + " PRIVMSG " + target + " " + str
 # define PONG_MSG(token) \
 	"PONG " + token
 # define QUIT_MSG(client) \

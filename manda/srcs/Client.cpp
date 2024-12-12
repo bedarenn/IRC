@@ -8,7 +8,7 @@
 
 Client::Client() {}
 Client::Client(const w_fd& fd)
-	: _fd(fd), _name("*"), _nickname("*"),
+	: _fd(fd), _name(""), _nickname(""),
 	_is_connect(false), _buff("") {}
 Client::~Client() {}
 Client::Client(const Client& cpy) { *this = cpy; }

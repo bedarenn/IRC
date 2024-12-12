@@ -111,6 +111,17 @@ bool	Channel::mode(Client *op, const std::string& md, const std::string& arg) {
 	}
 	return (mode_pass(op, md, arg));
 }
+bool	Channel::send(Client *client, const std::string& str) const {
+	if (!client->is__in_map(_client)) {
+		client->send_to_fd(W_ERR_CANNOTSENDTOCHAN(client, _name, _server));
+		return (false);
+	}
+	if (client->is__in_map(_op))
+		cast_send(PRIV_MSG_OP(client, _name, str), client);
+	else
+		cast_send(PRIV_MSG(client, _name, str), client);
+	return (true);
+}
 bool	Channel::part(Client *client, const std::string& str) {
 	if (!is_on_channel(client)) {
 		client->send_to_fd(W_ERR_NOTONCHANNEL(client, _name, _server));

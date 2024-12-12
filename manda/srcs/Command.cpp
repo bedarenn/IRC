@@ -50,6 +50,7 @@ void	Command::treatement(){
 }
 
 void	Command::erase(int pos, int size){
+	if (!_buff.empty())
 		_buff.erase(pos, size);
 }
 
@@ -279,7 +280,6 @@ void	Command::parse_mode(){
 	erase(0, save);
 	for(int i = 0; i < alpha; i++){
 		if(((tab[i] == 'l' || tab[i] == 'k') && sign[0] == '+') || tab[i] == 'o'){
-			std::cerr << "ICI" << std::endl;
 			arg = next(' ');
 			save = arg.size() + 1;
 			if(arg.empty()){

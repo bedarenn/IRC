@@ -227,13 +227,24 @@ void	Server::mode(const w_fd& fd, const std::string& channel, const std::string&
 void	Server::send_chan(const w_fd& fd, const std::string& chan, const std::string& str) const {
 	try {
 		Client	*client = get_client(fd);
+
+		if (chan.empty()) {
+			client->send_to_fd(W_ERR_NORECIPIENT(client, "PRIVMSG", _name));
+			return ;
+		}
+		if (str.empty()) {
+			client->send_to_fd(W_ERR_NOTEXTTOSEND(client, _name));
+			return ;
+		}
+
 		w_map_Channel::const_iterator it_channel = _channel.find(chan);
 
 		if (it_channel == _channel.end()) {
 			client->send_to_fd(W_ERR_NOSUCHNICK(client, chan, _name));
 			return ;
 		}
-		it_channel->second.cast_send(PRIV_MSG(client, chan, str), client);
+		
+		it_channel->second.send(client, str);
 	} catch (std::exception& err) {
 		std::cerr << "catch: " << err.what() << std::endl;
 		return ;
@@ -243,7 +254,17 @@ void	Server::send_priv(const w_fd& fd, const std::string& priv, const std::strin
 	try {
 		Client	*client = get_client(fd);
 
+		if (priv.empty()) {
+			client->send_to_fd(W_ERR_NORECIPIENT(client, "PRIVMSG", _name));
+			return ;
+		}
+		if (str.empty()) {
+			client->send_to_fd(W_ERR_NOTEXTTOSEND(client, _name));
+			return ;
+		}
+
 		w_map_Client::const_iterator	it = get_client(priv);
+
 		if (it == _client.end()) {
 			client->send_to_fd(W_ERR_NOSUCHNICK(client, priv, _name));
 			return ;
@@ -301,15 +322,19 @@ void	Server::new_fd(const w_fd& socket) {
 }
 void	Server::new_client_pass(const w_fd& fd, const std::string pass) {
 	try {
-		if (!_client.at(fd)->connect())
-			_client.at(fd)->send_to_fd(W_ERR_PASSWDMISMATCH(_client.at(fd), _name));
+		w_map_Client::const_iterator it = _client.find(fd);
+
+		if (it == _client.end())
+			throw (std::runtime_error("Client Unknown"));
+		if (!it->second->connect())
+			it->second->send_to_fd(W_ERR_ALREADYREGISTERED(it->second, _name));
 		else if (pass != _pass) {
-			_client.at(fd)->send_to_fd(W_ERR_ALREADYREGISTERED(_client.at(fd), _name));
-			_client.at(fd)->rm__to_map(_client);
+			it->second->send_to_fd(W_ERR_PASSWDMISMATCH(it->second, _name));
+			it->second->rm__to_map(_client);
 			close_fd(fd);
 		}
 		else
-			_client.at(fd)->connect();
+			it->second->connect();
 	} catch (std::exception& err) {
 		std::cerr << "catch_pass: " << fd << ": " << err.what() << std::endl;
 		return ;
@@ -317,7 +342,13 @@ void	Server::new_client_pass(const w_fd& fd, const std::string pass) {
 }
 void	Server::new_client_name(const w_fd& fd, const std::string name) {
 	try {
-		_client.at(fd)->set_name(name);
+		w_map_Client::const_iterator it = _client.find(fd);
+
+		if (it == _client.end())
+			throw (std::runtime_error("Client Unknown"));
+		it->second->set_name(name);
+		if (it->second->is_connect())
+			it->second->send_to_fd(W_RPL_WELCOME(it->second, _name));
 	} catch (std::exception& err) {
 		std::cerr << "catch_name: " << fd << ": " << err.what() << std::endl;
 		return ;
@@ -325,12 +356,18 @@ void	Server::new_client_name(const w_fd& fd, const std::string name) {
 }
 void	Server::new_client_nick(const w_fd& fd, const std::string nick) {
 	try {
+		w_map_Client::const_iterator it = _client.find(fd);
+
+		if (it == _client.end())
+			throw (std::runtime_error("Client Unknown"));
 		if (nick.empty())
-			_client.at(fd)->send_to_fd(W_ERR_NONICKNAMEGIVEN(_client.at(fd), _name));
+			it->second->send_to_fd(W_ERR_NONICKNAMEGIVEN(it->second, _name));
 		else if (get_client(nick) != _client.end())
-			_client.at(fd)->send_to_fd(W_ERR_NICKNAMEINUSE(_client.at(fd), nick, _name));
+			it->second->send_to_fd(W_ERR_NICKNAMEINUSE(it->second, nick, _name));
 		else
-			_client.at(fd)->set_nickname(nick);
+			it->second->set_nickname(nick);
+		if (it->second->is_connect())
+			it->second->send_to_fd(W_RPL_WELCOME(it->second, _name));
 	} catch (std::exception& err) {
 		std::cerr << "catch_nick: " << fd << ": " << err.what() << std::endl;
 		return ;
