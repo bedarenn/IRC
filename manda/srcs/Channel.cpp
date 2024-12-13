@@ -175,6 +175,10 @@ bool	Channel::invite_pass(Client *op, const std::string& client) {
 		op->send_to_fd(W_ERR_USERONCHANNEL(op, client, _name, _server));
 		return (false);
 	}
+	w_vect_invite::iterator	it;
+	for (it = _invite.begin(); it != _invite.end() && *it != client; it++) ;
+	if (it != _invite.end())
+		return (false);
 	_invite.push_back(client);
 	return (true);
 }
@@ -341,8 +345,6 @@ bool	Channel::mode_l(Client *op, const std::string& md, const std::string& arg) 
 
 	switch (md[0]) {
 	case '+':
-		if (_r_limit == true)
-			return (false);
 		if (arg.empty()) {
 			op->send_to_fd(W_ERR_INVALIDMODEPARAM(op, _name, "+l", arg, "Not enough parameters", _server));
 			return (false);
