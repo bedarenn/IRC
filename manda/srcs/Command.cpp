@@ -177,7 +177,7 @@ void	Command::parse_topic(){
 	std::string buff = next(' ');
 	channel = buff;
 	erase(0, buff.size() + 1);
-	buff = next('\n');
+	buff = next('\0');
 	topic = trim(buff, ':');
 	_serv->topic(_fd, channel, topic);
 }
