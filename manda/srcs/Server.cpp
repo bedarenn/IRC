@@ -66,7 +66,7 @@ void	Server::event() {
 	size_t	i = 1;
 	while (i < _fds.size()) {
 		if (_fds[i].revents && read(_fds[i].fd) <= 0)
-			rm__client(_fds[i].fd);
+			quit(_fds[i].fd, "");
 		else
 			i++;
 	}
@@ -330,8 +330,7 @@ void	Server::new_client_pass(const w_fd& fd, const std::string pass) {
 			it->second->send_to_fd(W_ERR_ALREADYREGISTERED(it->second, _name));
 		else if (pass != _pass) {
 			it->second->send_to_fd(W_ERR_PASSWDMISMATCH(it->second, _name));
-			it->second->rm__to_map(_client);
-			close_fd(fd);
+			quit(it->second->get_fd(), "");
 		}
 		else
 			it->second->connect();
