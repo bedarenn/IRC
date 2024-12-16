@@ -346,12 +346,10 @@ void	Server::new_client_name(const w_fd& fd, const std::string name) {
 
 		if (it == _client.end())
 			throw (std::runtime_error("Client Unknown"));
-		else if (!it->second->is_connect()) {
+		else if (!it->second->is_connect())
 			it->second->send_to_fd(W_ERR_PASSWDMISSING(_name));
-			rm__client(fd);
-			return ;
-		}
-		it->second->set_name(name);
+		else
+			it->second->set_name(name);
 		if (it->second->full_connect())
 			it->second->send_to_fd(W_RPL_WELCOME(it->second, _name));
 	} catch (std::exception& err) {
@@ -365,12 +363,9 @@ void	Server::new_client_nick(const w_fd& fd, const std::string nick) {
 
 		if (it == _client.end())
 			throw (std::runtime_error("Client Unknown"));
-		else if (!it->second->is_connect()) {
+		else if (!it->second->is_connect())
 			it->second->send_to_fd(W_ERR_PASSWDMISSING(_name));
-			rm__client(fd);
-			return ;
-		}
-		if (nick.empty())
+		else if (nick.empty())
 			it->second->send_to_fd(W_ERR_NONICKNAMEGIVEN(it->second, _name));
 		else if (get_client(nick) != _client.end())
 			it->second->send_to_fd(W_ERR_NICKNAMEINUSE(it->second, nick, _name));
