@@ -25,7 +25,8 @@ public:
 	ssize_t	send_to_fd(const std::string& str) const;
 
 	const w_fd&			get_fd() const;
-	bool				is_connect() const;
+	const bool&			is_connect() const;
+	bool				full_connect() const;
 
 	const std::string&	get_name() const;
 	const std::string&	get_nickname() const;

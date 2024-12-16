@@ -346,8 +346,13 @@ void	Server::new_client_name(const w_fd& fd, const std::string name) {
 
 		if (it == _client.end())
 			throw (std::runtime_error("Client Unknown"));
+		else if (!it->second->is_connect()) {
+			it->second->send_to_fd(W_ERR_PASSWDMISSING(_name));
+			rm__client(fd);
+			return ;
+		}
 		it->second->set_name(name);
-		if (it->second->is_connect())
+		if (it->second->full_connect())
 			it->second->send_to_fd(W_RPL_WELCOME(it->second, _name));
 	} catch (std::exception& err) {
 		std::cerr << "catch_name: " << fd << ": " << err.what() << std::endl;
@@ -360,13 +365,18 @@ void	Server::new_client_nick(const w_fd& fd, const std::string nick) {
 
 		if (it == _client.end())
 			throw (std::runtime_error("Client Unknown"));
+		else if (!it->second->is_connect()) {
+			it->second->send_to_fd(W_ERR_PASSWDMISSING(_name));
+			rm__client(fd);
+			return ;
+		}
 		if (nick.empty())
 			it->second->send_to_fd(W_ERR_NONICKNAMEGIVEN(it->second, _name));
 		else if (get_client(nick) != _client.end())
 			it->second->send_to_fd(W_ERR_NICKNAMEINUSE(it->second, nick, _name));
 		else
 			it->second->set_nickname(nick);
-		if (it->second->is_connect())
+		if (it->second->full_connect())
 			it->second->send_to_fd(W_RPL_WELCOME(it->second, _name));
 	} catch (std::exception& err) {
 		std::cerr << "catch_nick: " << fd << ": " << err.what() << std::endl;
@@ -405,14 +415,14 @@ Client	*Server::get_client(const w_fd& fd) const {
 	w_map_Client::const_iterator	it = _client.find(fd);
 	if (it == _client.end())
 		throw (std::runtime_error("Client Unknown"));
-	else if (!it->second->is_connect())
+	else if (!it->second->full_connect())
 		throw (std::runtime_error("Client Not Connected"));
 	return (it->second);
 }
 const w_map_Client::const_iterator	Server::get_client(const std::string& name) const {
 	w_map_Client::const_iterator	it;
 	for (it = _client.begin(); it != _client.end() && it->second->get_nickname() != name; it++) ;
-	if (it == _client.end() || !it->second->is_connect())
+	if (it == _client.end() || !it->second->full_connect())
 		return (_client.end());
 	return (it);
 }

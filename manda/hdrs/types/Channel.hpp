@@ -66,6 +66,8 @@ class Channel;
 	W_RPL_CLT(clt, s, "462") + ":You may not reregister"
 # define W_ERR_PASSWDMISMATCH(clt, s) \
 	W_RPL_CLT(clt, s, "464") + ":Password incorrect"
+# define W_ERR_PASSWDMISSING(s) \
+	W_RPL(s, "464") + "* :Password required"
 # define W_ERR_CHANNELISFULL(clt, chn, s) \
 	W_RPL_CHN(clt, chn, s, "471") + ":Cannot join channel (+l)"
 # define W_ERR_INVITEONLYCHAN(clt, chn, s) \

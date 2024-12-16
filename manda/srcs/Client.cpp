@@ -67,7 +67,8 @@ bool	Client::read_buff(const std::string& str) {
 }
 
 const w_fd&			Client::get_fd() const { return (_fd); }
-bool				Client::is_connect() const {
+const bool&			Client::is_connect() const	{ return (_is_connect); }
+bool				Client::full_connect() const {
 	if (_name.empty() || _nickname.empty())
 		return (false);
 	return (_is_connect);
