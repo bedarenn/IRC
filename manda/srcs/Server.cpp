@@ -302,11 +302,10 @@ void	Server::quit(const w_fd& fd, const std::string& str) {
 		Client	*client = get_client(fd);
 		for (w_map_Channel::iterator it = _channel.begin(); it != _channel.end(); it++)
 			it->second.quit(client, str);
-		rm__client(fd);
 	} catch (std::exception& err) {
 		std::cerr << "catch: " << err.what() << std::endl;
-		return ;
 	}
+	rm__client(fd);
 }
 
 void	Server::new_fd(const w_fd& socket) {
