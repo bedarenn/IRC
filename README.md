@@ -45,7 +45,7 @@ Commandes implémentées
 Structure du projet
 
     manda/ : Contient le code principal pour l’implémentation de base du serveur IRC.
-    bonus/ : Inclut des fonctionnalités supplémentaires, notamment le bot IRC pour jouer à shifumi.
+    bonus/ : Contient le code du bot IRC pour jouer à shifumi.
     Makefile : Automatisation de la compilation.
     README.md : Documentation du projet.
 
