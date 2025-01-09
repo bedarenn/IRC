@@ -52,7 +52,6 @@ Structure du projet
 
 Améliorations possibles
 
-    Intégration de SSL/TLS pour sécuriser les échanges.
     Implémentation de commandes supplémentaires (banissement, etc.).
     Gestion des logs serveur pour un suivi plus détaillé.
     Ajout de limites de débit pour prévenir les abus.
