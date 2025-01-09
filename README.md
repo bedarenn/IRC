@@ -18,10 +18,9 @@ Le projet inclut également un **bot IRC** capable de jouer à un jeu de shifumi
 
 ## Usage  
 Pour lancer le serveur :  
-bash
 ./ircserv <port> <password>
 
-    <port> : Port sur lequel le serveur écoutera (ex. : 6667).
+    <port> : Port sur lequel le serveur écoutera (ex. : 8080).
     <password> : Mot de passe requis pour que les clients puissent se connecter.
 
 Pour tester, nous recommandons le client IRC HexChat. Configurez-le avec l’adresse et le port de votre serveur pour vous connecter.
