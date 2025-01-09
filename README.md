@@ -18,7 +18,8 @@ Le projet inclut également un **bot IRC** capable de jouer à un jeu de shifumi
 
 ## Usage  
 Pour lancer le serveur :  
-./ircserv <port> <password>
+
+    ./ircserv <port> <password>
 
     <port> : Port sur lequel le serveur écoutera (ex. : 8080).
     <password> : Mot de passe requis pour que les clients puissent se connecter.
